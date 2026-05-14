@@ -30,7 +30,6 @@ const els = {
   subsectionChips: document.querySelector("#subsectionChips"),
   translatedOnly: document.querySelector("#translatedOnly"),
   clearFilters: document.querySelector("#clearFilters"),
-  themeList: document.querySelector("#themeList"),
   entries: document.querySelector("#entries"),
   flashcardToggle: document.querySelector("#flashcardToggle"),
   flashcards: document.querySelector("#flashcards"),
@@ -94,13 +93,6 @@ function renderFlashcardSenses(entry) {
         .join("")}
     </ol>
   `;
-}
-
-function option(value, label) {
-  const node = document.createElement("option");
-  node.value = value;
-  node.textContent = label;
-  return node;
 }
 
 function fillChips(container, values, currentStateKey, firstLabel) {
@@ -191,28 +183,6 @@ function updateFilters() {
 
 function setupFilters() {
   updateFilters();
-}
-
-function renderThemes() {
-  const buttons = state.data.themes.map((theme) => {
-    const button = document.createElement("button");
-    button.className = `themeButton ${state.theme === String(theme.id) ? "active" : ""}`;
-    button.type = "button";
-    const range = theme.pages.length
-      ? `pages ${theme.pages[0]}-${theme.pages.at(-1)}`
-      : "frequency list";
-    button.innerHTML = `
-      <strong>${theme.id}. ${theme.title}</strong>
-      <span>${theme.entry_count.toLocaleString()} words · ${range}</span>
-    `;
-    button.addEventListener("click", () => {
-      state.theme = state.theme === String(theme.id) ? "all" : String(theme.id);
-      resetCardPosition();
-      render();
-    });
-    return button;
-  });
-  els.themeList.replaceChildren(...buttons);
 }
 
 function matchesSearch(entry) {
@@ -373,7 +343,6 @@ function render() {
   updateFilters();
   const entries = getFilteredEntries();
   els.visibleCount.textContent = `${entries.length} shown`;
-  renderThemes();
   renderFlashcards(entries);
   renderEntries(entries);
 }
