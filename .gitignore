@@ -1,0 +1,11 @@
+.DS_Store
+.firebase/
+
+# Generated data and copied media are rebuilt from the raw source archives.
+data/
+site/data/
+site/audio/
+
+# Local packaging scratch.
+.artifacts/
+*.zip
