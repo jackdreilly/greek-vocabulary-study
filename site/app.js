@@ -49,7 +49,7 @@ const normalise = (value) =>
   String(value ?? "")
     .toLocaleLowerCase("el")
     .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "");
+    .replace(/[\u0300-\u036f]/g, "");
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -343,7 +343,6 @@ function updateUrl() {
   const url = queryString ? `?${queryString}` : window.location.pathname;
   window.history.replaceState(null, "", url);
 }
-
 function render() {
   updateFilters();
   const entries = getFilteredEntries();
@@ -351,6 +350,7 @@ function render() {
   renderFlashcards(entries);
   renderEntries(entries);
 }
+
 
 function resetCardPosition() {
   state.flashcardIndex = 0;
