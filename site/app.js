@@ -134,23 +134,56 @@ function displayLabel(value) {
   return labels[value] ?? value;
 }
 
+function getAudioUrl(path) {
+  if (!path) return "";
+  const bucket = "didibros-6d3ed.firebasestorage.app";
+  return `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${encodeURIComponent(path)}?alt=media`;
+}
+
+function updateFilters() {
+  const { entries } = state.data;
+  
+  // 1. Categories available based on current Theme + Search + Translated
+  const entriesForCategory = entries.filter(e => {
+    if (state.theme !== "all" && String(e.theme_id) !== state.theme) return false;
+    if (state.translatedOnly && !e.english) return false;
+    return matchesSearch(e);
+  });
+  const categories = [...new Set(entriesForCategory.map((e) => e.category))].sort();
+  
+  const currentCategory = state.category;
+  fillSelect(els.categoryFilter, categories, "All types");
+  if (categories.includes(currentCategory) || currentCategory === "all") {
+    els.categoryFilter.value = currentCategory;
+  } else {
+    state.category = "all";
+    els.categoryFilter.value = "all";
+  }
+
+  // 2. Subsections available based on current Theme + Category + Search + Translated
+  const entriesForSubsection = entriesForCategory.filter(e => {
+    if (state.category !== "all" && e.category !== state.category) return false;
+    return true;
+  });
+  const subsections = [...new Set(entriesForSubsection.map((e) => e.subsection).filter(Boolean))].sort();
+
+  const currentSubsection = state.subsection;
+  fillSelect(els.subsectionFilter, subsections, "All groups");
+  if (subsections.includes(currentSubsection) || currentSubsection === "all") {
+    els.subsectionFilter.value = currentSubsection;
+  } else {
+    state.subsection = "all";
+    els.subsectionFilter.value = "all";
+  }
+}
+
 function setupFilters() {
-  const { themes, entries } = state.data;
+  const { themes } = state.data;
   els.themeFilter.replaceChildren(option("all", "All topics"));
   themes.forEach((theme) => {
     els.themeFilter.append(option(String(theme.id), `${theme.id}. ${theme.title}`));
   });
-
-  fillSelect(
-    els.categoryFilter,
-    [...new Set(entries.map((entry) => entry.category))],
-    "All types",
-  );
-  fillSelect(
-    els.subsectionFilter,
-    [...new Set(entries.map((entry) => entry.subsection).filter(Boolean))],
-    "All groups",
-  );
+  updateFilters();
 }
 
 function renderThemes() {
@@ -202,6 +235,7 @@ function getFilteredEntries() {
     if (state.theme !== "all" && String(entry.theme_id) !== state.theme) return false;
     if (state.category !== "all" && entry.category !== state.category) return false;
     if (state.subsection !== "all" && entry.subsection !== state.subsection) return false;
+    if (state.translatedOnly && !entry.english) return false;
     return matchesSearch(entry);
   });
 }
@@ -238,7 +272,7 @@ function renderEntries(entries) {
       ? `<span class="tag page">#${entry.frequency_rank}</span>`
       : `<span class="tag page">p. ${entry.page}</span>`;
     const audio = entry.audio_path
-      ? `<button class="audioButton" type="button" data-audio="${escapeHtml(entry.audio_path)}" aria-label="Play pronunciation" title="Play pronunciation">▶</button>`
+      ? `<button class="audioButton" type="button" data-audio="${escapeHtml(getAudioUrl(entry.audio_path))}" aria-label="Play pronunciation" title="Play pronunciation">▶</button>`
       : "";
     card.innerHTML = `
       <div class="entryTopline">
@@ -330,6 +364,7 @@ function updateUrl() {
 }
 
 function render() {
+  updateFilters();
   const entries = getFilteredEntries();
   els.visibleCount.textContent = `${entries.length} shown`;
   renderThemes();
@@ -371,9 +406,10 @@ function toggleCurrentAudio() {
   const entry = state.deck[state.flashcardIndex];
   if (!entry?.audio_path) return;
 
-  if (!state.currentAudio || state.currentAudio.src !== new URL(entry.audio_path, window.location.href).href) {
+  const url = getAudioUrl(entry.audio_path);
+  if (!state.currentAudio || state.currentAudio.src !== url) {
     if (state.currentAudio) state.currentAudio.pause();
-    state.currentAudio = new Audio(entry.audio_path);
+    state.currentAudio = new Audio(url);
   }
 
   if (state.currentAudio.paused) {
@@ -389,7 +425,7 @@ function playCurrentAudioOnce() {
   if (!entry?.audio_path) return;
 
   if (state.currentAudio) state.currentAudio.pause();
-  state.currentAudio = new Audio(entry.audio_path);
+  state.currentAudio = new Audio(getAudioUrl(entry.audio_path));
   state.currentAudio.play().catch(() => {});
 }
 
