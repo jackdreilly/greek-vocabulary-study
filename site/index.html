@@ -21,9 +21,11 @@
 
     <main>
       <section class="controls" aria-label="Study filters">
-        <label>
+        <label class="searchControl">
           Find
-          <input id="search" type="search" placeholder="Greek or English..." />
+          <div class="searchWrapper">
+            <input id="search" type="search" placeholder="Greek or English..." />
+          </div>
         </label>
         <label>
           Topic
@@ -37,10 +39,13 @@
           Group
           <select id="subsectionFilter"></select>
         </label>
-        <label class="toggleControl">
-          <input id="translatedOnly" type="checkbox" checked />
-          Study translated words only
-        </label>
+        <div class="controlActions">
+          <label class="toggleControl">
+            <input id="translatedOnly" type="checkbox" checked />
+            Translated only
+          </label>
+          <button id="clearFilters" class="toolButton" type="button">Clear</button>
+        </div>
       </section>
 
       <section class="layout">

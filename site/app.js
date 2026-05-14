@@ -29,6 +29,7 @@ const els = {
   categoryFilter: document.querySelector("#categoryFilter"),
   subsectionFilter: document.querySelector("#subsectionFilter"),
   translatedOnly: document.querySelector("#translatedOnly"),
+  clearFilters: document.querySelector("#clearFilters"),
   themeList: document.querySelector("#themeList"),
   entries: document.querySelector("#entries"),
   flashcardToggle: document.querySelector("#flashcardToggle"),
@@ -450,6 +451,16 @@ function bindEvents() {
   els.translatedOnly.addEventListener("change", (event) => {
     state.translatedOnly = event.target.checked;
     resetCardPosition();
+    render();
+  });
+  els.clearFilters.addEventListener("click", () => {
+    state.theme = "all";
+    state.category = "all";
+    state.subsection = "all";
+    state.search = "";
+    state.translatedOnly = true;
+    resetCardPosition();
+    syncUiWithState();
     render();
   });
   els.flashcardToggle.addEventListener("click", () => {
