@@ -25,11 +25,11 @@ const els = {
   shortcutsDialog: document.querySelector("#shortcutsDialog"),
   shortcutsClose: document.querySelector("#shortcutsClose"),
   search: document.querySelector("#search"),
-  themeChips: document.querySelector("#themeChips"),
-  categoryChips: document.querySelector("#categoryChips"),
-  subsectionChips: document.querySelector("#subsectionChips"),
+  themeFilter: document.querySelector("#themeFilter"),
+  categoryFilter: document.querySelector("#categoryFilter"),
+  subsectionFilter: document.querySelector("#subsectionFilter"),
   translatedOnly: document.querySelector("#translatedOnly"),
-  clearFilters: document.querySelector("#clearFilters"),
+  themeList: document.querySelector("#themeList"),
   entries: document.querySelector("#entries"),
   flashcardToggle: document.querySelector("#flashcardToggle"),
   flashcards: document.querySelector("#flashcards"),
@@ -49,7 +49,7 @@ const normalise = (value) =>
   String(value ?? "")
     .toLocaleLowerCase("el")
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
+    .replace(/\p{Diacritic}/gu, "");
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -95,29 +95,16 @@ function renderFlashcardSenses(entry) {
   `;
 }
 
-function fillChips(container, values, currentStateKey, firstLabel) {
-  const chips = [
-    { value: "all", label: firstLabel }
-  ].concat(values.map(v => ({ value: v, label: displayLabel(v) })));
+function option(value, label) {
+  const node = document.createElement("option");
+  node.value = value;
+  node.textContent = label;
+  return node;
+}
 
-  const nodes = chips.map(chip => {
-    const node = document.createElement("button");
-    node.type = "button";
-    const isActive = state[currentStateKey] === String(chip.value);
-    node.className = `chip ${isActive ? "active" : ""}`;
-    node.textContent = chip.label;
-    node.addEventListener("click", () => {
-      if (chip.value === "all") {
-        state[currentStateKey] = "all";
-      } else {
-        state[currentStateKey] = state[currentStateKey] === String(chip.value) ? "all" : String(chip.value);
-      }
-      resetCardPosition();
-      render();
-    });
-    return node;
-  });
-  container.replaceChildren(...nodes);
+function fillSelect(select, values, firstLabel) {
+  select.replaceChildren(option("all", firstLabel));
+  values.forEach((value) => select.append(option(value, displayLabel(value))));
 }
 
 function displayLabel(value) {
@@ -154,7 +141,7 @@ function getAudioUrl(path) {
 }
 
 function updateFilters() {
-  const { entries, themes } = state.data;
+  const { entries } = state.data;
 
   const matchesExcluding = (entry, exclude) => {
     if (exclude !== "theme" && state.theme !== "all" && String(entry.theme_id) !== state.theme) return false;
@@ -165,29 +152,58 @@ function updateFilters() {
     return true;
   };
 
-  // 1. Themes
-  const themeValues = themes.map(t => String(t.id));
-  fillChips(els.themeChips, themeValues, "theme", "All topics");
-
-  // 2. Categories
+  // 1. Categories: filter by theme, subsection, translated, search
   const categories = [...new Set(entries.filter(e => matchesExcluding(e, "category")).map(e => e.category))].sort();
-  fillChips(els.categoryChips, categories, "category", "All types");
-  if (state.category !== "all" && !categories.includes(state.category)) {
+  const prevCategory = state.category;
+  fillSelect(els.categoryFilter, categories, "All types");
+  if (prevCategory !== "all" && !categories.includes(prevCategory)) {
     state.category = "all";
-    fillChips(els.categoryChips, categories, "category", "All types");
   }
+  els.categoryFilter.value = state.category;
 
-  // 3. Subsections
+  // 2. Subsections: filter by theme, category, translated, search
   const subsections = [...new Set(entries.filter(e => matchesExcluding(e, "subsection")).map(e => e.subsection).filter(Boolean))].sort();
-  fillChips(els.subsectionChips, subsections, "subsection", "All groups");
-  if (state.subsection !== "all" && !subsections.includes(state.subsection)) {
+  const prevSubsection = state.subsection;
+  fillSelect(els.subsectionFilter, subsections, "All groups");
+  if (prevSubsection !== "all" && !subsections.includes(prevSubsection)) {
     state.subsection = "all";
-    fillChips(els.subsectionChips, subsections, "subsection", "All groups");
   }
+  els.subsectionFilter.value = state.subsection;
+
+  // 3. Optional: themes (though we usually keep them all visible in the list, 
+  // maybe we could dim or hide those with 0 hits in the list too?)
 }
 
 function setupFilters() {
+  const { themes } = state.data;
+  els.themeFilter.replaceChildren(option("all", "All topics"));
+  themes.forEach((theme) => {
+    els.themeFilter.append(option(String(theme.id), `${theme.id}. ${theme.title}`));
+  });
   updateFilters();
+}
+
+function renderThemes() {
+  const buttons = state.data.themes.map((theme) => {
+    const button = document.createElement("button");
+    button.className = `themeButton ${state.theme === String(theme.id) ? "active" : ""}`;
+    button.type = "button";
+    const range = theme.pages.length
+      ? `pages ${theme.pages[0]}-${theme.pages.at(-1)}`
+      : "frequency list";
+    button.innerHTML = `
+      <strong>${theme.id}. ${theme.title}</strong>
+      <span>${theme.entry_count.toLocaleString()} words · ${range}</span>
+    `;
+    button.addEventListener("click", () => {
+      state.theme = state.theme === String(theme.id) ? "all" : String(theme.id);
+      els.themeFilter.value = state.theme;
+      resetCardPosition();
+      render();
+    });
+    return button;
+  });
+  els.themeList.replaceChildren(...buttons);
 }
 
 function matchesSearch(entry) {
@@ -343,14 +359,15 @@ function updateUrl() {
   const url = queryString ? `?${queryString}` : window.location.pathname;
   window.history.replaceState(null, "", url);
 }
+
 function render() {
   updateFilters();
   const entries = getFilteredEntries();
   els.visibleCount.textContent = `${entries.length} shown`;
+  renderThemes();
   renderFlashcards(entries);
   renderEntries(entries);
 }
-
 
 function resetCardPosition() {
   state.flashcardIndex = 0;
@@ -415,19 +432,24 @@ function bindEvents() {
     resetCardPosition();
     render();
   });
-  els.translatedOnly.addEventListener("change", (event) => {
-    state.translatedOnly = event.target.checked;
+  els.themeFilter.addEventListener("change", (event) => {
+    state.theme = event.target.value;
     resetCardPosition();
     render();
   });
-  els.clearFilters.addEventListener("click", () => {
-    state.theme = "all";
-    state.category = "all";
-    state.subsection = "all";
-    state.search = "";
-    state.translatedOnly = true;
+  els.categoryFilter.addEventListener("change", (event) => {
+    state.category = event.target.value;
     resetCardPosition();
-    syncUiWithState();
+    render();
+  });
+  els.subsectionFilter.addEventListener("change", (event) => {
+    state.subsection = event.target.value;
+    resetCardPosition();
+    render();
+  });
+  els.translatedOnly.addEventListener("change", (event) => {
+    state.translatedOnly = event.target.checked;
+    resetCardPosition();
     render();
   });
   els.flashcardToggle.addEventListener("click", () => {
@@ -520,20 +542,22 @@ function loadStateFromUrl() {
 
 function syncUiWithState() {
   els.search.value = state.search;
+  els.themeFilter.value = state.theme;
+  els.categoryFilter.value = state.category;
+  els.subsectionFilter.value = state.subsection;
   els.translatedOnly.checked = state.translatedOnly;
 }
 
 async function init() {
   const bucket = "didibros-6d3ed.firebasestorage.app";
   const prodDataUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/data%2Flexilogio.json?alt=media`;
-
+  
   const params = new URLSearchParams(window.location.search);
   const useProdData = params.has("prod");
   const dataUrl = useProdData ? prodDataUrl : "data/lexilogio.json";
-
+    
   const response = await fetch(dataUrl);
   state.data = await response.json();
-
   els.entryCount.textContent = state.data.entries.length.toLocaleString();
   els.translationCount.textContent = state.data.entries
     .filter((entry) => entry.english)

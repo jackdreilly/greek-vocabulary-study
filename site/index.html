@@ -7,103 +7,130 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <header class="compactHeader">
-      <div class="brand">
-        <h1>Greek Vocabulary</h1>
-        <div class="globalStats">
-          <span id="entryCount">0</span> words · <span id="translationCount">0</span> meanings
-        </div>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Greek vocabulary</p>
+        <h1>Study Greek words</h1>
       </div>
-      <div class="headerActions">
-        <button id="shortcutsToggle" class="iconHelpButton" type="button" aria-label="Keyboard shortcuts" title="Keyboard shortcuts">?</button>
-        <button id="flashcardToggle" class="actionButton" type="button">Study cards</button>
+      <div class="stats" aria-label="Collection summary">
+        <span><strong id="entryCount">0</strong> words</span>
+        <span><strong id="translationCount">0</strong> meanings</span>
+        <span><strong id="audioCount">0</strong> pronunciations</span>
       </div>
     </header>
 
     <main>
-      <section class="controlsPanel" aria-label="Study filters">
-        <div class="searchRow">
-          <div class="searchContainer">
-            <input id="search" type="search" placeholder="Search words..." />
-            <button id="clearFilters" class="clearButton" type="button" title="Reset all">×</button>
-          </div>
-          <label class="pithyToggle">
-            <input id="translatedOnly" type="checkbox" checked />
-            <span>Translated only</span>
-          </label>
-          <div id="visibleCount" class="countBadge">0 shown</div>
-        </div>
-
-        <div class="chipMatrix">
-          <div class="chipRow">
-            <span class="rowLabel">Topics</span>
-            <div id="themeChips" class="chipScroll"></div>
-          </div>
-          <div class="chipRow">
-            <span class="rowLabel">Types</span>
-            <div id="categoryChips" class="chipScroll"></div>
-          </div>
-          <div class="chipRow">
-            <span class="rowLabel">Groups</span>
-            <div id="subsectionChips" class="chipScroll"></div>
-          </div>
-        </div>
+      <section class="controls" aria-label="Study filters">
+        <label>
+          Find
+          <input id="search" type="search" placeholder="Greek or English..." />
+        </label>
+        <label>
+          Topic
+          <select id="themeFilter"></select>
+        </label>
+        <label>
+          Type
+          <select id="categoryFilter"></select>
+        </label>
+        <label>
+          Group
+          <select id="subsectionFilter"></select>
+        </label>
+        <label class="toggleControl">
+          <input id="translatedOnly" type="checkbox" checked />
+          Study translated words only
+        </label>
       </section>
 
-      <section class="workspace">
-        <section id="flashcards" class="flashcards" hidden>
-          <div class="flashcardToolbar">
-            <span id="deckCount">0 cards</span>
-            <div class="flashcardButtons">
-              <button id="shuffleDeck" class="toolButton" type="button">Shuffle</button>
-              <button id="prevCard" class="toolButton" type="button">Prev</button>
-              <button id="flipCard" class="toolButton primary" type="button">Flip</button>
-              <button id="nextCard" class="toolButton" type="button">Next</button>
+      <section class="layout">
+        <aside class="themePanel" aria-label="Theme overview">
+          <h2>Topics</h2>
+          <div id="themeList" class="themeList"></div>
+        </aside>
+
+        <section class="results" aria-live="polite">
+          <div class="resultHeader">
+            <h2>Words</h2>
+            <div class="resultActions">
+              <span id="visibleCount">0 shown</span>
+              <button id="shortcutsToggle" class="iconHelpButton" type="button" aria-label="Keyboard shortcuts" title="Keyboard shortcuts">?</button>
+              <button id="flashcardToggle" class="actionButton" type="button">Study cards</button>
             </div>
           </div>
-          <button id="studyCard" class="studyCard" type="button" aria-live="polite">
-            <span id="cardSide" class="cardSide">Greek</span>
-            <strong id="cardPrompt"></strong>
-            <span id="cardAnswer"></span>
-            <small id="cardMeta"></small>
-          </button>
+          <section id="flashcards" class="flashcards" hidden>
+            <div class="flashcardToolbar">
+              <span id="deckCount">0 cards</span>
+              <div class="flashcardButtons">
+                <button id="shuffleDeck" class="toolButton" type="button">Shuffle</button>
+                <button id="prevCard" class="toolButton" type="button">Prev</button>
+                <button id="flipCard" class="toolButton primary" type="button">Flip</button>
+                <button id="nextCard" class="toolButton" type="button">Next</button>
+              </div>
+            </div>
+            <button id="studyCard" class="studyCard" type="button" aria-live="polite">
+              <span id="cardSide" class="cardSide">Greek</span>
+              <strong id="cardPrompt"></strong>
+              <span id="cardAnswer"></span>
+              <small id="cardMeta"></small>
+            </button>
+          </section>
+          <div id="entries" class="entryGrid"></div>
         </section>
-        
-        <div id="entries" class="entryGrid"></div>
       </section>
 
-      <footer class="compactFooter">
+      <section class="approach" id="approach">
         <details>
           <summary>About this collection</summary>
-          <div class="approachGrid">
-            <article>
-              <h4>Topic lists</h4>
-              <p>Everyday areas like family, home, travel, and plants.</p>
-            </article>
-            <article>
-              <h4>Top words</h4>
-              <p>The Top 5000 topic adds a frequency-style review list.</p>
-            </article>
-            <article>
-              <h4>Pronunciation</h4>
-              <p>Words with audio have a compact play button. <span id="audioCount">0</span> available.</p>
-            </article>
-          </div>
+        <div>
+          <p class="eyebrow">Collection notes</p>
+          <h2>What's included</h2>
+        </div>
+        <div class="approachGrid">
+          <article>
+            <h3>Topic lists</h3>
+            <p>
+              The themed lists cover everyday areas like family, home, school,
+              work, food, travel, health, animals, and plants.
+            </p>
+          </article>
+          <article>
+            <h3>Top words</h3>
+            <p>
+              The Top 5000 topic adds a frequency-style word list, useful for
+              quick review and pronunciation practice.
+            </p>
+          </article>
+          <article>
+            <h3>Meanings</h3>
+            <p>
+              Many words include several English meanings. Study cards show
+              those meanings as separate lines, with the most direct one first.
+            </p>
+          </article>
+          <article>
+            <h3>Pronunciation</h3>
+            <p>
+              Words with audio have a compact play button. Audio loads only
+              when you ask for it, so browsing stays fast.
+            </p>
+          </article>
+        </div>
         </details>
-      </footer>
+      </section>
     </main>
 
     <dialog id="shortcutsDialog" class="shortcutsDialog">
       <div class="dialogHeader">
-        <h2>Shortcuts</h2>
-        <button id="shortcutsClose" class="iconHelpButton" type="button">×</button>
+        <h2>Keyboard shortcuts</h2>
+        <button id="shortcutsClose" class="iconHelpButton" type="button" aria-label="Close">×</button>
       </div>
       <dl class="shortcutList">
-        <div><dt>S</dt><dd>Toggle study cards</dd></div>
-        <div><dt>Shift+S</dt><dd>Shuffle set</dd></div>
-        <div><dt>A</dt><dd>Pronounce</dd></div>
-        <div><dt>← / →</dt><dd>Prev / Next</dd></div>
-        <div><dt>Space</dt><dd>Flip card</dd></div>
+        <div><dt>S</dt><dd>Open or hide study cards</dd></div>
+        <div><dt>Shift + S</dt><dd>Shuffle the current study set</dd></div>
+        <div><dt>A</dt><dd>Play or pause pronunciation</dd></div>
+        <div><dt>← / →</dt><dd>Previous or next card</dd></div>
+        <div><dt>Space / Enter</dt><dd>Flip the card</dd></div>
       </dl>
     </dialog>
 
