@@ -142,39 +142,36 @@ function getAudioUrl(path) {
 
 function updateFilters() {
   const { entries } = state.data;
-  
-  // 1. Categories available based on current Theme + Search + Translated
-  const entriesForCategory = entries.filter(e => {
-    if (state.theme !== "all" && String(e.theme_id) !== state.theme) return false;
-    if (state.translatedOnly && !e.english) return false;
-    return matchesSearch(e);
-  });
-  const categories = [...new Set(entriesForCategory.map((e) => e.category))].sort();
-  
-  const currentCategory = state.category;
-  fillSelect(els.categoryFilter, categories, "All types");
-  if (categories.includes(currentCategory) || currentCategory === "all") {
-    els.categoryFilter.value = currentCategory;
-  } else {
-    state.category = "all";
-    els.categoryFilter.value = "all";
-  }
 
-  // 2. Subsections available based on current Theme + Category + Search + Translated
-  const entriesForSubsection = entriesForCategory.filter(e => {
-    if (state.category !== "all" && e.category !== state.category) return false;
+  const matchesExcluding = (entry, exclude) => {
+    if (exclude !== "theme" && state.theme !== "all" && String(entry.theme_id) !== state.theme) return false;
+    if (exclude !== "category" && state.category !== "all" && entry.category !== state.category) return false;
+    if (exclude !== "subsection" && state.subsection !== "all" && entry.subsection !== state.subsection) return false;
+    if (exclude !== "translatedOnly" && state.translatedOnly && !entry.english) return false;
+    if (exclude !== "search" && !matchesSearch(entry)) return false;
     return true;
-  });
-  const subsections = [...new Set(entriesForSubsection.map((e) => e.subsection).filter(Boolean))].sort();
+  };
 
-  const currentSubsection = state.subsection;
-  fillSelect(els.subsectionFilter, subsections, "All groups");
-  if (subsections.includes(currentSubsection) || currentSubsection === "all") {
-    els.subsectionFilter.value = currentSubsection;
-  } else {
-    state.subsection = "all";
-    els.subsectionFilter.value = "all";
+  // 1. Categories: filter by theme, subsection, translated, search
+  const categories = [...new Set(entries.filter(e => matchesExcluding(e, "category")).map(e => e.category))].sort();
+  const prevCategory = state.category;
+  fillSelect(els.categoryFilter, categories, "All types");
+  if (prevCategory !== "all" && !categories.includes(prevCategory)) {
+    state.category = "all";
   }
+  els.categoryFilter.value = state.category;
+
+  // 2. Subsections: filter by theme, category, translated, search
+  const subsections = [...new Set(entries.filter(e => matchesExcluding(e, "subsection")).map(e => e.subsection).filter(Boolean))].sort();
+  const prevSubsection = state.subsection;
+  fillSelect(els.subsectionFilter, subsections, "All groups");
+  if (prevSubsection !== "all" && !subsections.includes(prevSubsection)) {
+    state.subsection = "all";
+  }
+  els.subsectionFilter.value = state.subsection;
+
+  // 3. Optional: themes (though we usually keep them all visible in the list, 
+  // maybe we could dim or hide those with 0 hits in the list too?)
 }
 
 function setupFilters() {
