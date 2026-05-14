@@ -524,15 +524,16 @@ function syncUiWithState() {
 }
 
 async function init() {
+  const bucket = "didibros-6d3ed.firebasestorage.app";
+  const prodDataUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/data%2Flexilogio.json?alt=media`;
+
   const params = new URLSearchParams(window.location.search);
   const useProdData = params.has("prod");
-  const dataUrl = useProdData 
-    ? "https://didibros-6d3ed-greek-vocab.web.app/data/lexilogio.json"
-    : "data/lexilogio.json";
+  const dataUrl = useProdData ? prodDataUrl : "data/lexilogio.json";
 
-    
   const response = await fetch(dataUrl);
   state.data = await response.json();
+
   els.entryCount.textContent = state.data.entries.length.toLocaleString();
   els.translationCount.textContent = state.data.entries
     .filter((entry) => entry.english)
