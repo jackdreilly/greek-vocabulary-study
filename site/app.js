@@ -308,6 +308,25 @@ function renderFlashcards(filteredEntries) {
   `;
   const location = entry.frequency_rank ? `#${entry.frequency_rank}` : `p. ${entry.page}`;
   els.cardMeta.textContent = `${state.flashcardIndex + 1} / ${state.deck.length.toLocaleString()} · ${entry.theme} · ${location}`;
+
+  updateUrl();
+}
+
+function updateUrl() {
+  const params = new URLSearchParams();
+  if (state.theme !== "all") params.set("theme", state.theme);
+  if (state.category !== "all") params.set("cat", state.category);
+  if (state.subsection !== "all") params.set("sub", state.subsection);
+  if (state.search) params.set("q", state.search);
+  if (!state.translatedOnly) params.set("all", "1");
+  if (state.flashcardsOpen) {
+    params.set("mode", "cards");
+    if (state.flashcardIndex > 0) params.set("card", state.flashcardIndex + 1);
+  }
+
+  const queryString = params.toString();
+  const url = queryString ? `?${queryString}` : window.location.pathname;
+  window.history.replaceState(null, "", url);
 }
 
 function render() {
@@ -474,6 +493,28 @@ function bindEvents() {
   });
 }
 
+function loadStateFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  state.theme = params.get("theme") || "all";
+  state.category = params.get("cat") || "all";
+  state.subsection = params.get("sub") || "all";
+  state.search = params.get("q") || "";
+  state.translatedOnly = !params.has("all");
+  state.flashcardsOpen = params.get("mode") === "cards";
+  const cardIndex = parseInt(params.get("card"), 10);
+  if (!isNaN(cardIndex)) {
+    state.flashcardIndex = Math.max(0, cardIndex - 1);
+  }
+}
+
+function syncUiWithState() {
+  els.search.value = state.search;
+  els.themeFilter.value = state.theme;
+  els.categoryFilter.value = state.category;
+  els.subsectionFilter.value = state.subsection;
+  els.translatedOnly.checked = state.translatedOnly;
+}
+
 async function init() {
   const response = await fetch("data/lexilogio.json");
   state.data = await response.json();
@@ -484,7 +525,10 @@ async function init() {
   els.audioCount.textContent = state.data.entries
     .filter((entry) => entry.audio_available)
     .length.toLocaleString();
+  
+  loadStateFromUrl();
   setupFilters();
+  syncUiWithState();
   bindEvents();
   render();
 }
