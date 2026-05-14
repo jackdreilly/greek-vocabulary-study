@@ -519,7 +519,13 @@ function syncUiWithState() {
 }
 
 async function init() {
-  const response = await fetch("data/lexilogio.json");
+  const params = new URLSearchParams(window.location.search);
+  const useProdData = params.has("prod");
+  const dataUrl = useProdData 
+    ? "https://didibros-6d3ed-greek-vocab.web.app/data/lexilogio.json"
+    : "data/lexilogio.json";
+    
+  const response = await fetch(dataUrl);
   state.data = await response.json();
   els.entryCount.textContent = state.data.entries.length.toLocaleString();
   els.translationCount.textContent = state.data.entries

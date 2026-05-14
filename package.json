@@ -1,0 +1,12 @@
+{
+  "name": "greek-vocabulary-study",
+  "version": "1.0.0",
+  "description": "Greek vocabulary study application",
+  "scripts": {
+    "dev": "browser-sync start --server 'site' --files 'site/*.js, site/*.css, site/*.html'",
+    "deploy": "npx firebase-tools deploy --only hosting,storage --project didibros-6d3ed --non-interactive"
+  },
+  "devDependencies": {
+    "browser-sync": "^3.0.0"
+  }
+}
