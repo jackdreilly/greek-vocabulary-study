@@ -103,10 +103,15 @@ function fillChips(container, values, currentStateKey, firstLabel) {
   const nodes = chips.map(chip => {
     const node = document.createElement("button");
     node.type = "button";
-    node.className = `chip ${state[currentStateKey] === String(chip.value) ? "active" : ""}`;
+    const isActive = state[currentStateKey] === String(chip.value);
+    node.className = `chip ${isActive ? "active" : ""}`;
     node.textContent = chip.label;
     node.addEventListener("click", () => {
-      state[currentStateKey] = state[currentStateKey] === String(chip.value) ? "all" : String(chip.value);
+      if (chip.value === "all") {
+        state[currentStateKey] = "all";
+      } else {
+        state[currentStateKey] = state[currentStateKey] === String(chip.value) ? "all" : String(chip.value);
+      }
       resetCardPosition();
       render();
     });
