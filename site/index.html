@@ -21,30 +21,30 @@
 
     <main>
       <section class="controls" aria-label="Study filters">
-        <label class="searchControl">
-          Find
+        <div class="searchArea">
           <div class="searchWrapper">
-            <input id="search" type="search" placeholder="Greek or English..." />
+            <input id="search" type="search" placeholder="Search Greek or English words..." />
+            <button id="clearFilters" class="clearButton" type="button" title="Clear all filters">×</button>
           </div>
-        </label>
-        <label>
-          Topic
-          <select id="themeFilter"></select>
-        </label>
-        <label>
-          Type
-          <select id="categoryFilter"></select>
-        </label>
-        <label>
-          Group
-          <select id="subsectionFilter"></select>
-        </label>
-        <div class="controlActions">
-          <label class="toggleControl">
+          <label class="modernToggle">
             <input id="translatedOnly" type="checkbox" checked />
-            Translated only
+            <span class="toggleLabel">Translated only</span>
           </label>
-          <button id="clearFilters" class="toolButton" type="button">Clear</button>
+        </div>
+
+        <div class="filterGroups">
+          <div class="filterSection">
+            <span class="filterLabel">Topic</span>
+            <div id="themeChips" class="chipGrid"></div>
+          </div>
+          <div class="filterSection">
+            <span class="filterLabel">Type</span>
+            <div id="categoryChips" class="chipGrid"></div>
+          </div>
+          <div class="filterSection">
+            <span class="filterLabel">Group</span>
+            <div id="subsectionChips" class="chipGrid"></div>
+          </div>
         </div>
       </section>
 

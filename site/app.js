@@ -25,9 +25,9 @@ const els = {
   shortcutsDialog: document.querySelector("#shortcutsDialog"),
   shortcutsClose: document.querySelector("#shortcutsClose"),
   search: document.querySelector("#search"),
-  themeFilter: document.querySelector("#themeFilter"),
-  categoryFilter: document.querySelector("#categoryFilter"),
-  subsectionFilter: document.querySelector("#subsectionFilter"),
+  themeChips: document.querySelector("#themeChips"),
+  categoryChips: document.querySelector("#categoryChips"),
+  subsectionChips: document.querySelector("#subsectionChips"),
   translatedOnly: document.querySelector("#translatedOnly"),
   clearFilters: document.querySelector("#clearFilters"),
   themeList: document.querySelector("#themeList"),
@@ -103,9 +103,24 @@ function option(value, label) {
   return node;
 }
 
-function fillSelect(select, values, firstLabel) {
-  select.replaceChildren(option("all", firstLabel));
-  values.forEach((value) => select.append(option(value, displayLabel(value))));
+function fillChips(container, values, currentStateKey, firstLabel) {
+  const chips = [
+    { value: "all", label: firstLabel }
+  ].concat(values.map(v => ({ value: v, label: displayLabel(v) })));
+
+  const nodes = chips.map(chip => {
+    const node = document.createElement("button");
+    node.type = "button";
+    node.className = `chip ${state[currentStateKey] === String(chip.value) ? "active" : ""}`;
+    node.textContent = chip.label;
+    node.addEventListener("click", () => {
+      state[currentStateKey] = state[currentStateKey] === String(chip.value) ? "all" : String(chip.value);
+      resetCardPosition();
+      render();
+    });
+    return node;
+  });
+  container.replaceChildren(...nodes);
 }
 
 function displayLabel(value) {
@@ -142,7 +157,7 @@ function getAudioUrl(path) {
 }
 
 function updateFilters() {
-  const { entries } = state.data;
+  const { entries, themes } = state.data;
 
   const matchesExcluding = (entry, exclude) => {
     if (exclude !== "theme" && state.theme !== "all" && String(entry.theme_id) !== state.theme) return false;
@@ -153,34 +168,28 @@ function updateFilters() {
     return true;
   };
 
-  // 1. Categories: filter by theme, subsection, translated, search
+  // 1. Themes
+  const themeValues = themes.map(t => String(t.id));
+  fillChips(els.themeChips, themeValues, "theme", "All topics");
+
+  // 2. Categories
   const categories = [...new Set(entries.filter(e => matchesExcluding(e, "category")).map(e => e.category))].sort();
-  const prevCategory = state.category;
-  fillSelect(els.categoryFilter, categories, "All types");
-  if (prevCategory !== "all" && !categories.includes(prevCategory)) {
+  fillChips(els.categoryChips, categories, "category", "All types");
+  if (state.category !== "all" && !categories.includes(state.category)) {
     state.category = "all";
+    fillChips(els.categoryChips, categories, "category", "All types");
   }
-  els.categoryFilter.value = state.category;
 
-  // 2. Subsections: filter by theme, category, translated, search
+  // 3. Subsections
   const subsections = [...new Set(entries.filter(e => matchesExcluding(e, "subsection")).map(e => e.subsection).filter(Boolean))].sort();
-  const prevSubsection = state.subsection;
-  fillSelect(els.subsectionFilter, subsections, "All groups");
-  if (prevSubsection !== "all" && !subsections.includes(prevSubsection)) {
+  fillChips(els.subsectionChips, subsections, "subsection", "All groups");
+  if (state.subsection !== "all" && !subsections.includes(state.subsection)) {
     state.subsection = "all";
+    fillChips(els.subsectionChips, subsections, "subsection", "All groups");
   }
-  els.subsectionFilter.value = state.subsection;
-
-  // 3. Optional: themes (though we usually keep them all visible in the list, 
-  // maybe we could dim or hide those with 0 hits in the list too?)
 }
 
 function setupFilters() {
-  const { themes } = state.data;
-  els.themeFilter.replaceChildren(option("all", "All topics"));
-  themes.forEach((theme) => {
-    els.themeFilter.append(option(String(theme.id), `${theme.id}. ${theme.title}`));
-  });
   updateFilters();
 }
 
@@ -198,7 +207,6 @@ function renderThemes() {
     `;
     button.addEventListener("click", () => {
       state.theme = state.theme === String(theme.id) ? "all" : String(theme.id);
-      els.themeFilter.value = state.theme;
       resetCardPosition();
       render();
     });
@@ -433,21 +441,6 @@ function bindEvents() {
     resetCardPosition();
     render();
   });
-  els.themeFilter.addEventListener("change", (event) => {
-    state.theme = event.target.value;
-    resetCardPosition();
-    render();
-  });
-  els.categoryFilter.addEventListener("change", (event) => {
-    state.category = event.target.value;
-    resetCardPosition();
-    render();
-  });
-  els.subsectionFilter.addEventListener("change", (event) => {
-    state.subsection = event.target.value;
-    resetCardPosition();
-    render();
-  });
   els.translatedOnly.addEventListener("change", (event) => {
     state.translatedOnly = event.target.checked;
     resetCardPosition();
@@ -553,9 +546,6 @@ function loadStateFromUrl() {
 
 function syncUiWithState() {
   els.search.value = state.search;
-  els.themeFilter.value = state.theme;
-  els.categoryFilter.value = state.category;
-  els.subsectionFilter.value = state.subsection;
   els.translatedOnly.checked = state.translatedOnly;
 }
 
