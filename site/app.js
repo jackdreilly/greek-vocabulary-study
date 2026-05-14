@@ -529,6 +529,7 @@ async function init() {
   const dataUrl = useProdData 
     ? "https://didibros-6d3ed-greek-vocab.web.app/data/lexilogio.json"
     : "data/lexilogio.json";
+
     
   const response = await fetch(dataUrl);
   state.data = await response.json();
