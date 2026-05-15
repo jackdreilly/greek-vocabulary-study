@@ -79,41 +79,55 @@ async function scrape() {
     const isBackfill = entry.image?.source === "pexels" && !entry.image.url?.includes("storage.googleapis.com");
 
     if (isBackfill) {
-      console.log(`[BACKFILLING] ${entry.lemma} (Pexels ID: ${entry.image.pexels_id})`);
-      // Use existing metadata for backfill
-      photo = {
-        id: entry.image.pexels_id,
-        src: { medium: entry.image.thumbnail || entry.image.url },
-        photographer: entry.image.creator,
-        url: entry.image.landing_url
-      };
+      // Re-upload existing image to Storage from its current URL
+      const existingUrl = entry.image.thumbnail || entry.image.url;
+      if (!existingUrl) {
+        console.log(`[BACKFILL SKIP] ${entry.lemma} — no existing URL to upload.`);
+        count++;
+        continue;
+      }
+      console.log(`[BACKFILLING] ${entry.lemma} (ID: ${entry.image.pexels_id})`);
+      const filename = `pixabay_${entry.image.pexels_id}.jpg`;
+      const storageUrl = await uploadToStorage(existingUrl, filename);
+      await doc.ref.update({
+        image: {
+          ...entry.image,
+          url: storageUrl || existingUrl,
+          thumbnail: storageUrl || existingUrl,
+        }
+      });
+      console.log(`  Backfilled and uploaded ${entry.image.pexels_id}`);
     } else {
       let rawQuery = entry.english_senses?.[0] || entry.english || entry.lemma;
       let query = rawQuery.replace(/\(.*?\)/g, '').split(',')[0].split(';')[0].trim();
       if (!query) query = entry.lemma;
       console.log(`[${count+1}/${snapshot.size}] Searching Pixabay for "${query}" (${entry.lemma})...`);
-      photo = await searchPixabay(query);
-    }
+      const photo = await searchPixabay(query);
 
-    if (photo) {
-      const storageUrl = await uploadToStorage(photo.webformatURL, `pixabay_${photo.id}.jpg`);
-      
-      await doc.ref.update({
-        image: {
-          ...entry.image,
-          url: storageUrl || photo.largeImageURL || photo.webformatURL,
-          thumbnail: storageUrl || photo.webformatURL,
-          title: entry.lemma,
-          creator: photo.user || entry.image?.creator,
-          landing_url: photo.pageURL || entry.image?.landing_url,
-          source: "pixabay",
-          pexels_id: photo.id, // Keeping field name pexels_id to avoid schema breaks
-          position: entry.image?.position || "center"
+      if (photo) {
+        const storageUrl = await uploadToStorage(photo.webformatURL, `pixabay_${photo.id}.jpg`);
+        const finalUrl = storageUrl || photo.largeImageURL || photo.webformatURL;
+        if (!finalUrl) {
+          console.log(`  Skipping — could not resolve URL.`);
+        } else {
+          await doc.ref.update({
+            image: {
+              ...entry.image,
+              url: finalUrl,
+              thumbnail: storageUrl || photo.webformatURL,
+              title: entry.lemma,
+              creator: photo.user || entry.image?.creator,
+              landing_url: photo.pageURL || entry.image?.landing_url,
+              source: "pixabay",
+              pexels_id: photo.id,
+              position: entry.image?.position || "center"
+            }
+          });
+          console.log(`  Updated and uploaded photo ${photo.id}`);
         }
-      });
-      console.log(`  ${isBackfill ? "Backfilled" : "Updated"} and uploaded photo ${photo.id}`);
-    } else {
-      console.log("  No photo found.");
+      } else {
+        console.log("  No photo found.");
+      }
     }
 
     count++;
