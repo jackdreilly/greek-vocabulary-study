@@ -35,6 +35,13 @@
   let currentAudio = null;
   let audioLoadingId = null;
   let shortcutsOpen = false;
+  let imageData = { entries: {} };
+  let studyCardEl = null;
+  let dragStart = null;
+  let dragX = 0;
+  let dragY = 0;
+  let dragTransition = false;
+  let suppressNextClick = false;
 
   const typeLabels = {
     "Ουσιαστικά": "Nouns",
@@ -144,6 +151,10 @@
     return `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${encodeURIComponent(path)}?alt=media`;
   }
 
+  function imageSrc(image) {
+    return image?.url || image?.thumbnail || "";
+  }
+
   function prepareData(payload) {
     const entries = payload.entries.map((entry) => ({
       ...entry,
@@ -171,9 +182,21 @@
       const params = new URLSearchParams(window.location.search);
       const bucket = "didibros-6d3ed.firebasestorage.app";
       const prodDataUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/data%2Flexilogio.json?alt=media`;
-      const response = await fetch(params.has("prod") ? prodDataUrl : "/data/lexilogio.json");
+      const [response, imageResponse] = await Promise.all([
+        fetch(params.has("prod") ? prodDataUrl : "/data/lexilogio.json"),
+        fetch("/data/word-images.json").catch(() => null),
+      ]);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      data = prepareData(await response.json());
+      const loadedImageData = imageResponse?.ok ? await imageResponse.json() : { entries: {} };
+      const imageEntries = loadedImageData.entries ?? {};
+      imageData = { ...loadedImageData, entries: imageEntries };
+      const payload = await response.json();
+      payload.entries = payload.entries.map((entry) => ({
+        ...entry,
+        image: imageEntries[entry.id]?.image ?? null,
+        image_attribution: imageEntries[entry.id] ?? null,
+      }));
+      data = prepareData(payload);
       loadStateFromUrl();
     } catch (error) {
       loadError = `Could not load the collection: ${error.message}`;
@@ -208,8 +231,13 @@
     return `/lesson/${id}`;
   }
 
+  function imageReviewUrl() {
+    return "/image-review";
+  }
+
   function buildUrl() {
     const params = new URLSearchParams();
+    if (view === "image-review") return imageReviewUrl();
     if (selectedType !== "all") params.set("type", selectedType);
     if (selectedGroup !== "all") params.set("group", selectedGroup);
     if (search) params.set("q", search);
@@ -236,6 +264,12 @@
     selectedType = "all";
     selectedGroup = "all";
     resetCards();
+    commitUrl(push);
+  }
+
+  function showImageReview(push = true) {
+    view = "image-review";
+    selectedLessonId = null;
     commitUrl(push);
   }
 
@@ -267,6 +301,18 @@
     deckOrderIds = null;
     audioLoadingId = null;
     if (currentAudio) currentAudio.pause();
+    resetDrag();
+  }
+
+  function resetDrag() {
+    dragStart = null;
+    dragX = 0;
+    dragY = 0;
+    dragTransition = false;
+  }
+
+  function focusStudyCard() {
+    queueMicrotask(() => studyCardEl?.focus({ preventScroll: true }));
   }
 
   function shuffleDeck() {
@@ -285,7 +331,9 @@
     if (currentAudio) currentAudio.pause();
     cardIndex = (cardIndex + delta + deck.length) % deck.length;
     cardFlipped = false;
+    resetDrag();
     commitUrl();
+    focusStudyCard();
   }
 
   async function playAudio(entry) {
@@ -308,6 +356,11 @@
 
   function loadStateFromUrl() {
     const params = new URLSearchParams(window.location.search);
+    if (window.location.pathname === "/image-review") {
+      view = "image-review";
+      selectedLessonId = null;
+      return;
+    }
     const lessonFromPath = window.location.pathname.match(/^\/lesson\/(\d+)/);
     const lesson = Number(lessonFromPath?.[1] ?? params.get("lesson"));
     if (lesson && data.themes.some((theme) => theme.id === lesson)) {
@@ -385,9 +438,65 @@
 
     if (key === " " || key === "Spacebar" || key === "Enter") {
       event.preventDefault();
-      cardFlipped = !cardFlipped;
-      commitUrl();
+      flipCard();
     }
+  }
+
+  function flipCard() {
+    if (!currentCard) return;
+    cardFlipped = !cardFlipped;
+    commitUrl();
+    focusStudyCard();
+  }
+
+  function handleCardPointerDown(event) {
+    if (!currentCard || event.button !== 0 || event.target.closest("button")) return;
+    dragTransition = false;
+    dragStart = {
+      pointerId: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+    };
+    dragX = 0;
+    dragY = 0;
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+  }
+
+  function handleCardPointerMove(event) {
+    if (!dragStart || dragStart.pointerId !== event.pointerId) return;
+    dragX = event.clientX - dragStart.x;
+    dragY = event.clientY - dragStart.y;
+  }
+
+  function handleCardPointerUp(event) {
+    if (!dragStart || dragStart.pointerId !== event.pointerId) return;
+    const absX = Math.abs(dragX);
+    const absY = Math.abs(dragY);
+    const swiped = absX > 90 && absX > absY * 1.15;
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+
+    if (swiped) {
+      suppressNextClick = true;
+      dragTransition = true;
+      dragX = dragX > 0 ? 360 : -360;
+      dragY = Math.max(-80, Math.min(80, dragY));
+      const delta = dragX < 0 ? 1 : -1;
+      setTimeout(() => moveCard(delta), 120);
+      return;
+    }
+
+    resetDrag();
+    flipCard();
+  }
+
+  function handleCardPointerCancel() {
+    dragTransition = true;
+    dragX = 0;
+    dragY = 0;
+    dragStart = null;
+    setTimeout(() => {
+      dragTransition = false;
+    }, 140);
   }
 
   $: lessons = data?.themes ?? [];
@@ -427,6 +536,13 @@
   $: currentCard = deck[cardIndex];
   $: currentDirection = currentCard ? directionForCard(currentCard, cardIndex) : "gr-en";
   $: visibleEntries = filteredEntries.slice(0, cardsOpen ? STUDY_ENTRY_RENDER_LIMIT : ENTRY_RENDER_LIMIT);
+  $: imageReviewEntries = Object.values(imageData.entries ?? {})
+    .map((record) => ({
+      ...record,
+      entry: data?.entries.find((entry) => entry.id === Number(record.entry_id)),
+    }))
+    .filter((record) => record.entry);
+  $: cardTransform = `translate(${dragX}px, ${dragY}px) rotate(${dragX / 28}deg)`;
 
   loadData();
 </script>
@@ -445,6 +561,13 @@
         Greek
       </a>
       <div class="flex min-w-0 items-center gap-2">
+        <a
+          href="/image-review"
+          class="hidden rounded-md px-2 py-1.5 text-sm font-semibold text-muted hover:bg-paper hover:text-ink sm:inline-flex"
+          on:click|preventDefault={() => showImageReview(true)}
+        >
+          Images
+        </a>
         {#if view === "study" && selectedLesson}
           <div class="min-w-0 truncate text-sm font-semibold text-muted">{selectedLesson.title}</div>
         {/if}
@@ -467,6 +590,90 @@
     </section>
   {:else if !data}
     <section class="mx-auto max-w-3xl px-4 py-16 text-sm text-muted">Loading vocabulary...</section>
+  {:else if view === "image-review"}
+    <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 class="text-2xl font-bold tracking-normal text-ink sm:text-3xl">Image review</h1>
+          <p class="mt-2 max-w-2xl text-sm leading-6 text-muted">
+            Sample matches from Openverse. Use this page to judge whether the automated image query is good enough before scaling.
+          </p>
+        </div>
+        <a
+          class="inline-flex h-10 items-center justify-center rounded-md border border-line bg-panel px-3 text-sm font-bold text-ink hover:border-green hover:text-green"
+          href="/lesson/12"
+          on:click|preventDefault={() => openLesson(12, true)}
+        >
+          View lesson
+        </a>
+      </div>
+
+      {#if !imageReviewEntries.length}
+        <div class="rounded-md border border-dashed border-line bg-panel p-5 text-sm text-muted">
+          No image sample found yet. Run <span class="font-mono">npm run images:sample</span> to generate one.
+        </div>
+      {:else}
+        <div class="grid gap-4 lg:grid-cols-2">
+          {#each imageReviewEntries as record}
+            <article class="rounded-md border border-line bg-panel p-3 shadow-sm">
+              <div class="mb-3 flex items-start justify-between gap-3">
+                <div>
+                  <h2 class="text-lg font-bold text-ink">{record.entry.lemma}</h2>
+                  <p class="mt-1 text-sm text-muted">{getSenses(record.entry)[0]}</p>
+                </div>
+                <span class="chip">{record.type}</span>
+              </div>
+
+              <div class="grid gap-3 sm:grid-cols-[220px_1fr]">
+                <a href={record.image.landing_url} target="_blank" rel="noreferrer" class="block">
+                  <img
+                    class="aspect-[4/3] w-full rounded-md border border-line object-cover"
+                    src={imageSrc(record.image)}
+                    alt=""
+                    loading="lazy"
+                  />
+                </a>
+                <div class="min-w-0">
+                  <div class="mb-2 text-xs font-bold uppercase text-muted">Query</div>
+                  <div class="mb-3 rounded-md bg-paper px-2.5 py-2 text-sm font-semibold text-ink">{record.query}</div>
+
+                  <div class="text-sm font-bold text-ink">{record.image.title}</div>
+                  <div class="mt-1 text-xs leading-5 text-muted">
+                    {record.image.creator || "Unknown creator"} · {record.image.license?.toUpperCase()}
+                    {#if record.image.license_version}
+                      {record.image.license_version}
+                    {/if}
+                  </div>
+                  {#if record.image.license_url}
+                    <a class="mt-1 inline-flex text-xs font-bold text-green hover:underline" href={record.image.license_url} target="_blank" rel="noreferrer">
+                      License
+                    </a>
+                  {/if}
+                </div>
+              </div>
+
+              {#if record.candidates?.length > 1}
+                <div class="mt-3 border-t border-line pt-3">
+                  <div class="mb-2 text-xs font-bold uppercase text-muted">Alternates</div>
+                  <div class="grid grid-cols-3 gap-2">
+                    {#each record.candidates.slice(0, 3) as candidate}
+                      <a href={candidate.landing_url} target="_blank" rel="noreferrer" title={candidate.title}>
+                        <img
+                          class="aspect-[4/3] w-full rounded-md border border-line object-cover"
+                          src={imageSrc(candidate)}
+                          alt=""
+                          loading="lazy"
+                        />
+                      </a>
+                    {/each}
+                  </div>
+                </div>
+              {/if}
+            </article>
+          {/each}
+        </div>
+      {/if}
+    </section>
   {:else if view === "lessons"}
     <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -619,7 +826,7 @@
               <button class="icon-button" type="button" title="Previous card" aria-label="Previous card" disabled={!deck.length} on:click={() => moveCard(-1)}>
                 <ChevronLeft size={17} />
               </button>
-              <button class="icon-button" type="button" title="Flip card" aria-label="Flip card" disabled={!deck.length} on:click={() => (cardFlipped = !cardFlipped)}>
+              <button class="icon-button" type="button" title="Flip card" aria-label="Flip card" disabled={!deck.length} on:click={flipCard}>
                 <RotateCcw size={16} />
               </button>
               <button class="icon-button" type="button" title="Next card" aria-label="Next card" disabled={!deck.length} on:click={() => moveCard(1)}>
@@ -642,20 +849,26 @@
           </div>
 
           <div
-            class="grid min-h-72 w-full place-items-center rounded-md border p-5 text-center transition {cardFlipped ? 'border-gold/60 bg-[#fff9ec] shadow-sm' : 'border-line bg-paper hover:border-green'} {currentCard ? 'cursor-pointer' : 'opacity-60'}"
+            bind:this={studyCardEl}
+            class="grid min-h-72 w-full touch-pan-y select-none place-items-center rounded-md border p-5 text-center transition {dragTransition ? 'duration-150 ease-out' : ''} {cardFlipped ? 'border-gold/60 bg-[#fff9ec] shadow-sm' : 'border-line bg-paper hover:border-green'} {currentCard ? 'cursor-pointer' : 'opacity-60'}"
+            style={`transform: ${cardTransform};`}
             role="button"
             tabindex={currentCard ? 0 : -1}
             aria-disabled={!currentCard}
-            on:click={() => {
-              if (!currentCard) return;
-              cardFlipped = !cardFlipped;
-              commitUrl();
+            on:pointerdown={handleCardPointerDown}
+            on:pointermove={handleCardPointerMove}
+            on:pointerup={handleCardPointerUp}
+            on:pointercancel={handleCardPointerCancel}
+            on:click={(event) => {
+              if (suppressNextClick) {
+                event.preventDefault();
+                suppressNextClick = false;
+              }
             }}
             on:keydown={(event) => {
-              if (!currentCard || (event.key !== "Enter" && event.key !== " ")) return;
+              if (!currentCard || (event.key !== "Enter" && event.key !== " " && event.key !== "Spacebar")) return;
               event.preventDefault();
-              cardFlipped = !cardFlipped;
-              commitUrl();
+              flipCard();
             }}
           >
             {#if currentCard}
@@ -671,6 +884,19 @@
                     <div class="h-full rounded-full bg-green" style={`width: ${((cardIndex + 1) / deck.length) * 100}%`}></div>
                   </div>
                 </div>
+                {#if cardFlipped && currentCard.image}
+                  <figure class="mx-auto grid max-w-xs gap-1.5">
+                    <img
+                      class="max-h-36 w-full rounded-md border border-line object-cover shadow-sm"
+                      src={imageSrc(currentCard.image)}
+                      alt=""
+                      loading="lazy"
+                    />
+                    <figcaption class="line-clamp-1 text-xs font-semibold text-muted">
+                      {currentCard.image.title}
+                    </figcaption>
+                  </figure>
+                {/if}
                 {#if currentDirection === "gr-en"}
                   {#if cardFlipped}
                     <ol class="mx-auto max-w-2xl list-decimal space-y-2 pl-6 text-left text-xl font-semibold leading-snug text-ink sm:text-2xl">
@@ -721,6 +947,14 @@
         <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {#each visibleEntries as entry}
             <article class="min-h-32 rounded-md border border-line bg-panel p-3 shadow-sm">
+              {#if entry.image}
+                <img
+                  class="mb-3 h-28 w-full rounded-md border border-line object-cover"
+                  src={imageSrc(entry.image)}
+                  alt=""
+                  loading="lazy"
+                />
+              {/if}
               <div class="mb-2 flex items-start justify-between gap-3">
                 <div class="break-words text-lg font-bold leading-snug text-ink">{entry.lemma}</div>
                 {#if entry.audio_path}

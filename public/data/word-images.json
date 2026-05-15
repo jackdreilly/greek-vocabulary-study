@@ -1,0 +1,870 @@
+{
+  "generated_at": "2026-05-15T04:53:39.511Z",
+  "provider": "openverse",
+  "source": "wikimedia",
+  "lesson_id": 12,
+  "entries": {
+    "3110": {
+      "entry_id": 3110,
+      "lemma": "αγέλη",
+      "type": "noun",
+      "query": "herd animals",
+      "image": {
+        "title": "Flock of sheep with llamas on road. In Switzerland, Llamas act as guardian and herd animals for sheep. They have the right-of-way on the roads",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Flock_of_sheep_with_llamas_on_road._In_Switzerland%2C_Llamas_act_as_guardian_and_herd_animals_for_sheep._They_have_the_right-of-way_on_the_roads.jpg",
+        "thumbnail": "https://api.openverse.org/v1/images/abd490ac-b388-418e-ba73-b902f78443bf/thumb/",
+        "landing_url": "https://commons.wikimedia.org/w/index.php?curid=180986309",
+        "creator": "GabrielleMerk",
+        "license": "by-sa",
+        "license_version": "4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "source": "wikimedia"
+      },
+      "candidates": [
+        {
+          "title": "Flock of sheep with llamas on road. In Switzerland, Llamas act as guardian and herd animals for sheep. They have the right-of-way on the roads",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Flock_of_sheep_with_llamas_on_road._In_Switzerland%2C_Llamas_act_as_guardian_and_herd_animals_for_sheep._They_have_the_right-of-way_on_the_roads.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/abd490ac-b388-418e-ba73-b902f78443bf/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=180986309",
+          "creator": "GabrielleMerk",
+          "license": "by-sa",
+          "license_version": "4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Meadows of Chitral Gol National Park; Tahsin Shah 03",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Meadows_of_Chitral_Gol_National_Park%3B_Tahsin_Shah_03.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/d688b0dd-b942-4a6e-8ee3-90d5450c958c/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=48959249",
+          "creator": "Tahsin A Shah",
+          "license": "by-sa",
+          "license_version": "4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Jackal training - RBTHvideo - 10",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/7/73/Jackal_training_-_RBTHvideo_-_10.png",
+          "thumbnail": "https://api.openverse.org/v1/images/80cdc0f5-fdb8-49a5-82c8-dea75387d4e5/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=48790358",
+          "creator": "RBTHvideo",
+          "license": "by",
+          "license_version": "3.0",
+          "license_url": "https://creativecommons.org/licenses/by/3.0/",
+          "source": "wikimedia"
+        }
+      ]
+    },
+    "3111": {
+      "entry_id": 3111,
+      "lemma": "αμφίβιο",
+      "type": "noun",
+      "query": "amphibian photo",
+      "image": {
+        "title": "Amolops mantzorum, Trashiyangtse, Bhutan",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/1/15/Amolops_mantzorum%2C_Trashiyangtse%2C_Bhutan.jpg",
+        "thumbnail": "https://api.openverse.org/v1/images/fd375dce-3be4-4b82-a21a-bd5f49d5a6c4/thumb/",
+        "landing_url": "https://commons.wikimedia.org/w/index.php?curid=29830816",
+        "creator": "Jigme Tshelthrim Wangyal",
+        "license": "by",
+        "license_version": "3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0/",
+        "source": "wikimedia"
+      },
+      "candidates": [
+        {
+          "title": "Amolops mantzorum, Trashiyangtse, Bhutan",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/1/15/Amolops_mantzorum%2C_Trashiyangtse%2C_Bhutan.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/fd375dce-3be4-4b82-a21a-bd5f49d5a6c4/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=29830816",
+          "creator": "Jigme Tshelthrim Wangyal",
+          "license": "by",
+          "license_version": "3.0",
+          "license_url": "https://creativecommons.org/licenses/by/3.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Toad tunnel",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/5/56/Toad_tunnel.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/f65cefe3-89bb-41e6-8734-97384e4199cf/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=590792",
+          "creator": "Christian Fischer",
+          "license": "by-sa",
+          "license_version": "3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Xenophrys glandulosa, Choetenkora, Trashiyangtse, Bhutan",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/f/f9/Xenophrys_glandulosa%2C_Choetenkora%2C_Trashiyangtse%2C_Bhutan.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/9391bf8e-778a-467a-9735-ab051c356bf2/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=29666960",
+          "creator": "Wangyal, Jigme Tshelthrim",
+          "license": "by",
+          "license_version": "3.0",
+          "license_url": "https://creativecommons.org/licenses/by/3.0/",
+          "source": "wikimedia"
+        }
+      ]
+    },
+    "3112": {
+      "entry_id": 3112,
+      "lemma": "άνθρωπος",
+      "type": "noun",
+      "query": "people photo",
+      "image": {
+        "title": "File:1928 Lyngen Troms Norway group Mountain Sami people Photo pcard.jpg",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/e/e9/1928_Lyngen_Troms_Norway_group_Mountain_Sami_people_Photo_pcard.jpg",
+        "thumbnail": "https://api.openverse.org/v1/images/ed554ecd-5a22-436d-a48d-2260f5c61011/thumb/",
+        "landing_url": "https://commons.wikimedia.org/w/index.php?curid=13043245",
+        "creator": "T. Høegh",
+        "license": "by-sa",
+        "license_version": "3.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "source": "wikimedia"
+      },
+      "candidates": [
+        {
+          "title": "File:1928 Lyngen Troms Norway group Mountain Sami people Photo pcard.jpg",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/e/e9/1928_Lyngen_Troms_Norway_group_Mountain_Sami_people_Photo_pcard.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/ed554ecd-5a22-436d-a48d-2260f5c61011/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=13043245",
+          "creator": "T. Høegh",
+          "license": "by-sa",
+          "license_version": "3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Operaen-i-oslo people photo erik berg",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/5/53/Operaen-i-oslo_people_photo_erik_berg.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/46db239a-bb93-4434-a93f-330044de702a/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=64647976",
+          "creator": "Espen acc",
+          "license": "by-sa",
+          "license_version": "4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Traditional people ... photo from Goa India 2",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/e/e2/Traditional_people_..._photo_from_Goa_India_2.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/0458b30f-5c06-4fa7-8ea7-c0a4bdd4497c/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=104886081",
+          "creator": "Fredericknoronha",
+          "license": "by-sa",
+          "license_version": "4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+          "source": "wikimedia"
+        }
+      ]
+    },
+    "3114": {
+      "entry_id": 3114,
+      "lemma": "βοσκή",
+      "type": "noun",
+      "query": "natural pasture and grassland photo",
+      "image": {
+        "title": "File:Trybusivka 08.JPG",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/b/ba/Trybusivka_08.JPG",
+        "thumbnail": "https://api.openverse.org/v1/images/2a980ed0-eb8b-45a1-888a-09ac5e39b815/thumb/",
+        "landing_url": "https://commons.wikimedia.org/w/index.php?curid=35970708",
+        "creator": "Visem",
+        "license": "by-sa",
+        "license_version": "4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "source": "wikimedia"
+      },
+      "candidates": [
+        {
+          "title": "File:Trybusivka 08.JPG",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/b/ba/Trybusivka_08.JPG",
+          "thumbnail": "https://api.openverse.org/v1/images/2a980ed0-eb8b-45a1-888a-09ac5e39b815/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=35970708",
+          "creator": "Visem",
+          "license": "by-sa",
+          "license_version": "4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Bellegembos - 10082 - onroerenderfgoed",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/6/67/Bellegembos_-_10082_-_onroerenderfgoed.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/d1e1e3cb-1213-4168-b279-d1edb4ba96dd/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=86677920",
+          "creator": "Vandevorst, Kris",
+          "license": "by",
+          "license_version": "4.0",
+          "license_url": "https://creativecommons.org/licenses/by/4.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Grazing bull, Moor Farm nature reserve - geograph.org.uk - 949622",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Grazing_bull%2C_Moor_Farm_nature_reserve_-_geograph.org.uk_-_949622.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/bf1078b6-814d-4edf-bba2-0f98d27fa1a3/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=13636372",
+          "creator": "E Gammie",
+          "license": "by-sa",
+          "license_version": "2.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+          "source": "wikimedia"
+        }
+      ]
+    },
+    "3115": {
+      "entry_id": 3115,
+      "lemma": "βοσκός",
+      "type": "noun",
+      "query": "shepherd with sheep",
+      "image": {
+        "title": "Shepherd and sheep",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/da/Shepherd_and_sheep.jpg",
+        "thumbnail": "https://api.openverse.org/v1/images/cfbfd643-988f-419e-be17-283919b7b89f/thumb/",
+        "landing_url": "https://commons.wikimedia.org/w/index.php?curid=21960798",
+        "creator": "haitham alfalah",
+        "license": "by",
+        "license_version": "3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0/",
+        "source": "wikimedia"
+      },
+      "candidates": [
+        {
+          "title": "Shepherd and sheep",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/d/da/Shepherd_and_sheep.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/cfbfd643-988f-419e-be17-283919b7b89f/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=21960798",
+          "creator": "haitham alfalah",
+          "license": "by",
+          "license_version": "3.0",
+          "license_url": "https://creativecommons.org/licenses/by/3.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "<div class='fn'> <div style='font-weight:bold;display:inline-block;'><div style='display:inline-block' dir='ltr' lang='en'><i>Shepherd With Sheep <span class='mw-valign-text-top' typeof='mw:File/Frameless'><a href='https://www.wikidata.org/wiki/Q110029385#P1476' title='Edit this at Wikidata'><img alt='Edit this at Wikidata' src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/OOjs_UI_icon_edit-ltr-progressive.svg/10px-OOjs_UI_icon_edit-ltr-progressive.svg.png' decoding='async' width='10' height='10' class='mw-file-element' srcset='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/OOjs_UI_icon_edit-ltr-progressive.svg/15px-OOjs_UI_icon_edit-ltr-progressive.svg.png 1.5x, https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/OOjs_UI_icon_edit-ltr-progressive.svg/20px-OOjs_UI_icon_edit-ltr-progressive.svg.png 2x' data-file-width='20' data-file-height='20'></a></span></i></div></div><div style='display: none;'>title QS:P1476,en:'Shepherd With Sheep <span class='mw-valign-text-top' typeof='mw:File/Frameless'><a href='https://www.wikidata.org/wiki/Q110029385#P1476' title='Edit this at Wikidata'><img alt='Edit this at Wikidata' src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/OOjs_UI_icon_edit-ltr-progressive.svg/10px-OOjs_UI_icon_edit-ltr-progressive.svg.png' decoding='async' width='10' height='10' class='mw-file-element' srcset='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/OOjs_UI_icon_edit-ltr-progressive.svg/15px-OOjs_UI_icon_edit-ltr-progressive.svg.png 1.5x, https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/OOjs_UI_icon_edit-ltr-progressive.svg/20px-OOjs_UI_icon_edit-ltr-progressive.svg.png 2x' data-file-width='20' data-file-height='20'></a></span>'</div> <div style='display: none;'>label QS:Len,'Shepherd With Sheep <span class='mw-valign-text-top' typeof='mw:File/Frameless'><a href='https://www.wikidata.org/wiki/Q110029385#P1476' title='Edit this at Wikidata'><img alt='Edit this at Wikidata' src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/OOjs_UI_icon_edit-ltr-progressive.svg/10px-OOjs_UI_icon_edit-ltr-progressive.svg.png' decoding='async' width='10' height='10' class='mw-file-element' srcset='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/OOjs_UI_icon_edit-ltr-progressive.svg/15px-OOjs_UI_icon_edit-ltr-progressive.svg.png 1.5x, https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/OOjs_UI_icon_edit-ltr-progressive.svg/20px-OOjs_UI_icon_edit-ltr-progressive.svg.png 2x' data-file-width='20' data-file-height='20'></a></span>'</div></div>",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/6/65/Sawrey_Gilpin_-_Shepherd_With_Sheep_-_B1998.32.6%2822%29_-_Yale_Center_for_British_Art.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/075ff5d3-2e4e-4454-af93-3fb5b5735d54/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=113219923",
+          "creator": "Sawrey Gilpin",
+          "license": "cc0",
+          "license_version": "1.0",
+          "license_url": "https://creativecommons.org/publicdomain/zero/1.0/deed.en/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "<div class='fn'> <div style='font-weight:bold;display:inline-block;'><div style='display:inline-block' dir='ltr' lang='en'><i>Landscape with a ruin, a river, a shepherd and sheep (set of 6) <span class='mw-valign-text-top' typeof='mw:File/Frameless'><a href='https://www.wikidata.org/wiki/Q110249067#P1476' title='Edit this at Wikidata'><img alt='Edit this at Wikidata' src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/OOjs_UI_icon_edit-ltr-progressive.svg/10px-OOjs_UI_icon_edit-ltr-progressive.svg.png' decoding='async' width='10' height='10' class='mw-file-element' srcset='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/OOjs_UI_icon_edit-ltr-progressive.svg/15px-OOjs_UI_icon_edit-ltr-progressive.svg.png 1.5x, https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/OOjs_UI_icon_edit-ltr-progressive.svg/20px-OOjs_UI_icon_edit-ltr-progressive.svg.png 2x' data-file-width='20' data-file-height='20'></a></span></i></div></div><div style='display: none;'>title QS:P1476,en:'Landscape with a ruin, a river, a shepherd and sheep (set of 6) <span class='mw-valign-text-top' typeof='mw:File/Frameless'><a href='https://www.wikidata.org/wiki/Q110249067#P1476' title='Edit this at Wikidata'><img alt='Edit this at Wikidata' src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/OOjs_UI_icon_edit-ltr-progressive.svg/10px-OOjs_UI_icon_edit-ltr-progressive.svg.png' decoding='async' width='10' height='10' class='mw-file-element' srcset='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/OOjs_UI_icon_edit-ltr-progressive.svg/15px-OOjs_UI_icon_edit-ltr-progressive.svg.png 1.5x, https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/OOjs_UI_icon_edit-ltr-progressive.svg/20px-OOjs_UI_icon_edit-ltr-progressive.svg.png 2x' data-file-width='20' data-file-height='20'></a></span>'</div> <div style='display: none;'>label QS:Len,'Landscape with a ruin, a river, a shepherd and sheep (set of 6) <span class='mw-valign-text-top' typeof='mw:File/Frameless'><a href='https://www.wikidata.org/wiki/Q110249067#P1476' title='Edit this at Wikidata'><img alt='Edit this at Wikidata' src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/OOjs_UI_icon_edit-ltr-progressive.svg/10px-OOjs_UI_icon_edit-ltr-progressive.svg.png' decoding='async' width='10' height='10' class='mw-file-element' srcset='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/OOjs_UI_icon_edit-ltr-progressive.svg/15px-OOjs_UI_icon_edit-ltr-progressive.svg.png 1.5x, https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/OOjs_UI_icon_edit-ltr-progressive.svg/20px-OOjs_UI_icon_edit-ltr-progressive.svg.png 2x' data-file-width='20' data-file-height='20'></a></span>'</div></div>",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/1/1c/Fran%C3%A7ois_Vivares_-_Landscape_with_a_ruin%2C_a_river%2C_a_shepherd_and_sheep_%28set_of_6%29_-_B1978.43.966_-_Yale_Center_for_British_Art.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/736fb6c1-d843-4bb8-b6a9-23cde47123cf/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=113603773",
+          "creator": "François Vivares",
+          "license": "cc0",
+          "license_version": "1.0",
+          "license_url": "https://creativecommons.org/publicdomain/zero/1.0/deed.en/",
+          "source": "wikimedia"
+        }
+      ]
+    },
+    "3116": {
+      "entry_id": 3116,
+      "lemma": "βοσκότοπος",
+      "type": "noun",
+      "query": "pasture photo",
+      "image": {
+        "title": "Landwirtschaft, Weidetiere - Hochalm",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Landwirtschaft%2C_Weidetiere_-_Hochalm.jpg",
+        "thumbnail": "https://api.openverse.org/v1/images/c762900c-d55a-4cb5-a6bb-ed1066dd880d/thumb/",
+        "landing_url": "https://commons.wikimedia.org/w/index.php?curid=103143712",
+        "creator": "Bassocantaro",
+        "license": "cc0",
+        "license_version": "1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/deed.en/",
+        "source": "wikimedia"
+      },
+      "candidates": [
+        {
+          "title": "Landwirtschaft, Weidetiere - Hochalm",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Landwirtschaft%2C_Weidetiere_-_Hochalm.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/c762900c-d55a-4cb5-a6bb-ed1066dd880d/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=103143712",
+          "creator": "Bassocantaro",
+          "license": "cc0",
+          "license_version": "1.0",
+          "license_url": "https://creativecommons.org/publicdomain/zero/1.0/deed.en/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Where carbon goes when water flows",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Where_carbon_goes_when_water_flows.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/37519cbc-ecea-4762-96b0-ffe2f7ce2354/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=95813068",
+          "creator": "Nicholas D. Ward, Thomas S. Bianchi, Patricia M. Medeiros, Michael Seidel, Jeffrey E. Richey, Richard G. Keil and Henrique O. Sawakuchi",
+          "license": "by-sa",
+          "license_version": "4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Lehmiä laitumella Helsingin Viikissä",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/1/18/Lehmi%C3%A4_laitumella_Helsingin_Viikiss%C3%A4.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/12d15d88-b859-4bae-87ec-7a17d8cc7ad6/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=725289",
+          "creator": "Jonik",
+          "license": "by-sa",
+          "license_version": "2.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+          "source": "wikimedia"
+        }
+      ]
+    },
+    "3117": {
+      "entry_id": 3117,
+      "lemma": "έντομο",
+      "type": "noun",
+      "query": "insect photo",
+      "image": {
+        "title": "Insects photo",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/62/Insects_photo.jpg",
+        "thumbnail": "https://api.openverse.org/v1/images/d9bcecd8-a25f-46c2-b3f6-e6caa98c7635/thumb/",
+        "landing_url": "https://commons.wikimedia.org/w/index.php?curid=48511163",
+        "creator": "Imtiazyounas",
+        "license": "by-sa",
+        "license_version": "4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "source": "wikimedia"
+      },
+      "candidates": [
+        {
+          "title": "Insects photo",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/6/62/Insects_photo.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/d9bcecd8-a25f-46c2-b3f6-e6caa98c7635/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=48511163",
+          "creator": "Imtiazyounas",
+          "license": "by-sa",
+          "license_version": "4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Insect antennae",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Insect_antennae.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/c2de7b91-841b-4797-881a-03e42cc0d892/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=425712",
+          "creator": "No machine-readable author provided. HorsePunchKid assumed (based on copyright claims).",
+          "license": "by-sa",
+          "license_version": "3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Drosera anglica ne2",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/7/76/Drosera_anglica_ne2.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/4058587e-d0fb-45ee-bad8-d3a6ce9f9606/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=724039",
+          "creator": "Noah Elhardt",
+          "license": "by-sa",
+          "license_version": "2.5",
+          "license_url": "https://creativecommons.org/licenses/by-sa/2.5/",
+          "source": "wikimedia"
+        }
+      ]
+    },
+    "3118": {
+      "entry_id": 3118,
+      "lemma": "ερπετό",
+      "type": "noun",
+      "query": "reptile photo",
+      "image": {
+        "title": "Gonyosoma oxycephalum Oslo",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/a/a5/Gonyosoma_oxycephalum_Oslo.JPG",
+        "thumbnail": "https://api.openverse.org/v1/images/b653e414-d2c2-461b-aeb2-7048548a4385/thumb/",
+        "landing_url": "https://commons.wikimedia.org/w/index.php?curid=10769359",
+        "creator": "Bjørn Christian Tørrissen",
+        "license": "by-sa",
+        "license_version": "4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "source": "wikimedia"
+      },
+      "candidates": [
+        {
+          "title": "Gonyosoma oxycephalum Oslo",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/a/a5/Gonyosoma_oxycephalum_Oslo.JPG",
+          "thumbnail": "https://api.openverse.org/v1/images/b653e414-d2c2-461b-aeb2-7048548a4385/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=10769359",
+          "creator": "Bjørn Christian Tørrissen",
+          "license": "by-sa",
+          "license_version": "4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Amolops mantzorum, Trashiyangtse, Bhutan",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/1/15/Amolops_mantzorum%2C_Trashiyangtse%2C_Bhutan.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/fd375dce-3be4-4b82-a21a-bd5f49d5a6c4/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=29830816",
+          "creator": "Jigme Tshelthrim Wangyal",
+          "license": "by",
+          "license_version": "3.0",
+          "license_url": "https://creativecommons.org/licenses/by/3.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Arambourgiania philadelphiae",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/5/52/Arambourgiania_philadelphiae.JPG",
+          "thumbnail": "https://api.openverse.org/v1/images/20483270-387e-4434-b37d-d4a39f05289f/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=26559879",
+          "creator": "Ghedoghedo",
+          "license": "by-sa",
+          "license_version": "3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+          "source": "wikimedia"
+        }
+      ]
+    },
+    "3120": {
+      "entry_id": 3120,
+      "lemma": "ζώο",
+      "type": "noun",
+      "query": "mammal photo",
+      "image": {
+        "title": "Borhyaena tuberata",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/b/b4/Borhyaena_tuberata.JPG",
+        "thumbnail": "https://api.openverse.org/v1/images/4217a088-10ec-44ea-85ab-14a6dca8a788/thumb/",
+        "landing_url": "https://commons.wikimedia.org/w/index.php?curid=18960244",
+        "creator": "Ghedoghedo",
+        "license": "by-sa",
+        "license_version": "3.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "source": "wikimedia"
+      },
+      "candidates": [
+        {
+          "title": "Borhyaena tuberata",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/b/b4/Borhyaena_tuberata.JPG",
+          "thumbnail": "https://api.openverse.org/v1/images/4217a088-10ec-44ea-85ab-14a6dca8a788/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=18960244",
+          "creator": "Ghedoghedo",
+          "license": "by-sa",
+          "license_version": "3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Eurotamandua joresi 1",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/c/ca/Eurotamandua_joresi_1.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/e6d80226-6c3c-4676-858a-34ea5f9ab177/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=16658966",
+          "creator": "Ghedoghedo",
+          "license": "by-sa",
+          "license_version": "3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Sivapithecus sivalensis",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Sivapithecus_sivalensis.JPG",
+          "thumbnail": "https://api.openverse.org/v1/images/c597c7a0-d571-4bbc-b248-730400d3c5a3/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=18777801",
+          "creator": "Ghedoghedo",
+          "license": "by-sa",
+          "license_version": "3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+          "source": "wikimedia"
+        }
+      ]
+    },
+    "3122": {
+      "entry_id": 3122,
+      "lemma": "θαλασσινά",
+      "type": "noun",
+      "query": "seafood photo",
+      "image": {
+        "title": "James Donaldson 01A",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/25/James_Donaldson_01A.jpg",
+        "thumbnail": "https://api.openverse.org/v1/images/7ffc8b9f-f45c-4967-9542-5f5a084723e1/thumb/",
+        "landing_url": "https://commons.wikimedia.org/w/index.php?curid=7390299",
+        "creator": "Joe Mabel",
+        "license": "by-sa",
+        "license_version": "3.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "source": "wikimedia"
+      },
+      "candidates": [
+        {
+          "title": "James Donaldson 01A",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/2/25/James_Donaldson_01A.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/7ffc8b9f-f45c-4967-9542-5f5a084723e1/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=7390299",
+          "creator": "Joe Mabel",
+          "license": "by-sa",
+          "license_version": "3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Aker Brygge (with City Hall)",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/1/11/Aker_Brygge_%28with_City_Hall%29.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/0662fced-8728-4371-8567-8fa581094ba8/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=11223446",
+          "creator": "dalbera",
+          "license": "by",
+          "license_version": "2.0",
+          "license_url": "https://creativecommons.org/licenses/by/2.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "File:Shrimp and corn chowder.jpg",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/b/b8/Shrimp_and_corn_chowder.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/b6632830-39bf-4eae-888f-2a7fed83ae04/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=46461175",
+          "creator": "Leszek Leszczynski",
+          "license": "by",
+          "license_version": "2.0",
+          "license_url": "https://creativecommons.org/licenses/by/2.0/",
+          "source": "wikimedia"
+        }
+      ]
+    },
+    "3341": {
+      "entry_id": 3341,
+      "lemma": "αρμέγω",
+      "type": "verb",
+      "query": "cow milking",
+      "image": {
+        "title": "Cow milking, near Mehsana, Gujarat, India",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/dc/Cow_milking%2C_near_Mehsana%2C_Gujarat%2C_India.jpg",
+        "thumbnail": "https://api.openverse.org/v1/images/c7bc866a-42ef-42d8-a517-4eab7220acb3/thumb/",
+        "landing_url": "https://commons.wikimedia.org/w/index.php?curid=35724110",
+        "creator": "Yann Forget",
+        "license": "by-sa",
+        "license_version": "4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "source": "wikimedia"
+      },
+      "candidates": [
+        {
+          "title": "Cow milking, near Mehsana, Gujarat, India",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/d/dc/Cow_milking%2C_near_Mehsana%2C_Gujarat%2C_India.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/c7bc866a-42ef-42d8-a517-4eab7220acb3/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=35724110",
+          "creator": "Yann Forget",
+          "license": "by-sa",
+          "license_version": "4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Wild cow milking (4609778778)",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/1/1e/Wild_cow_milking_%284609778778%29.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/fe394995-6a86-4672-ada2-8f5554aa899c/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=40214439",
+          "creator": "Sadie_Girl",
+          "license": "by",
+          "license_version": "2.0",
+          "license_url": "https://creativecommons.org/licenses/by/2.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Cow milking in Israel",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Cow_milking_in_Israel.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/d8037aa3-455e-468d-859b-4b76c1b0d925/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=21211029",
+          "creator": "Юкатан",
+          "license": "by-sa",
+          "license_version": "3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+          "source": "wikimedia"
+        }
+      ]
+    },
+    "3343": {
+      "entry_id": 3343,
+      "lemma": "γαβγίζω",
+      "type": "verb",
+      "query": "barking dog",
+      "image": {
+        "title": "Barking dog",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/f6/Barking_dog.jpg",
+        "thumbnail": "https://api.openverse.org/v1/images/f409e98c-3cac-4bc0-8635-f4938b2a6eb9/thumb/",
+        "landing_url": "https://commons.wikimedia.org/w/index.php?curid=44968437",
+        "creator": "Maxim Bilovitskiy",
+        "license": "by-sa",
+        "license_version": "4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "source": "wikimedia"
+      },
+      "candidates": [
+        {
+          "title": "Barking dog",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/f/f6/Barking_dog.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/f409e98c-3cac-4bc0-8635-f4938b2a6eb9/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=44968437",
+          "creator": "Maxim Bilovitskiy",
+          "license": "by-sa",
+          "license_version": "4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Barking Dog 2",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/6/64/Barking_Dog_2.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/b7fd619f-1576-40e9-b24d-00c1e845c497/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=9398007",
+          "creator": "Bobob5511",
+          "license": "by-sa",
+          "license_version": "3.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "The 'Barking Dog', Barking - geograph.org.uk - 622849",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/4/4b/The_%27Barking_Dog%27%2C_Barking_-_geograph.org.uk_-_622849.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/42d5acc9-0897-4600-9c2b-102e45a981fb/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=13169191",
+          "creator": "Dr Neil Clifton",
+          "license": "by-sa",
+          "license_version": "2.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+          "source": "wikimedia"
+        }
+      ]
+    },
+    "3345": {
+      "entry_id": 3345,
+      "lemma": "γκαρίζω",
+      "type": "verb",
+      "query": "braying donkey",
+      "image": {
+        "title": "Penguin, Strait of Magellan",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/7/79/Penguin%2C_Strait_of_Magellan.jpg",
+        "thumbnail": "https://api.openverse.org/v1/images/add15042-5284-4d8f-9f94-8a7194a1121c/thumb/",
+        "landing_url": "https://commons.wikimedia.org/w/index.php?curid=3197059",
+        "creator": "Steve Deger",
+        "license": "by",
+        "license_version": "2.0",
+        "license_url": "https://creativecommons.org/licenses/by/2.0/",
+        "source": "wikimedia"
+      },
+      "candidates": [
+        {
+          "title": "Penguin, Strait of Magellan",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/7/79/Penguin%2C_Strait_of_Magellan.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/add15042-5284-4d8f-9f94-8a7194a1121c/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=3197059",
+          "creator": "Steve Deger",
+          "license": "by",
+          "license_version": "2.0",
+          "license_url": "https://creativecommons.org/licenses/by/2.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "<div class='fn'> Page from Tales of a Parrot (Tuti-nama): Thirty-first night: The donkey, in a tiger's skin, reveals his identity by braying aloud</div>",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/d/d8/Basavana_-_Page_from_Tales_of_a_Parrot_%28Tuti-nama%29-_Thirty-first_night-_The_donkey%2C_in_-_1962.279.207.a_-_Cleveland_Museum_of_Art.tif",
+          "thumbnail": "https://api.openverse.org/v1/images/e3fd62bc-9e2e-4773-bb1d-43c5d2245a35/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=77340345",
+          "creator": "Basavana",
+          "license": "cc0",
+          "license_version": "1.0",
+          "license_url": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+          "source": "wikimedia"
+        },
+        {
+          "title": "File:Penguin and Gulls, Strait of Magellan.jpg",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Penguin_and_Gulls%2C_Strait_of_Magellan.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/9fe45e82-fd90-4f16-8c90-bbdd6da882dc/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=2891502",
+          "creator": "Steve Deger",
+          "license": "by",
+          "license_version": "2.0",
+          "license_url": "https://creativecommons.org/licenses/by/2.0/",
+          "source": "wikimedia"
+        }
+      ]
+    },
+    "3348": {
+      "entry_id": 3348,
+      "lemma": "δαμάζω",
+      "type": "verb",
+      "query": "tame action photo",
+      "image": {
+        "title": "Rising Up! (6734478205)",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/5e/Rising_Up%21_%286734478205%29.jpg",
+        "thumbnail": "https://api.openverse.org/v1/images/142680e9-e6b5-447e-b34c-383cb5d44380/thumb/",
+        "landing_url": "https://commons.wikimedia.org/w/index.php?curid=39729593",
+        "creator": "Vinoth Chandar from Chennai, India",
+        "license": "by",
+        "license_version": "2.0",
+        "license_url": "https://creativecommons.org/licenses/by/2.0/",
+        "source": "wikimedia"
+      },
+      "candidates": [
+        {
+          "title": "Rising Up! (6734478205)",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/5/5e/Rising_Up%21_%286734478205%29.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/142680e9-e6b5-447e-b34c-383cb5d44380/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=39729593",
+          "creator": "Vinoth Chandar from Chennai, India",
+          "license": "by",
+          "license_version": "2.0",
+          "license_url": "https://creativecommons.org/licenses/by/2.0/",
+          "source": "wikimedia"
+        }
+      ]
+    },
+    "3349": {
+      "entry_id": 3349,
+      "lemma": "εκπαιδεύω",
+      "type": "verb",
+      "query": "educate action photo",
+      "image": {
+        "title": "Army Photography Contest - 2007 - FMWRC - Arts and Crafts - A Cold Winter Day (4929685943)",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Army_Photography_Contest_-_2007_-_FMWRC_-_Arts_and_Crafts_-_A_Cold_Winter_Day_%284929685943%29.jpg",
+        "thumbnail": "https://api.openverse.org/v1/images/0da6a075-9e59-4f6b-98e9-b441a8c2ae17/thumb/",
+        "landing_url": "https://commons.wikimedia.org/w/index.php?curid=45578598",
+        "creator": "U.S. Army",
+        "license": "by",
+        "license_version": "2.0",
+        "license_url": "https://creativecommons.org/licenses/by/2.0/",
+        "source": "wikimedia"
+      },
+      "candidates": [
+        {
+          "title": "Army Photography Contest - 2007 - FMWRC - Arts and Crafts - A Cold Winter Day (4929685943)",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Army_Photography_Contest_-_2007_-_FMWRC_-_Arts_and_Crafts_-_A_Cold_Winter_Day_%284929685943%29.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/0da6a075-9e59-4f6b-98e9-b441a8c2ae17/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=45578598",
+          "creator": "U.S. Army",
+          "license": "by",
+          "license_version": "2.0",
+          "license_url": "https://creativecommons.org/licenses/by/2.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Army Photography Contest - 2007 - FMWRC - Arts and Crafts - Eye of the Holder (4930275692)",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/e/e2/Army_Photography_Contest_-_2007_-_FMWRC_-_Arts_and_Crafts_-_Eye_of_the_Holder_%284930275692%29.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/6209ba43-e467-453e-bf48-60a885b66fc1/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=45578589",
+          "creator": "U.S. Army",
+          "license": "by",
+          "license_version": "2.0",
+          "license_url": "https://creativecommons.org/licenses/by/2.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Army Photography Contest - 2007 - FMWRC - Arts and Crafts - An Eternal Lullaby (4929686265)",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Army_Photography_Contest_-_2007_-_FMWRC_-_Arts_and_Crafts_-_An_Eternal_Lullaby_%284929686265%29.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/4074224f-2c9f-4d70-98a3-f511eb3b506f/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=45578608",
+          "creator": "U.S. Army",
+          "license": "by",
+          "license_version": "2.0",
+          "license_url": "https://creativecommons.org/licenses/by/2.0/",
+          "source": "wikimedia"
+        }
+      ]
+    },
+    "3360": {
+      "entry_id": 3360,
+      "lemma": "νιαουρίζω",
+      "type": "verb",
+      "query": "meowing cat",
+      "image": {
+        "title": "Meowing Cat",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/7/76/Meowing_Cat.jpg",
+        "thumbnail": "https://api.openverse.org/v1/images/8a0fcd78-7951-4f7d-b651-910ad8e61e41/thumb/",
+        "landing_url": "https://commons.wikimedia.org/w/index.php?curid=187064154",
+        "creator": "கவிஸ்ரீ",
+        "license": "cc0",
+        "license_version": "1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/deed.en/",
+        "source": "wikimedia"
+      },
+      "candidates": [
+        {
+          "title": "Meowing Cat",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/7/76/Meowing_Cat.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/8a0fcd78-7951-4f7d-b651-910ad8e61e41/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=187064154",
+          "creator": "கவிஸ்ரீ",
+          "license": "cc0",
+          "license_version": "1.0",
+          "license_url": "https://creativecommons.org/publicdomain/zero/1.0/deed.en/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Clouded Leopard SanDiegoZoo",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Clouded_Leopard_SanDiegoZoo.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/add7ceeb-1b9e-4cff-a03b-72598368a582/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=27012977",
+          "creator": "kellinahandbasket from San Diego, USA",
+          "license": "by",
+          "license_version": "2.0",
+          "license_url": "https://creativecommons.org/licenses/by/2.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Chairman Meow Bao",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/Chairman_Meow_Bao.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/191c4922-2bdc-4a5b-b68f-5489474cb1d3/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=89490570",
+          "creator": "Meg Greer",
+          "license": "by-sa",
+          "license_version": "4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+          "source": "wikimedia"
+        }
+      ]
+    },
+    "3363": {
+      "entry_id": 3363,
+      "lemma": "προστατεύω-ομαι",
+      "type": "verb",
+      "query": "protect action photo",
+      "image": {
+        "title": "Hearing of Margaritis Schinas (Greece) - Protecting our European way of life (48838400957) (cropped)",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/8/8b/Hearing_of_Margaritis_Schinas_%28Greece%29_-_Protecting_our_European_way_of_life_%2848838400957%29_%28cropped%29.jpg",
+        "thumbnail": "https://api.openverse.org/v1/images/8bed9d62-220e-4d07-8d89-b7bb05723e39/thumb/",
+        "landing_url": "https://commons.wikimedia.org/w/index.php?curid=84550677",
+        "creator": "European Parliament from EU",
+        "license": "by",
+        "license_version": "2.0",
+        "license_url": "https://creativecommons.org/licenses/by/2.0/",
+        "source": "wikimedia"
+      },
+      "candidates": [
+        {
+          "title": "Hearing of Margaritis Schinas (Greece) - Protecting our European way of life (48838400957) (cropped)",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/8/8b/Hearing_of_Margaritis_Schinas_%28Greece%29_-_Protecting_our_European_way_of_life_%2848838400957%29_%28cropped%29.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/8bed9d62-220e-4d07-8d89-b7bb05723e39/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=84550677",
+          "creator": "European Parliament from EU",
+          "license": "by",
+          "license_version": "2.0",
+          "license_url": "https://creativecommons.org/licenses/by/2.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Alaska pipeline route near Valdez River",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Alaska_pipeline_route_near_Valdez_River.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/567e4c5a-d788-4cf6-910d-b47a370f5418/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=8463890",
+          "creator": "[1]",
+          "license": "by",
+          "license_version": "2.0",
+          "license_url": "https://creativecommons.org/licenses/by/2.0/",
+          "source": "wikimedia"
+        },
+        {
+          "title": "Photo of a participant in an interview on Mostaganem radio station this evening show",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/2/2d/Photo_of_a_participant_in_an_interview_on_Mostaganem_radio_station_this_evening_show.jpg",
+          "thumbnail": "https://api.openverse.org/v1/images/6d43d474-403c-41a3-a056-9d1b818e1f41/thumb/",
+          "landing_url": "https://commons.wikimedia.org/w/index.php?curid=134509642",
+          "creator": "Muhammed amine benloulou",
+          "license": "by-sa",
+          "license_version": "4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+          "source": "wikimedia"
+        }
+      ]
+    }
+  }
+}
