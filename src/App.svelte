@@ -691,21 +691,6 @@
         Greek
       </a>
       <div class="flex min-w-0 items-center gap-2">
-        {#if view === "study"}
-          <button
-            class="flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-bold transition
-                   {imageMode !== 'none' ? 'text-green bg-green/10' : 'text-muted hover:bg-paper'}"
-            on:click={() => { 
-              if (imageMode === 'back') imageMode = 'front';
-              else if (imageMode === 'front') imageMode = 'none';
-              else imageMode = 'back';
-              commitUrl(); 
-            }}
-          >
-            <ImageIcon size={14} />
-            <span>Images: {imageMode === 'back' ? 'Back' : imageMode === 'front' ? 'Front' : 'Off'}</span>
-          </button>
-        {/if}
         {#if view === "study" && selectedLesson}
           <div class="min-w-0 truncate text-sm font-semibold text-muted">{selectedLesson.title}</div>
         {/if}
@@ -878,20 +863,38 @@
             </div>
           </div>
 
-          <div class="mb-3 flex items-center gap-1 rounded-full bg-subtle p-1 border border-line w-fit">
-            {#each cardModes as mode}
-              <button
-                class="inline-flex h-8 items-center justify-center rounded-full px-4 text-xs font-bold transition-all
-                       {cardMode === mode.value ? 'bg-green text-white shadow-md scale-105' : 'text-muted hover:text-ink hover:bg-white'}"
-                type="button"
-                on:click={() => setCardMode(mode.value)}
-              >
-                {mode.short || mode.label}
-              </button>
-            {/each}
+          <div class="mb-4 flex flex-wrap items-center justify-between gap-4 border-b border-line pb-4">
+            <div class="flex items-center gap-1 rounded-full bg-subtle p-1 border border-line w-fit">
+              {#each cardModes as mode}
+                <button
+                  class="inline-flex h-8 items-center justify-center rounded-full px-4 text-xs font-bold transition-all
+                         {cardMode === mode.value ? 'bg-green text-white shadow-md scale-105' : 'text-muted hover:text-ink hover:bg-white'}"
+                  type="button"
+                  on:click={() => setCardMode(mode.value)}
+                >
+                  {mode.short || mode.label}
+                </button>
+              {/each}
+            </div>
+
+            <div class="flex items-center gap-2 text-sm text-muted">
+              <span class="text-[10px] font-bold uppercase tracking-wider">Images:</span>
+              <div class="flex items-center gap-1 rounded-full bg-subtle p-1 border border-line w-fit">
+                {#each ['front', 'back', 'none'] as mode}
+                  <button
+                    class="inline-flex h-8 items-center justify-center rounded-full px-4 text-xs font-bold transition-all
+                           {imageMode === mode ? 'bg-green text-white shadow-md scale-105' : 'text-muted hover:text-ink hover:bg-white'}"
+                    type="button"
+                    on:click={() => { imageMode = mode; commitUrl(); }}
+                  >
+                    {mode === 'front' ? 'Front Side' : mode === 'back' ? 'Back Side' : 'Hidden'}
+                  </button>
+                {/each}
+              </div>
+            </div>
           </div>
 
-          <div
+          <article
             bind:this={studyCardEl}
             class="grid min-h-72 w-full touch-pan-y select-none place-items-center rounded-md border p-5 text-center transition outline-none {dragTransition ? 'duration-150 ease-out' : ''} {cardFlipped ? 'border-gold/60 bg-[#fff9ec] shadow-sm' : 'border-line bg-paper hover:border-green'} {currentCard ? 'cursor-pointer' : 'opacity-60'}"
             style={`transform: ${cardTransform};`}
@@ -902,6 +905,7 @@
             on:pointermove={handleCardPointerMove}
             on:pointerup={handleCardPointerUp}
             on:pointercancel={handleCardPointerCancel}
+            on:keydown={() => {}}
             on:click={(event) => {
               if (suppressNextClick) {
                 event.preventDefault();
@@ -988,7 +992,7 @@
             {:else}
               <span class="text-sm text-muted">No study cards match these filters.</span>
             {/if}
-          </div>
+          </article>
         </section>
 
         <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
@@ -1001,7 +1005,7 @@
               >
                 <Edit2 size={14} />
               </button>
-              {#if entry.image && showImages}
+              {#if entry.image && imageMode !== "none"}
                 <img
                   class="mb-3 aspect-[16/9] w-full rounded-md border border-line object-cover transition-all duration-300 hover:aspect-square hover:max-h-64 cursor-zoom-in"
                   style={`object-position: ${entry.image.position || 'center'};`}
@@ -1123,6 +1127,8 @@
   {/if}
   {#if editingEntry}
     <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+      <!-- svelte-ignore a11y_click_events_have_key_events -->
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
       <div class="absolute inset-0 bg-ink/40 backdrop-blur-sm" on:click={closeEdit}></div>
       <div class="relative w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-2xl bg-paper shadow-2xl flex flex-col border border-line">
         <div class="flex items-center justify-between border-b border-line p-4">
