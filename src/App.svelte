@@ -330,14 +330,15 @@
   function handleKeydown(event) {
     const isTyping = ["INPUT", "SELECT", "TEXTAREA"].includes(event.target?.tagName);
     if (isTyping) return;
+    const key = event.key;
 
-    if (event.key === "?" || event.key.toLowerCase() === "h") {
+    if (key === "?" || key.toLowerCase() === "h") {
       event.preventDefault();
       shortcutsOpen = true;
       return;
     }
 
-    if (event.key === "Escape" && shortcutsOpen) {
+    if (key === "Escape" && shortcutsOpen) {
       shortcutsOpen = false;
       return;
     }
@@ -346,33 +347,43 @@
 
     if (view !== "study" || !cardsOpen) return;
 
-    if (event.key.toLowerCase() === "a") {
+    if (key.toLowerCase() === "a") {
       event.preventDefault();
       playAudio(currentCard);
       return;
     }
 
-    if (event.key.toLowerCase() === "s" && event.shiftKey) {
+    if (key.toLowerCase() === "s" && event.shiftKey) {
       event.preventDefault();
       shuffleDeck();
       return;
     }
 
-    if (event.key.toLowerCase() === "l") {
+    if (key.toLowerCase() === "l") {
       event.preventDefault();
       showLessons(true);
       return;
     }
 
-    if (event.key.toLowerCase() === "m") {
+    if (key.toLowerCase() === "m") {
       event.preventDefault();
       cycleCardMode();
       return;
     }
 
-    if (event.key === "ArrowLeft") moveCard(-1);
-    if (event.key === "ArrowRight") moveCard(1);
-    if (event.key === " " || event.key === "Enter") {
+    if (["ArrowLeft", "Left", "PageUp"].includes(key)) {
+      event.preventDefault();
+      moveCard(-1);
+      return;
+    }
+
+    if (["ArrowRight", "Right", "PageDown"].includes(key)) {
+      event.preventDefault();
+      moveCard(1);
+      return;
+    }
+
+    if (key === " " || key === "Spacebar" || key === "Enter") {
       event.preventDefault();
       cardFlipped = !cardFlipped;
       commitUrl();
