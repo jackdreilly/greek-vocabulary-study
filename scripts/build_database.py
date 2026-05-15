@@ -24,7 +24,7 @@ SILENTSHUFFLE_DIR = Path(
 )
 SILENTSHUFFLE_CSV = SILENTSHUFFLE_DIR / "top-5000-words-in-greek [426582]_(~5000).csv"
 SILENTSHUFFLE_MEDIA_DIR = SILENTSHUFFLE_DIR / "top-5000-words-in-greek [426582]_media(4985)"
-SITE_AUDIO_DIR = ROOT / "site" / "audio"
+SITE_AUDIO_DIR = ROOT / "public" / "audio"
 
 THEMES = {
     1: "Οικογένεια: ο θεσμός - οι δεσμοί",
@@ -39,7 +39,7 @@ THEMES = {
     10: "Μεταφορικά μέσα - Ταξίδια",
     11: "Το ανθρώπινο σώμα - Η υγεία",
     12: "Πανίδα - Χλωρίδα",
-    13: "SilentShuffle Top 5000",
+    13: "Top 5000",
 }
 
 PAGE_STRUCTURE = {
@@ -443,12 +443,12 @@ def append_silentshuffle_entries(entries: list[dict]) -> None:
                 "id": len(entries) + 1,
                 "theme_id": 13,
                 "theme": THEMES[13],
-                "category": "SilentShuffle",
+                "category": "Top 5000",
                 "subsection": record["top5000_part_of_speech"] or None,
                 "term": record["top5000_headword"],
                 "lemma": record["top5000_headword"],
                 "article": None,
-                "entry_source": "silentshuffle",
+                "entry_source": "top5000",
                 "frequency_rank": rank,
                 "page": None,
                 "position_in_group": rank,
@@ -467,25 +467,19 @@ def build_json(entries: list[dict]) -> None:
                 "id": theme_id,
                 "title": title,
                 "entry_count": len(theme_entries),
-                "pages": sorted({entry["page"] for entry in theme_entries if entry["page"]}),
                 "categories": dict(Counter(entry["category"] for entry in theme_entries)),
             }
         )
 
     payload = {
         "source": {
-            "title": "LEXILOGIO-THEMATIKO (1).pdf",
-            "pages": 74,
             "dictionary": DICTIONARY_PATH.name,
-            "supplemental_dictionary": SILENTSHUFFLE_CSV.name,
             "translation_counts": dict(translation_counts),
             "audio_count": audio_count,
             "notes": [
-                "PDF text was extracted with pypdf.",
                 "English translations were joined from the Greek-English Wiktionary TSV by normalized Greek headword/variant.",
-                "SilentShuffle Top 5000 is used as a supplemental translation source and for audio file references.",
-                "Audio files are copied into site/audio when the referenced MP3 is present; rerun scripts/build_database.py to backfill later downloads.",
-                "The source PDF omits spaces in some multi-word Greek phrases; terms preserve the extracted form.",
+                "Top 5000 data is used as a supplemental translation source and for audio file references.",
+                "Audio files are copied into public/audio when the referenced MP3 is present; rerun scripts/build_database.py to backfill later downloads.",
                 "Theme and part labels are normalized into Greek from the visible document structure.",
             ],
         },
@@ -495,9 +489,9 @@ def build_json(entries: list[dict]) -> None:
     (DATA_DIR / "lexilogio.json").write_text(
         json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
     )
-    site_data_dir = ROOT / "site" / "data"
-    site_data_dir.mkdir(exist_ok=True)
-    shutil.copy2(DATA_DIR / "lexilogio.json", site_data_dir / "lexilogio.json")
+    public_data_dir = ROOT / "public" / "data"
+    public_data_dir.mkdir(exist_ok=True)
+    shutil.copy2(DATA_DIR / "lexilogio.json", public_data_dir / "lexilogio.json")
 
 
 def build_csv(entries: list[dict]) -> None:
@@ -619,7 +613,7 @@ def main() -> None:
     matched = sum(1 for entry in entries if entry["translation_match"] != "unmatched")
     audio_count = sum(1 for entry in entries if entry["audio_available"])
     print(f"Built {len(entries)} entries across {len(THEMES)} themes.")
-    print(f"Included {sum(1 for entry in entries if entry['entry_source'] == 'silentshuffle')} SilentShuffle entries.")
+    print(f"Included {sum(1 for entry in entries if entry['entry_source'] == 'top5000')} Top 5000 entries.")
     print(f"Joined English translations for {matched} entries ({matched / len(entries):.1%}).")
     print(f"Linked local audio for {audio_count} entries.")
 

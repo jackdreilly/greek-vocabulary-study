@@ -1,12 +1,12 @@
 .DS_Store
 .firebase/
+node_modules/
 
 # Generated data and copied media are rebuilt from the raw source archives.
-data/
-site/data/
-site/audio/
+/data/
+site/
+public/audio/
 
 # Local packaging scratch.
 .artifacts/
 *.zip
-site/audio/
