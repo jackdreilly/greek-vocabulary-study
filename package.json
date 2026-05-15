@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 3000",
     "build": "vite build",
+    "images:queries": "node scripts/build_image_queries.mjs",
     "images:sample": "node scripts/fetch_word_images.mjs --lesson=12 --limit-per-type=10",
     "preview": "vite preview --host 0.0.0.0 --port 3000",
     "deploy": "npx firebase-tools deploy --only hosting,storage --project didibros-6d3ed --non-interactive"

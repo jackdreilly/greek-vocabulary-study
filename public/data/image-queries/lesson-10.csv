@@ -1,0 +1,253 @@
+entry_id,theme_id,theme,category,type,subsection,lemma,primary_sense,query,query_status
+2545,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,άγκυρα,anchor,anchor photo,generated
+2546,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,άδεια,permission,permission photo,generated
+2547,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,άδειαπαραμονής,,,no_english
+2548,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,αεροδρόμιο,airport,airport photo,generated
+2549,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,αεροπειρατεία,highjacking,highjacking photo,generated
+2550,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,αεροπλάνο,(more colloquial) Alternative form of αεροπλάνο (aeropláno),,needs_review
+2551,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,αεροπορικήεταιρεία,,,no_english
+2552,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,αερόστατο,gas-filled balloon,gas-filled balloon photo,generated
+2553,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,αεροσυνοδός,flight attendant,flight attendant photo,generated
+2554,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,αίθουσα,room,room photo,generated
+2555,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,αίθουσααναμονής,,,no_english
+2556,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ακύρωση,annulment,annulment photo,generated
+2557,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,αναβολή,postponement,postponement photo,generated
+2558,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,αναγγελία,notice,notice photo,generated
+2559,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,αναμονή,wait,wait photo,generated
+2560,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ανανέωση,renewal,renewal photo,generated
+2561,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,αναχώρηση,departure,departure photo,generated
+2562,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,αντίσκηνο,small tent,small tent photo,generated
+2563,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,αξιοθέατο,Nominative,Nominative photo,generated
+2564,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,αποβάθρα,quay,quay photo,generated
+2565,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,απογείωση,takeoff,takeoff photo,generated
+2566,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,αποσκευές,Nominative,Nominative photo,generated
+2567,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,απωλεσθέντααντικείμενα,,,no_english
+2568,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,άσφαλτος,free from errors,free from errors photo,generated
+2569,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ατμομηχανή,steam engine,steam engine photo,generated
+2570,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,αυτοκινητάμαξα,,,no_english
+2571,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,αυτοκινητιστής,,,no_english
+2572,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,αυτοκίνητο,"car, motorcar, automobile",,needs_review
+2573,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,αυτοκινητόδρομος,motorway,motorway photo,generated
+2574,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,αυτόματοςπιλότος,,,no_english
+2575,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,άφιξη,arrival,arrival photo,generated
+2576,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,βαγόνι,carriage,carriage photo,generated
+2577,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,βαλίτσα,suitcase,suitcase photo,generated
+2578,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,βάρκα,small boat or launch,small boat or launch photo,generated
+2579,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,βέσπα,motor scooter,motor scooter photo,generated
+2580,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,βίζα,visa,visa photo,generated
+2581,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,βουνό,mountain,mountain photo,generated
+2582,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,διαβατήριο,passport,passport photo,generated
+2583,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,διακοπές,Nominative,Nominative photo,generated
+2584,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,διανυκτέρευση,overnight,overnight photo,generated
+2585,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,διατροφή,nutrition,nutrition photo,generated
+2586,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,διόδια,toll,toll photo,generated
+2587,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,δρομολόγιο,itinerary,itinerary photo,generated
+2588,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,δωμάτιο,room,room photo,generated
+2589,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,"εισιτήριο(απλό,μεεπιστροφή),το",,,no_english
+2590,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,εισπράκτορας,ticket collector,ticket collector photo,generated
+2591,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ελεγκτής,auditor,auditor photo,generated
+2592,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,έλεγχος,control,control photo,generated
+2593,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,εκδρομή,excursion,excursion photo,generated
+2594,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,έκθεμα,exhibit,exhibit photo,generated
+2595,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,έλικας,propeller,propeller photo,generated
+2596,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ελικόπτερο,helicopter,helicopter photo,generated
+2597,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ενθύμιο,souvenir,souvenir photo,generated
+2598,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,εξοχή,protrusion,protrusion photo,generated
+2599,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,επιβάτης,passenger,passenger photo,generated
+2600,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,επίσκεψη,visit,visit photo,generated
+2601,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ζώνηασφαλείας,,,no_english
+2602,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ημιδιατροφή,,,no_english
+2603,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,θάλασσα,storm,storm photo,generated
+2604,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,θέρετρο,resort,resort photo,generated
+2605,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,θέση,position,position photo,generated
+2606,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,θεώρηση,authentication,authentication photo,generated
+2607,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ιπτάμενοδελφίνι,,,no_english
+2608,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ιστιοφόρο,sailing boat,sailing boat photo,generated
+2609,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,κάθισμα,seat,seat photo,generated
+2610,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,καθυστέρηση,,,no_english
+2611,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,καμπίνα,ship's cabin,ship's cabin photo,generated
+2612,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,κάμπινγκ,,,no_english
+2613,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,καπετάνιος,captain,captain photo,generated
+2614,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,καπνιστής,smoker,smoker photo,generated
+2615,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,καπνίστρια,smoker,smoker photo,generated
+2616,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,καράβι,ship,ship photo,generated
+2617,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,κάρτα,card,card photo,generated
+2618,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,κατασκήνωση,camp,camp photo,generated
+2619,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,κατάστρωμα,deck,deck photo,generated
+2620,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,κινητήρας,engine,engine photo,generated
+2621,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,κουκέτα,,,no_english
+2622,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,κουπί,"oar, paddle, scull",,needs_review
+2623,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,κράνος,helmet,helmet photo,generated
+2624,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,κράτηση,booking,booking photo,generated
+2625,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,κρουαζιέρα,cruise,cruise photo,generated
+2626,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,κρουαζιερόπλοιο,cruise liner,cruise liner photo,generated
+2627,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,κυβερνήτης,governor,governor photo,generated
+2628,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,λαθρεπιβάτης,,,no_english
+2629,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,λαθρεπιβάτισσα,,,no_english
+2630,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,λεωφορείο,"(transport) bus, omnibus",,needs_review
+2631,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,λιμάνι,harbour,harbour photo,generated
+2632,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,μηκαπνιστής,,,no_english
+2633,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,μηχανάκι,meatgrinder,meatgrinder photo,generated
+2634,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,μηχανή,machine,machine photo,generated
+2635,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,μηχανόβιος,,,no_english
+2636,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,μηχανοδηγός,,,no_english
+2637,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,μοτοποδήλατο,scooter,scooter photo,generated
+2638,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,μοτοσικλετιστής,,,no_english
+2639,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,μουσείο,museum,museum photo,generated
+2640,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ναύλα,fare,fare photo,generated
+2641,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ναύτης,sailor,sailor photo,generated
+2642,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ναυτία,nausea,nausea photo,generated
+2643,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ξενάγηση,,,no_english
+2644,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ξεναγός,guide,guide photo,generated
+2645,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ξενοδοχείο,hotel,hotel photo,generated
+2646,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ξενοδόχος,hotelier,hotelier photo,generated
+2647,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ξενώνας,guest room,guest room photo,generated
+2648,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,οδηγός,driver,driver photo,generated
+2649,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,οδικόδίκτυο,,,no_english
+2650,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,οδός,street,street photo,generated
+2651,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,οδόστρωμα,,,no_english
+2652,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,πανδοχείο,"inn, guesthouse",,needs_review
+2653,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,πανσιόν,pension,pension photo,generated
+2654,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,παπάκι,keyboard symbol @,keyboard symbol @ photo,generated
+2655,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,παράβαση,offence,offence photo,generated
+2656,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,παραθέριση,,,no_english
+2657,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,παραλία,beach,beach photo,generated
+2658,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,παραμονή,abidance,abidance photo,generated
+2659,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,πάσο,pass,pass photo,generated
+2660,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,περιήγηση,tour,tour photo,generated
+2661,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,περιηγητής,tourist,tourist photo,generated
+2662,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,περιηγήτρια,tourist,tourist photo,generated
+2663,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,πιλότος,pilot,pilot photo,generated
+2664,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,πινακοθήκη,art gallery,art gallery photo,generated
+2665,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,πληροφορία,information,information photo,generated
+2666,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,πλήρωμα,,,no_english
+2667,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,πλοίο,ship,ship photo,generated
+2668,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ποδηλάτης,cyclist,cyclist photo,generated
+2669,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ποδηλάτισσα,cyclist,cyclist photo,generated
+2670,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ποδήλατο,bicycle,bicycle photo,generated
+2671,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,πορτμπαγκάζ,,,no_english
+2672,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,πούλμαν,coach,coach photo,generated
+2673,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,πράκτορας,agent,agent photo,generated
+2674,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,πρακτορείο,bureau,bureau photo,generated
+2675,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,πρόγευμα,breakfast,breakfast photo,generated
+2676,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,προσγείωση,landing,landing photo,generated
+2677,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,πρόστιμο,fine,fine photo,generated
+2678,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,πρωινό,morning,morning photo,generated
+2679,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,πτήση,flight,flight photo,generated
+2680,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,πύργοςελέγχου,,,no_english
+2681,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ρεσεψιόν,reception,reception photo,generated
+2682,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ρόδα,wheel,wheel photo,generated
+2683,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,σακίδιο,haversack,haversack photo,generated
+2684,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,σάκος,sack,sack photo,generated
+2685,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,σέρβις,,,no_english
+2686,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,σιδηροδρομικήγραμμή,,,no_english
+2687,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,σιδηροδρομικόδίκτυο,,,no_english
+2688,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,σιδηρόδρομος,railway,railway photo,generated
+2689,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,σκάφος,craft,craft photo,generated
+2690,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,σκηνή,skene,skene photo,generated
+2691,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,σταθμάρχης,,,no_english
+2692,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,σταθμός,station,station photo,generated
+2693,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ταξίδι,trip,trip photo,generated
+2694,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ταξιδιώτης,,,no_english
+2695,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,ταξιδιωτικόγραφείο,,,no_english
+2696,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,τελεφερίκ,,,no_english
+2697,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,τελωνείο,,,no_english
+2698,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,τιμόνι,steering wheel,steering wheel photo,generated
+2699,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,τοπίο,landscape,landscape photo,generated
+2700,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,τρένο,train,train photo,generated
+2701,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,τσάντα,"bag, purse, handbag",,needs_review
+2702,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,τουρισμός,tourism,tourism photo,generated
+2703,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,τουρίστας,tourist,tourist photo,generated
+2704,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,τουρίστρια,tourist,tourist photo,generated
+2705,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,τουριστικόγραφείο,,,no_english
+2706,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,τουριστικόςπρακτορας,,,no_english
+2707,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,τροχόσπιτο,caravan,caravan photo,generated
+2708,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,υπηρεσία,service,service photo,generated
+2709,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,υπνόσακος,,,no_english
+2710,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,φρένο,brake,brake photo,generated
+2711,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,φτερό,wing,wing photo,generated
+2712,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,φωτογραφία,photography,photography photo,generated
+2713,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,φωτογραφικήμηχανή,,,no_english
+2714,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,χάρτης,charter,charter photo,generated
+2715,10,Μεταφορικά μέσα - Ταξίδια,Ουσιαστικά,noun,,χειραποσκευή,,,no_english
+2716,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,αεροπορικός-ή-ό,"air, aerial (connected with aviation)",,needs_review
+2717,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,ακριβός-ή-ό,expensive,expensive example photo,generated
+2718,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,ακτοπλοϊκός-ή-ό,coastal,coastal example photo,generated
+2719,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,άνετος-η-ο,comfortable,comfortable example photo,generated
+2720,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,αργός-ή-ό,slow,slow example photo,generated
+2721,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,αρχαιολογικός-ή-ό,archaeological,archaeological example photo,generated
+2722,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,ασφαλής-ής-ές,safe,safe example photo,generated
+2723,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,βουνίσιος-ια-ιο,mountainous,mountainous example photo,generated
+2724,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,γραφικός-ή-ό,written,written example photo,generated
+2725,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,γρήγορος-η-ο,quick,quick example photo,generated
+2726,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,διαφημιστικός-ή-ό,,,no_english
+2727,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,δυσάρεστος-η-ο,unpleasant,unpleasant example photo,generated
+2728,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,εξυπηρετικός-ή-ό,,,no_english
+2729,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,εξωτικός-ή-ό,exotic,exotic example photo,generated
+2730,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,επικίνδυνος-η-ο,dangerous,dangerous example photo,generated
+2731,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,ευχάριστος-η-ο,pleasant,pleasant example photo,generated
+2732,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,ημερήσιος-ια-ιο,daily,daily example photo,generated
+2733,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,θαλασσινός-ή-ό,,,no_english
+2734,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,ιστορικός-ή-ό,historical,historical example photo,generated
+2735,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,καλοκαιρινός-ή-ό,summery,summery example photo,generated
+2736,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,καταπράσινος-η-ο,verdant,verdant example photo,generated
+2737,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,κάτασπρος-η-ο,snow-white,snow-white example photo,generated
+2738,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,κουραστικός-ή-ό,tiring,tiring example photo,generated
+2739,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,λαογραφικός-ή-ό,,,no_english
+2740,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,μαγευτικός-ή-ό,,,no_english
+2741,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,μοντέρνος-α-ο,modern,modern example photo,generated
+2742,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,ξεκούραστος-η-ο,,,no_english
+2743,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,οδικός-ή-ό,road,road example photo,generated
+2744,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,παραθαλάσσιος-ια-ιο,,,no_english
+2745,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,πρακτικός-ή-ό,practical,practical example photo,generated
+2746,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,σίγουρος-η-ο,secure,secure example photo,generated
+2747,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,σιδηροδρομικός-ή-ό,rail,rail example photo,generated
+2748,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,σύγχρονος-η-ο,contemporary,contemporary example photo,generated
+2749,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,ταξιδιωτικός-ή-ό,traveller's,traveller's example photo,generated
+2750,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,τουριστικός-ή-ό,tourist,tourist example photo,generated
+2751,10,Μεταφορικά μέσα - Ταξίδια,Επίθετα,adjective,,φθηνός-ή-ό,cheap,cheap example photo,generated
+2752,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,αγοράζω,"buy, purchase",,needs_review
+2753,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,ακυρώνω,annul,annul action photo,generated
+2754,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,αναβάλλω,postpone,postpone action photo,generated
+2755,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,αναθεωρώ,reconsider,reconsider action photo,generated
+2756,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,ανανεώνω,renew,renew action photo,generated
+2757,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,αναχωρώ,depart,depart action photo,generated
+2758,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,ανεβαίνω,ascend,ascend action photo,generated
+2759,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,αποβιβάζω-ομαι,put ashore,put ashore action photo,generated
+2760,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,απογειώνω-ομαι,get into air,get into air action photo,generated
+2761,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,βγαίνω,come up,come up action photo,generated
+2762,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,διανυκτερεύω,be up all night,be up all night action photo,generated
+2763,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,διασχίζω,traverse,traverse action photo,generated
+2764,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,επιβιβάζω-ομαι,ship,ship action photo,generated
+2765,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,επισκέπτομαι,visit,visit action photo,generated
+2766,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,ζητώ,a more formal variant of ζητάω (zitáo),,needs_review
+2767,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,θεωρώ,consider,consider action photo,generated
+2768,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,ισχύω,be valid,be valid action photo,generated
+2769,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,καθυστερώ,am late,am late action photo,generated
+2770,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,κάνωδιακοπές,,,no_english
+2771,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,κάνωκράτηση,,,no_english
+2772,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,κάνωμπάνιο,,,no_english
+2773,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,κάνωσκι,,,no_english
+2774,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,καταγράφω,register,register action photo,generated
+2775,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,κατασκηνώνω,camp,camp action photo,generated
+2776,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,κατεβαίνω,descend,descend action photo,generated
+2777,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,κλείνωθέση,,,no_english
+2778,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,κόβωεισιτήριο,,,no_english
+2779,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,κολυμπώ,a more formal variant of κολυμπάω (kolympáo) swim,,needs_review
+2780,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,ξεναγώ,show around,show around action photo,generated
+2781,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,παίρνω(τοαεροπλάνο),take,take action photo,generated
+2782,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,παραθερίζω,,,no_english
+2783,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,πηγαίνω,literally go → interchangeable with πάω,literally go → interchangeable with πάω action photo,generated
+2784,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,προσγειώνω-ομαι,land,land action photo,generated
+2785,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,προσδένομαι,,,no_english
+2786,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,ταξιδεύωμε,,,no_english
+2787,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,χάνω(τοτρένο),lose,lose action photo,generated
+2788,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,φεύγω,leave,leave action photo,generated
+2789,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,φθάνω(φτάνω),(more formal) Alternative form of φτάνω (ftáno),,needs_review
+2790,10,Μεταφορικά μέσα - Ταξίδια,Εκφράσεις,phrase,,«Ογύροςτουκόσμουσεογδόνταημέρες»,,,no_english
+2791,10,Μεταφορικά μέσα - Ταξίδια,Εκφράσεις,phrase,,Οδύσσειααυτότοταξίδι...,,,no_english
+2792,10,Μεταφορικά μέσα - Ταξίδια,Εκφράσεις,phrase,,Είναιταξιδιάρικοπουλί,,,no_english
+2793,10,Μεταφορικά μέσα - Ταξίδια,Εκφράσεις,phrase,,Οκαλόςοκαπετάνιοςστηφουρτούναφαίνεται,,,no_english
+2794,10,Μεταφορικά μέσα - Ταξίδια,Εκφράσεις,phrase,,Μεγάλοκαράβιμεγάλεςφουρτούνες,,,no_english
+2795,10,Μεταφορικά μέσα - Ταξίδια,Εκφράσεις,phrase,,«Ώρακαλήστηνπρύμησουκιαέραςσταπανιάσουκιούτεπουλίπετούμενοναμηβρεθεί,,,no_english
+2796,10,Μεταφορικά μέσα - Ταξίδια,Εκφράσεις,phrase,,μπροστάσου»,,,no_english

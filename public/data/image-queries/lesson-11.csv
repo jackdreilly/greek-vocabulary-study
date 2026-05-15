@@ -1,0 +1,314 @@
+entry_id,theme_id,theme,category,type,subsection,lemma,primary_sense,query,query_status
+2797,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αγγείο,chamber pot,chamber pot photo,generated
+2798,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αγκώνας,elbow,elbow photo,generated
+2799,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αίμα,blood,blood photo,generated
+2800,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αντίχειρας,thumb,thumb photo,generated
+2801,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,άρθρωση,joint,joint photo,generated
+2802,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αρτηρία,artery,artery photo,generated
+2803,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αστράγαλος,ankle,ankle photo,generated
+2804,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αφτί,(anatomy) ear,,needs_review
+2805,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,βάρος,weight,weight photo,generated
+2806,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,βλεφαρίδα,eyelash,eyelash photo,generated
+2807,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,γάμπα,,,no_english
+2808,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,γεννητικάόργανα,,,no_english
+2809,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,γέφυρα(δοντιών),bridge,bridge photo,generated
+2810,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,γλώσσα,tongue,tongue photo,generated
+2811,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,γόνατο,knee,knee photo,generated
+2812,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,γονιμοποίηση,,,no_english
+2813,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,γύψος,gypsum,gypsum photo,generated
+2814,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,δάκρυ,tear,tear photo,generated
+2815,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,δάχτυλο,finger,finger photo,generated
+2816,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,δείκτης,indicator,indicator photo,generated
+2817,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,διάσταση,dimension,dimension photo,generated
+2818,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,δόντι,tooth,tooth photo,generated
+2819,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,έντερο,intestine,intestine photo,generated
+2820,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,επιδερμίδα,epidermis,epidermis photo,generated
+2821,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,καρδνά,,,no_english
+2822,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,κεφάλι,head,head photo,generated
+2823,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,κοιλιά,abdomen,abdomen photo,generated
+2824,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,κόκαλο,bone,bone photo,generated
+2825,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,κρανίο,cranium,cranium photo,generated
+2826,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,λαβύρινθος,maze,maze photo,generated
+2827,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,λαιμός,neck,neck photo,generated
+2828,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,λάρυγγας,larynx,larynx photo,generated
+2829,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,λεκάνη,any large bowl,any large bowl photo,generated
+2830,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μάγουλο,cheek,cheek photo,generated
+2831,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μαλλιά,hair,hair photo,generated
+2832,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μασχάλη,armpit,armpit photo,generated
+2833,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μάτι,burner,burner photo,generated
+2834,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μέλος,member,member photo,generated
+2835,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μέση,middle,middle photo,generated
+2836,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μέτωπο,forehead,forehead photo,generated
+2837,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μηρός,thigh,thigh photo,generated
+2838,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μικροσκόπιο,microscope,microscope photo,generated
+2839,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μπράτσο,upper arm,upper arm photo,generated
+2840,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μυς,muscle,muscle photo,generated
+2841,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μύτη,nose,nose photo,generated
+2842,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,νεύρο,nerve,nerve photo,generated
+2843,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,νεφρό,kidney,kidney photo,generated
+2844,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,νύχι,nail,nail photo,generated
+2845,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,όργανο,body organ,body organ photo,generated
+2846,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ουροδόχοςκύστη,,,no_english
+2847,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,παλάμη,palm,palm photo,generated
+2848,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,πέλμα,sole,sole photo,generated
+2849,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,πηγούνι,chin,chin photo,generated
+2850,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,πλάτη,back,back photo,generated
+2851,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ττνεύμονας,,,no_english
+2852,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,πνευμόνι,lung as sold meat,lung as sold meat photo,generated
+2853,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,πόδι,foot,foot photo,generated
+2854,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,πρόσωπο,face,face photo,generated
+2855,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,πυρετός,fever,fever photo,generated
+2856,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,σκελετός,skeleton,skeleton photo,generated
+2857,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,σπονδυλικήστήλη,,,no_english
+2858,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,σπόνδυλος,vertebra,vertebra photo,generated
+2859,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,στήθος,chest,chest photo,generated
+2860,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,στόμα,mouth,mouth photo,generated
+2861,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,στομάχι,stomach,stomach photo,generated
+2862,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,συκώτι,liver,liver photo,generated
+2863,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,σφράγισμα,using stamp,using stamp photo,generated
+2864,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,σώμα,body,body photo,generated
+2865,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,τύμπανο,timpani,timpani photo,generated
+2866,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ύψος,height,height photo,generated
+2867,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,φλέβα,vein,vein photo,generated
+2868,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,φρύδι,eyebrow,eyebrow photo,generated
+2869,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,χείλη,Nominative,Nominative photo,generated
+2870,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,χέρι,hand,hand photo,generated
+2871,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ώμος,shoulder,shoulder photo,generated
+2872,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,οιαισθήσεις,,,no_english
+2873,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ακοή,hearing,hearing photo,generated
+2874,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αφή,touch,touch photo,generated
+2875,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,γεύση,taste,taste photo,generated
+2876,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,όραση,vision,vision photo,generated
+2877,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,όσφρηση,smell,smell photo,generated
+2878,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,"οιλειτουργίεςτουανθρώπινου,οργανισμού",,,no_english
+2879,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αναπνοή,breath,breath photo,generated
+2880,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αναπαραγωγή,biological reproduction,biological reproduction photo,generated
+2881,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,κυκλοφορίατουαίματος,,,no_english
+2882,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,πέψη,digestion,digestion photo,generated
+2883,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ασθένειες-περίθαλψη,Nominative,Nominative photo,generated
+2884,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αγωγή,treatment,treatment photo,generated
+2885,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αδιαθεσία,indisposition,indisposition photo,generated
+2886,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αιμοδοσία,blood donation,blood donation photo,generated
+2887,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αιμοδότης,blood donor,blood donor photo,generated
+2888,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αιμοδότρια,blood donor,blood donor photo,generated
+2889,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ακτινογραφία,radiography,radiography photo,generated
+2890,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αλοιφή,ointment,ointment photo,generated
+2891,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αμυγδαλές,Nominative,Nominative photo,generated
+2892,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ανάλυσηαίματος,,,no_english
+2893,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ανάρρωση,recovery,recovery photo,generated
+2894,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αναρρωτικήάδεια,,,no_english
+2895,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,άνεμοβλογιά,chicken pox,chicken pox photo,generated
+2896,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ανοσιοποιητικόσύστημα,,,no_english
+2897,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αντιβιοτικό,antibiotic,antibiotic photo,generated
+2898,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αντίδοτο,antidote,antidote photo,generated
+2899,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αξονική,axial,axial photo,generated
+2900,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αρρώστια,malady,malady photo,generated
+2901,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,άρρωστη,sickly,sickly photo,generated
+2902,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,άρρωστος,sickly,sickly photo,generated
+2903,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ασθενής,sick,sick photo,generated
+2904,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ασθενοφόρο,ambulance,ambulance photo,generated
+2905,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ασπιρίνη,aspirin,aspirin photo,generated
+2906,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αστιγματισμός,astigmatism,astigmatism photo,generated
+2907,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,βελόνα,needle,needle photo,generated
+2908,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,γρίππη,,,no_english
+2909,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,διαβήτης,pair of compasses,pair of compasses photo,generated
+2910,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,διαβητικός,,,no_english
+2911,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,εγχείρηση,operation,operation photo,generated
+2912,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,έιτζ,,,no_english
+2913,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,εμβολιασμός,vaccination,vaccination photo,generated
+2914,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,εμβόλιο,vaccine,vaccine photo,generated
+2915,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,έμετος,vomiting,vomiting photo,generated
+2916,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,έμφραγμα,heart attack,heart attack photo,generated
+2917,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ένεση,injection,injection photo,generated
+2918,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,εξέταση,of plans,of plans photo,generated
+2919,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,επίδεσμος,bandage,bandage photo,generated
+2920,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,επίσκεψη,visit,visit photo,generated
+2921,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ηπατίτιδα,hepatitis,hepatitis photo,generated
+2922,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,θεραπεία,cure,cure photo,generated
+2923,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,θερμόμετρο,thermometer,thermometer photo,generated
+2924,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ιατρείο,doctor's surgery,doctor's surgery photo,generated
+2925,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ιατρική,medicine,medicine photo,generated
+2926,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ιλαρά,measles,measles photo,generated
+2927,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ιός,virus,virus photo,generated
+2928,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,καρδιακήκρίση,,,no_english
+2929,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,καρδιογράφημα,,,no_english
+2930,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,καρκίνος,cancer,cancer photo,generated
+2931,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,κάταγμα,fracture,fracture photo,generated
+2932,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,κλινική,clinic,clinic photo,generated
+2933,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,κοιλόπονος,,,no_english
+2934,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,κολλύριο,,,no_english
+2935,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,λιποθυμία,faint,faint photo,generated
+2936,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μαγνητική,Nominative,Nominative photo,generated
+2937,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μαγουλάδες,mumps,mumps photo,generated
+2938,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μεταμόσχευση,,,no_english
+2939,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μικρόβιο,microbe,microbe photo,generated
+2940,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μόλυνση,contagion,contagion photo,generated
+2941,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μύωπας,,,no_english
+2942,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μυωπία,myopia,myopia photo,generated
+2943,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,νοσοκομείο,hospital,hospital photo,generated
+2944,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,νοσοκόμα,nurse,nurse photo,generated
+2945,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,νοσοκόμος,male nurse,male nurse photo,generated
+2946,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ορός,definition,definition photo,generated
+2947,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,παραμαγούλες,,,no_english
+2948,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,παυσίπονο,painkiller,painkiller photo,generated
+2949,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,περιστατικό,event,event photo,generated
+2950,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,πληγή,,,no_english
+2951,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,πλύσηστομάχου,,,no_english
+2952,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,πονόδοντος,toothache,toothache photo,generated
+2953,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,πονοκέφαλος,headache,headache photo,generated
+2954,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,πρεσβυωπία,presbyopia,presbyopia photo,generated
+2955,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,πρόληψη,,,no_english
+2956,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,πυρετός,fever,fever photo,generated
+2957,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ράμμα,,,no_english
+2958,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ρευματισμοί,,,no_english
+2959,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,σημάδι,mark,mark photo,generated
+2960,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,σιρόπι,syrup,syrup photo,generated
+2961,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,σκωληκοειδίτιδα,appendicitis,appendicitis photo,generated
+2962,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,σταγόνα,drop,drop photo,generated
+2963,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,στηθοσκόπιο,stethoscope,stethoscope photo,generated
+2964,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,στοματίτιδα,,,no_english
+2965,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,στομαχόπονος,stomachache,stomachache photo,generated
+2966,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,στραμπούληγμα,,,no_english
+2967,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,σύμπτωμα,symptom,symptom photo,generated
+2968,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,συνταγή,prescription,prescription photo,generated
+2969,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,σύριγγα,syringe,syringe photo,generated
+2970,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,τραύμα,wound,wound photo,generated
+2971,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,τραυματιοφορέας,,,no_english
+2972,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,τροφικήδηλητηρίαση,,,no_english
+2973,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,υπέρηχος,ultrasound,ultrasound photo,generated
+2974,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,υπόθετο,,,no_english
+2975,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,φαρμακείο,pharmacy,pharmacy photo,generated
+2976,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,φάρμακο,medicine,medicine photo,generated
+2977,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,φαρυγγίτιδα,,,no_english
+2978,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,φλεγμονή,inflammation,inflammation photo,generated
+2979,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,φορείο,stretcher,stretcher photo,generated
+2980,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,χάπι,pill,pill photo,generated
+2981,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,χειρουργείο,surgery,surgery photo,generated
+2982,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ωτίτιδα,otitis,otitis photo,generated
+2983,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,οιπαιδικέςαρρώστιες,,,no_english
+2984,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αμυγδαλές,Nominative,Nominative photo,generated
+2985,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ανεμοβλογιά,chicken pox,chicken pox photo,generated
+2986,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ερυθρά,rubella,rubella photo,generated
+2987,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ιλαρά,measles,measles photo,generated
+2988,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,παραμαγούλες,,,no_english
+2989,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,Ειδικότητες,,,no_english
+2990,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ακτινιλόγος,,,no_english
+2991,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αθλητίατρος,sports medicine doctor,sports medicine doctor photo,generated
+2992,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,αναισθησιολόγος,anaesthetist,anaesthetist photo,generated
+2993,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,γιατρός,doctor,doctor photo,generated
+2994,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,γυναικολόγος,gynecologist,gynecologist photo,generated
+2995,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,δερματολόγος,dermatologist,dermatologist photo,generated
+2996,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,"καρδιολόγος,ρ,η",,,no_english
+2997,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,λογοθεραπευτής,,,no_english
+2998,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,λογοθεραπέύτρια,,,no_english
+2999,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μαία,midwife,midwife photo,generated
+3000,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μαιευτήρας,,,no_english
+3001,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,μικροβιολόγος,,,no_english
+3002,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,νοσηλευτής,male nurse,male nurse photo,generated
+3003,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,νοσηλεύτρια,nurse,nurse photo,generated
+3004,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,οδοντίατρος,dentist,dentist photo,generated
+3005,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,οδοντογιατρός,dentist,dentist photo,generated
+3006,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ορθοπεδικός,,,no_english
+3007,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,οστεοπαθολόγος,,,no_english
+3008,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ουρολόγος,,,no_english
+3009,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,οφθαλμίατρος,oculist,oculist photo,generated
+3010,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,παθολόγος,,,no_english
+3011,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,παιδίατρος,pediatrician,pediatrician photo,generated
+3012,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,πλαστικόςχειρούργος,,,no_english
+3013,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ρευματολόγος,,,no_english
+3014,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,σχολίατρος,,,no_english
+3015,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,φυσικοθεραπευτής,,,no_english
+3016,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,φυσικοθεραπεύτρια,,,no_english
+3017,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,χειροπράκτης,,,no_english
+3018,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,χειρουργός,surgeon,surgeon photo,generated
+3019,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ψυχίατρος,psychiatrist,psychiatrist photo,generated
+3020,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ψυχολόγος,psychologist,psychologist photo,generated
+3021,11,Το ανθρώπινο σώμα - Η υγεία,Ουσιαστικά,noun,,ωτορινολαρυγγολόγος,otorhinolaryngologist,otorhinolaryngologist photo,generated
+3022,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,αδιάθετος-η-ο,unwell,unwell example photo,generated
+3023,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,αδύναμος-η-ο,weak,weak example photo,generated
+3024,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,αναλγητικός-ή-ό,analgesic,analgesic example photo,generated
+3025,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,αναρρωτικός-ή-ό,convalescent,convalescent example photo,generated
+3026,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,άσχημος-η-ο,ugly,ugly example photo,generated
+3027,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,γερός-ή-ό,strong,strong example photo,generated
+3028,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,γυμνός-ή-ό,naked,naked example photo,generated
+3029,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,εξωσωματικός-ή-ό,,,no_english
+3030,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,επείγων-ουσα-ον,urgent,urgent example photo,generated
+3031,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,επικίνδυνος-η-ο,dangerous,dangerous example photo,generated
+3032,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,εύσωμος-η-ο,,,no_english
+3033,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,θεραπευτικός-ή-ό,,,no_english
+3034,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,καστανός-ή-ό,brown,brown example photo,generated
+3035,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,κοντός-ή-ό,short,short example photo,generated
+3036,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,λεπτός-ή-ό,thin,thin example photo,generated
+3037,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,μελαχρινός-ή-ό,one who has black hair and/or eyes,one who has black hair and/or eyes example photo,generated
+3038,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,μεταδοτικός-ή-ό,contagious,contagious example photo,generated
+3039,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,μικροκαμωμένος-η-ο,,,no_english
+3040,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,νοσοκομειακός-ή-ό,,,no_english
+3041,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,ξανθός-ή-ό,blonde,blonde example photo,generated
+3042,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,ξυπόλητος-η-ο,,,no_english
+3043,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,όμορφος-η-ο,beautiful,beautiful example photo,generated
+3044,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,προληπτικός-ή-ό,preventing,preventing example photo,generated
+3045,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,σγουρομάλλης-α-ικο,,,no_english
+3046,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,σωματικός-ή-ό,physical,physical example photo,generated
+3047,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,φαλακρός-ή-ό,bald,bald example photo,generated
+3048,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,φιλάσθενος-η-ο,,,no_english
+3049,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,χειρουργικός-ή-ό,surgical,surgical example photo,generated
+3050,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,χλομός-ή-ό,"(of a person): pale, wan, sallow",,needs_review
+3051,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,χοντρός-ή-ό,thick,thick example photo,generated
+3052,11,Το ανθρώπινο σώμα - Η υγεία,Επίθετα,adjective,,ψηλός-ή-ό,tall,tall example photo,generated
+3053,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,αισθάνομαι,feel,feel action photo,generated
+3054,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,αναπνέω,breathe,breathe action photo,generated
+3055,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,αναρρώνω,recover,recover action photo,generated
+3056,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,ανεβάζωπυρετό,,,no_english
+3057,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,αρρωσταίνω,become ill,become ill action photo,generated
+3058,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,βάζωένεση,,,no_english
+3059,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,βάζωσεγύψο,,,no_english
+3060,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,βγάζωδόντια,,,no_english
+3061,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,βήχω,cough,cough action photo,generated
+3062,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,εμβολιάζομαι,innoculate,innoculate action photo,generated
+3063,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,εμβολιάζω,innoculate,innoculate action photo,generated
+3064,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,εξετάζομαι,am examined,am examined action photo,generated
+3065,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,εξετάζω,examine,examine action photo,generated
+3066,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,επιδένω(τραύμα),,,no_english
+3067,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,θεραπεύομαι,heal,heal action photo,generated
+3068,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,θεραπεύω,heal,heal action photo,generated
+3069,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,κάνωένεση,,,no_english
+3070,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,καταπίνω,swallow,swallow action photo,generated
+3071,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,λαχανιάζω,pant,pant action photo,generated
+3072,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,λιποθυμώ,a more formal variant of λιποθυμάω (lipothymáo),,needs_review
+3073,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,μασάω,chew,chew action photo,generated
+3074,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,νιώθω,feel,feel action photo,generated
+3075,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,νοσηλεύομαι,,,no_english
+3076,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,νοσηλεύω,,,no_english
+3077,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,περιθάλπτω,,,no_english
+3078,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,πληγώνομαι,,,no_english
+3079,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,πληγώνω,wound,wound action photo,generated
+3080,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,πονάω-ώ,ache,ache action photo,generated
+3081,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,"σπάνω-σπάω(τοπόδιμου,τοχέριμου)",break,break action photo,generated
+3082,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,σφραγίζωδόντι,,,no_english
+3083,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,τραυματίζομαι,wound,wound action photo,generated
+3084,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,τραυματίζω,wound,wound action photo,generated
+3085,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,υποφέρω,suffer,suffer action photo,generated
+3086,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,φτερνίζομαι,sneeze,sneeze action photo,generated
+3087,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,χάνω(ξαναβρίσκω)τιςαισθήσειςμου,,,no_english
+3088,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,χειρουργώ,,,no_english
+3089,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,χτυπάω,strike,strike action photo,generated
+3090,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,χωνεύω,,,no_english
+3091,11,Το ανθρώπινο σώμα - Η υγεία,Εκφράσεις,phrase,,Άντεκαιγρήγοραστοπόδι!,,,no_english
+3092,11,Το ανθρώπινο σώμα - Η υγεία,Εκφράσεις,phrase,,Βγάζωγλώσσα,,,no_english
+3093,11,Το ανθρώπινο σώμα - Η υγεία,Εκφράσεις,phrase,,Βγάζωδόντια,,,no_english
+3094,11,Το ανθρώπινο σώμα - Η υγεία,Εκφράσεις,phrase,,Γελάνεμέχρικαιτααφτιάτου(ταμουστάκιατου)!,,,no_english
+3095,11,Το ανθρώπινο σώμα - Η υγεία,Εκφράσεις,phrase,,Γλώσσαφαρμάκι-μ έλι,,,no_english
+3096,11,Το ανθρώπινο σώμα - Η υγεία,Εκφράσεις,phrase,,Είμαιόλοςαυτιά.,,,no_english
+3097,11,Το ανθρώπινο σώμα - Η υγεία,Εκφράσεις,phrase,,Κάνωταγλυκάμάτια.,,,no_english
+3098,11,Το ανθρώπινο σώμα - Η υγεία,Εκφράσεις,phrase,,Κουφάθηκα!,,,no_english
+3099,11,Το ανθρώπινο σώμα - Η υγεία,Εκφράσεις,phrase,,Μέσηδαχτυλίδι!,,,no_english
+3100,11,Το ανθρώπινο σώμα - Η υγεία,Εκφράσεις,phrase,,Μουανέβηκετοαίμαστοκεφάλι!,,,no_english
+3101,11,Το ανθρώπινο σώμα - Η υγεία,Εκφράσεις,phrase,,Μούδιασετοσώματουαπότοφόβο!,,,no_english
+3102,11,Το ανθρώπινο σώμα - Η υγεία,Εκφράσεις,phrase,,Μουκόπηκανταήπατα,,,no_english
+3103,11,Το ανθρώπινο σώμα - Η υγεία,Εκφράσεις,phrase,,Μαςκούφανεμ’αυτάπουμαςείπε,,,no_english
+3104,11,Το ανθρώπινο σώμα - Η υγεία,Εκφράσεις,phrase,,Πονάειτοδοντάκιτου!,,,no_english
+3105,11,Το ανθρώπινο σώμα - Η υγεία,Εκφράσεις,phrase,,Ταλέωέξωαπόταδόντια.,,,no_english
+3106,11,Το ανθρώπινο σώμα - Η υγεία,Εκφράσεις,phrase,,Ταμάτιασουδεκατέσσερα!,,,no_english
+3107,11,Το ανθρώπινο σώμα - Η υγεία,Εκφράσεις,phrase,,Τηνάρπαξα!Είμαι«τουθανατά»!Περαστικά!Σιδερένιος!,,,no_english
+3108,11,Το ανθρώπινο σώμα - Η υγεία,Εκφράσεις,phrase,,Τουκόπηκανταγόνατα!,,,no_english
+3109,11,Το ανθρώπινο σώμα - Η υγεία,Εκφράσεις,phrase,,Του’πεσανταμαλλιάαπόαυτάπουάκουσε!,,,no_english

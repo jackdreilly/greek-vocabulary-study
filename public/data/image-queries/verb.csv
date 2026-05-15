@@ -1,0 +1,454 @@
+entry_id,theme_id,theme,category,type,subsection,lemma,primary_sense,query,query_status
+181,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,αγαπώ,variant of αγαπάω (agapáo),,needs_review
+182,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,αλλάζω,change,change action photo,generated
+183,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,ανατρέφω,bring up,bring up action photo,generated
+184,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,αρραβωνιάζομαι,,,no_english
+185,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,βαφτίζω,baptise,baptise action photo,generated
+186,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,γεννάω(ώ),give birth,give birth action photo,generated
+187,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,γεννιέμαι,be born,be born action photo,generated
+188,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,δηλώνωτηγέννηση/τονγάμο/τονθάνατο,,,no_english
+189,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,διαπαιδαγωγώ,,,no_english
+190,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,εκτιμώ,appreciate,appreciate action photo,generated
+191,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,εμπιστεύομαι,trust,trust action photo,generated
+192,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,ερωτεύομαι,to fall in love with,to fall in love with action photo,generated
+193,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,ζω,live,live action photo,generated
+194,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,θηλάζω,suckle,suckle action photo,generated
+195,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,θρέφω,,,no_english
+196,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,κηδεύω-ομαι,,,no_english
+197,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,κληροδοτώ,,,no_english
+198,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,κληρονομώ,inherit,inherit action photo,generated
+199,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,λούζω,wash,wash action photo,generated
+200,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,λυπάμαι,to be sorry,to be sorry action photo,generated
+201,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,μεγαλώνω,bring up,bring up action photo,generated
+202,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,μαλώνω,tell off,tell off action photo,generated
+203,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,νιώθω,feel,feel action photo,generated
+204,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,μοιάζω,look like,look like action photo,generated
+205,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,νανουρίζω,,,no_english
+206,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,νιώθω,feel,feel action photo,generated
+207,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,παντρεύομαι,marry,marry action photo,generated
+208,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,πεθαίνω,kill,kill action photo,generated
+209,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,περιμένω(παιδί),wait,wait action photo,generated
+210,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,πλένω,wash,wash action photo,generated
+211,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,προσέχω,watch,watch action photo,generated
+212,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,προσκαλώ,invite,invite action photo,generated
+213,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,προστατεύω,protect,protect action photo,generated
+214,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,προσφέρω,offer,offer action photo,generated
+215,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,σέβομαι,to respect,to respect action photo,generated
+216,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,στενοχωριέμαι,upset,upset action photo,generated
+217,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,συγχωρώ,forgive,forgive action photo,generated
+218,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,συζώ,,,no_english
+219,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,συμβουλεύω,advise,advise action photo,generated
+220,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,συναντιέμαι,meet,meet action photo,generated
+221,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,συνδέομαι(με),am connected → and see συνδέω,am connected → and see συνδέω action photo,generated
+222,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,ταίζω,feed,feeding animals,override
+223,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,τιμωρώ,punish,punish action photo,generated
+224,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,τσακώνομαι,fight,fight action photo,generated
+225,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,φιλιέμαι,Ι am kissed,Ι am kissed action photo,generated
+226,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,φροντίζω,care for,care for action photo,generated
+227,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,χαϊδεύω,caress,caress action photo,generated
+228,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,χαίρομαι,to be happy,to be happy action photo,generated
+229,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,χωρίζω,separate,separate action photo,generated
+511,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,ανάβω(τοφως),light,light action photo,generated
+512,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,διορθώνω,"fix, correct",,needs_review
+513,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,είμαιάστεγος,,,no_english
+514,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,ενοικιάζεται,,,no_english
+515,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,καθαρίζω,clean,clean action photo,generated
+516,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,κάνωέξωση,,,no_english
+517,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,κάνωμπάνιο,,,no_english
+518,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,κατοικώ,inhabit,inhabit action photo,generated
+519,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,κοιμάμαι,sleep,sleep action photo,generated
+520,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,κλειδώνω,lock,lock action photo,generated
+521,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,μαγειρεύω,cook,cook action photo,generated
+522,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,μένω,stay,stay action photo,generated
+523,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,μιλάωστοτηλέφωνο,,,no_english
+524,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,νοικιάζωένασπίτιγιαμένα,,,no_english
+525,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,νοικιάζωσεκάποιον,,,no_english
+526,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,ξεσκονίζω,dust,dust action photo,generated
+527,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,ξυπνάω(ώ),awake,awake action photo,generated
+528,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,ξυρίζομαι,shave yourself,shave yourself action photo,generated
+529,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,πάωγιαύπνο,,,no_english
+530,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,πλένομαι,wash,wash action photo,generated
+531,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,πλένωταδόντιαμου,,,no_english
+532,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,"πλένω(ταπιάτα,ταρούχα)",wash,wash action photo,generated
+533,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,πληρώνωτονοίκι,,,no_english
+534,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,πωλείται,I am being sold,I am being sold action photo,generated
+535,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,σβήνωτοφως,,,no_english
+536,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,σηκώνομαι,stand up,stand up action photo,generated
+537,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,σηκώνω,raise,raise action photo,generated
+538,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,σιδερώνω,iron,iron action photo,generated
+539,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,σκουπίζω,sweep,sweep action photo,generated
+540,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,σφουγγαρίζω,,,no_english
+541,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,τακτοποιώ,sort out,sort out action photo,generated
+542,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,τρώω,chew and swallow food,chew and swallow food action photo,generated
+543,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,χρωστάωτονοίκι,,,no_english
+544,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,χτυπώτοκουδούνι,,,no_english
+545,2,"Κατοικία: οι χώροι και η λειτουργία τους, καθημερινή ζωή",Ρήματα,verb,,ψάχνωσπίτι,,,no_english
+694,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,ανάβω(τοφανάρι),light,light action photo,generated
+695,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,ανακαινίζω,renovate,renovate action photo,generated
+696,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,ασφαλτοστρώνω,,,no_english
+697,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,διασχίζω,traverse,traverse action photo,generated
+698,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,ζω,live,live action photo,generated
+699,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,κάνωέργα,,,no_english
+700,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,κάνωουρά,,,no_english
+701,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,κατεδαφίζω,,,no_english
+702,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,κατοικώ,inhabit,inhabit action photo,generated
+703,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,κορνάρω,beep,beep action photo,generated
+704,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,κυκλοφορώ,publish,publish action photo,generated
+705,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,ξεκινώ,a more formal variant of ξεκινάω (xekináo),,needs_review
+706,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,οδηγώ,drive,drive action photo,generated
+707,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,παίρνωτολεωφορείο/τοτρένο/ταξί,,,no_english
+708,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,παρκάρω,park,park action photo,generated
+709,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,σταματώ,(slightly more formal) alternative form of σταματάω (stamatáo),,needs_review
+710,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,σταματώ,(slightly more formal) alternative form of σταματάω (stamatáo),,needs_review
+711,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,συνωστίζομαι,,,no_english
+712,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,χάνομαι,vanish,vanish action photo,generated
+713,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,χτίζω,build,build action photo,generated
+714,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,σβήνω,blow out,blow out action photo,generated
+715,3,Η γειτονιά μου - Χωροταξικά,Ρήματα,verb,,τηλεφωνώ,telephone,telephone action photo,generated
+906,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,σχολάω,,,no_english
+907,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,υπαγορεύω,dictate,dictate action photo,generated
+908,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,αντιγράφω,copy,copy action photo,generated
+909,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,απαντώ,a more formal variant of απαντάω (apantáo),,needs_review
+910,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,αποτυχαίνω,fail,fail action photo,generated
+911,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,αποτυγχάνω,fail,fail action photo,generated
+912,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,απουσιάζω,be absent,be absent action photo,generated
+913,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,βάζωδιαγώνισμα,,,no_english
+914,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,βαθμολογώ,mark,mark action photo,generated
+915,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,γράφω,write,write action photo,generated
+916,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,διαβάζω,read,read action photo,generated
+917,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,διδάσκω-ομαι,teach,teach action photo,generated
+918,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,δίνωλευκήκόλλα,,,no_english
+919,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,δίνωεξετάσεις,,,no_english
+920,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,διορθώνω,"fix, correct",,needs_review
+921,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,εξετάζω-ομαι,examine,examine action photo,generated
+922,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,εξηγώ,clarify,clarify action photo,generated
+923,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,επαναλαμβάνω,repeat,repeat action photo,generated
+924,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,επιτυγχάνω,succeed,succeed action photo,generated
+925,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,καθαρογράφω,,,no_english
+926,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,κάνωερωτήσεις,,,no_english
+927,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,"λύνωτηνάσκηση,τοπρόβλημα",,,no_english
+928,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,μαζεύωτιςκόλλες,,,no_english
+929,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,μαθαίνω,learn,learn action photo,generated
+930,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,μαθαίνωαπ’έξω,,,no_english
+931,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,μένωστηνίδιατάξη,,,no_english
+932,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,ξύνωτομολύβι,,,no_english
+933,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,παίρνωπαρουσίες,,,no_english
+934,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,"περνώτηχρονιάμου,τηντάξημου",,,no_english
+935,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,πετυχαίνω,succeed,succeed action photo,generated
+936,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,πηγαίνω,literally go → interchangeable with πάω,literally go → interchangeable with πάω action photo,generated
+937,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,προβιβάζομαι,,,no_english
+938,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,προοδεύω,,,no_english
+939,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,ρωτώ,a slightly more formal variant of ρωτάω (rotáo),,needs_review
+940,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,σβήνω,blow out,blow out action photo,generated
+941,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,χτυπάειτοκουδούνι,,,no_english
+942,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,δίνωεξετάσεις,,,no_english
+943,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,επιτυγχάνω(πετυχαίνω),succeed,succeed action photo,generated
+944,4,Σχολείο - Εκπαίδευση,Ρήματα,verb,,αποτυγχάνω,fail,fail action photo,generated
+1196,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,αγοράζω,"buy, purchase",,needs_review
+1197,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,απασχολώ-ούμαι,employ,employ action photo,generated
+1198,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,απεργώ,strike,strike action photo,generated
+1199,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,αποδίδω,attribute,attribute action photo,generated
+1200,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,απολύω-ομαι,release,release action photo,generated
+1201,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,αποταμιεύω,save,save action photo,generated
+1202,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,ασκώεπάγγελμα,,,no_english
+1203,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,βρίσκωδουλειά,,,no_english
+1204,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,δακτυλογραφώ,type,type action photo,generated
+1205,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,διαφημίζω-ομαι,advertise,advertise action photo,generated
+1206,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,διδάσκω-ομαι,teach,teach action photo,generated
+1207,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,διευθύνω-ομαι,manage,manage action photo,generated
+1208,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,δικάζω-ομαι,to judge,to judge action photo,generated
+1209,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,δουλεύω,work,work action photo,generated
+1210,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,είμαιάνεργος,,,no_english
+1211,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,εισάγω-ομαι,import,import action photo,generated
+1212,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,εμπορεύομαι,trade,trade action photo,generated
+1213,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,εξάγω-ομαι,export,export action photo,generated
+1214,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,εξειδικεύομαι,,,no_english
+1215,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,εξετάζω-ομαι,examine,examine action photo,generated
+1216,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,εξυπηρετώ-ούμαι,provide service,provide service action photo,generated
+1217,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,επιδιορθώνω-ομαι,repair,repair action photo,generated
+1218,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,επιδοτώ-ούμαι,,,no_english
+1219,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,επισκευάζω-ομαι,repair,repair action photo,generated
+1220,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,εργάζομαι,work,work action photo,generated
+1221,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,ερμηνεύωέναρόλο,,,no_english
+1222,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,ζωγραφίζω,draw,draw action photo,generated
+1223,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,θεραπεύω-ομαι,heal,heal action photo,generated
+1224,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,κατασκευάζω-ομαι,make,make action photo,generated
+1225,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,κουρεύω-ομαι,cut hair,cut hair action photo,generated
+1226,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,μεταφράζω-ομαι,translate,translate action photo,generated
+1227,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,ξεναγώ,show around,show around action photo,generated
+1228,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,οδηγώ,drive,drive action photo,generated
+1229,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,παράγω-ομαι,produce,produce action photo,generated
+1230,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,παραιτούμαι,resign,resign action photo,generated
+1231,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,πιάνωδουλειά,,,no_english
+1232,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,πουλώ,less frequent,less frequent action photo,generated
+1233,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,προσλαμβάνω-ομαι,hire,hire action photo,generated
+1234,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,ράβω-ομαι,see → ράβομαι,see → ράβομαι action photo,generated
+1235,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,σερβίρω-ομαι,wait tables,wait tables action photo,generated
+1236,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,σκηνοθετώ,,,no_english
+1237,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,σχεδιάζω-ομαι,draw,draw action photo,generated
+1238,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,υπογράφω(σύμβαση),sign,sign action photo,generated
+1239,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,υπολογίζω-ομαι,calculate,calculate action photo,generated
+1240,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,φτιάχνω-ομαι,make,make action photo,generated
+1241,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,χορεύω,dance,dance action photo,generated
+1242,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,χρηματοδοτώ,fund,fund action photo,generated
+1243,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,χτενίζω-ομαι,comb,comb action photo,generated
+1244,5,Επαγγέλματα - Εργασιακός χώρος,Ρήματα,verb,,ψάχνωδουλειά,,,no_english
+1587,6,Διατροφή,Ρήματα,verb,,αδειάζω,clear out,clear out action photo,generated
+1588,6,Διατροφή,Ρήματα,verb,,βαρυστομαχιάζω,,,no_english
+1589,6,Διατροφή,Ρήματα,verb,,βράζω,boil,boil action photo,generated
+1590,6,Διατροφή,Ρήματα,verb,,γεμίζω,fill,fill action photo,generated
+1591,6,Διατροφή,Ρήματα,verb,,γουργουρίζειτοστομάχιμου,,,no_english
+1592,6,Διατροφή,Ρήματα,verb,,διψώ,less frequent,less frequent action photo,generated
+1593,6,Διατροφή,Ρήματα,verb,,δοκιμάζω-ομαι,test,test action photo,generated
+1594,6,Διατροφή,Ρήματα,verb,,κάθομαιστοτραπέζι,,,no_english
+1595,6,Διατροφή,Ρήματα,verb,,κάνωδίαιτα,,,no_english
+1596,6,Διατροφή,Ρήματα,verb,,κάνωτραπέζισεκάποιον,,,no_english
+1597,6,Διατροφή,Ρήματα,verb,,μαγειρεύω,cook,cook action photo,generated
+1598,6,Διατροφή,Ρήματα,verb,,μαζεύωτοτραπέζι,,,no_english
+1599,6,Διατροφή,Ρήματα,verb,,παρατρώω,,,no_english
+1600,6,Διατροφή,Ρήματα,verb,,πεινώ,less frequent,less frequent action photo,generated
+1601,6,Διατροφή,Ρήματα,verb,,πίνω,drink,drink action photo,generated
+1602,6,Διατροφή,Ρήματα,verb,,προσκαλώσεγεύμα,,,no_english
+1603,6,Διατροφή,Ρήματα,verb,,στρώνωτοτραπέζι,,,no_english
+1604,6,Διατροφή,Ρήματα,verb,,τρώω,chew and swallow food,chew and swallow food action photo,generated
+1605,6,Διατροφή,Ρήματα,verb,,τσιμπολογώ,,,no_english
+1606,6,Διατροφή,Ρήματα,verb,,τσιμπώ(τρώωλίγο),sting,sting action photo,generated
+1607,6,Διατροφή,Ρήματα,verb,,χωνεύω,,,no_english
+1608,6,Διατροφή,Ρήματα,verb,,ψήνω,boil,boil action photo,generated
+1792,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,αγοράζω,"buy, purchase",,needs_review
+1793,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,ακριβαίνω,"(intransitive) go up, mark up, increase (price)",,needs_review
+1794,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,αλλάζω,change,change action photo,generated
+1795,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,γυαλίζω(ταπαπούτσια),polish,polish action photo,generated
+1796,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,δανείζω-ζομαι,lend,lend action photo,generated
+1797,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,δένω,moor,moor action photo,generated
+1798,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,διακοσμώ,adorn,adorn action photo,generated
+1799,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,διαφημίζω-ομαι,advertise,advertise action photo,generated
+1800,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,δοκιμάζω,test,test action photo,generated
+1801,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,εφοδιάζω,supply,supply action photo,generated
+1802,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,ετοιμάζω-ομαι,prepare,prepare action photo,generated
+1803,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,κάνωαλλαγή,,,no_english
+1804,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,κάνωπρόβα,,,no_english
+1805,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,κοστίζω,cost,cost action photo,generated
+1806,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,ντύνω-ομαι,dress someone,dress someone action photo,generated
+1807,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,ξεντύνω-ομαι,,,no_english
+1808,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,ξεπουλώ,,,no_english
+1809,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,παίρνω,take,take action photo,generated
+1810,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,πληρώνω-ομαι,pay for past action,pay for past action action photo,generated
+1811,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,πουλώ,less frequent,less frequent action photo,generated
+1812,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,τσαλακώνω,,,no_english
+1813,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,χρωστώ,"owe, be in debt",,needs_review
+1814,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,χρωστώ,"owe, be in debt",,needs_review
+1815,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,φθηναίνω,,,no_english
+1816,7,Ενδυμασία - Προσωπικά αντικείμενα - Αγορά,Ρήματα,verb,,φορώ,a more formal variant of φοράω (foráo),,needs_review
+2169,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,αθλούμαι,exercise,exercise action photo,generated
+2170,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,ακούω,hear,hear action photo,generated
+2171,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,ακροβατώ,perform acrobatics,perform acrobatics action photo,generated
+2172,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,αποθεώνω-ομαι,deify,deify action photo,generated
+2173,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,αποκλείω-ομαι,block,block action photo,generated
+2174,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,βλέπωτηλεόραση,,,no_english
+2175,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,γελώ,a more formal variant of γελάω (geláo),,needs_review
+2176,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,γιουχαΐζω,shout down,shout down action photo,generated
+2177,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,γυμνάζω-ομαι,exercise,exercise action photo,generated
+2178,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,διαβάζω,read,read action photo,generated
+2179,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,διασκεδάζω,have fun,have fun action photo,generated
+2180,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,εμφανίζωφωτογραφίες,,,no_english
+2181,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,ζωγραφίζω,draw,draw action photo,generated
+2182,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,ηχογραφώ,,,no_english
+2183,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,κάνωακροβατικά,,,no_english
+2184,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,"κάνωσκι,ορειβασία...",,,no_english
+2185,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,κερδίζω,profit,profit action photo,generated
+2186,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,κλείνωθέση,,,no_english
+2187,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,κολυμπώ,a more formal variant of κολυμπάω (kolympáo) swim,,needs_review
+2188,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,λέωαστεία,,,no_english
+2189,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,λύνωσταυρόλεξα,,,no_english
+2190,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,μαντεύω,prophesy,prophesy action photo,generated
+2191,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,νικάω-ώ,defeat,defeat action photo,generated
+2192,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,"παίζωμεφίλους,μόνοςμου",,,no_english
+2193,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,παίζωμουσική,,,no_english
+2194,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,"παίζωπιάνο,βιολί,κιθάρα...",,,no_english
+2195,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,"παίζωποδόσφαιρο,τέννις...",,,no_english
+2196,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,παίζωσεμίαταινία(ερμηνεύωένανρόλο),,,no_english
+2197,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,παρακολουθώέναπρόγραμμα...,,,no_english
+2198,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,πηγαίνωθέατρο,,,no_english
+2199,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,πηγαίνωσινεμά,,,no_english
+2200,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,"πηδώ(σκοινάκι,λάστιχο)",less frequent variant of πηδάω (pidáo),,needs_review
+2201,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,προκρίνομαι,,,no_english
+2202,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,τρέχω,flee,flee action photo,generated
+2203,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,φωτογραφίζω,photograph,photograph action photo,generated
+2204,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,χαζεύω,become stupid,become stupid action photo,generated
+2205,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,χαλαρώνω,loosen,loosen action photo,generated
+2206,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,χορεύω,dance,dance action photo,generated
+2207,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,χρωματίζω,paint,paint action photo,generated
+2208,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,χάνω,lose,lose action photo,generated
+2209,8,Ελεύθερος χρόνος: παιχνίδια - χόμπι - διασκέδαση - άθληση,Ρήματα,verb,,χειροκροτώ,applaud,applaud action photo,generated
+2474,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,αλλάζω,change,change action photo,generated
+2475,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,ανατέλλω(-ει),rise,rise action photo,generated
+2476,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,ανθίζω,flower,flower action photo,generated
+2477,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,αρχίζω,start,start action photo,generated
+2478,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,βιάζομαι,am forced,am forced action photo,generated
+2479,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,βραδιάζω(-ει),be excessively late,be excessively late action photo,generated
+2480,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,βρέχω(-ει),offer treat for good luck for newly acquired goods,offer treat for good luck for newly acquired goods action photo,generated
+2481,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,διαρκώ,endure,endure action photo,generated
+2482,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,δύω(-ει),decline,decline action photo,generated
+2483,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,ενισχύω,strengthen,strengthen action photo,generated
+2484,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,εξασθενίζω,,,no_english
+2485,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,ζεσταίνομαι.,,,no_english
+2486,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,καθυστερώ,am late,am late action photo,generated
+2487,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,καλοκαιριάζω(-ει),,,no_english
+2488,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,"κάνειζέστη,κρύο",,,no_english
+2489,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,κουρδίζω(κουρντΐζω)τορολόι,,,no_english
+2490,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,κρυώνω,am cold,am cold action photo,generated
+2491,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,κυμαίνομαι,,,no_english
+2492,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,λιώνω(-ει),melt,melt action photo,generated
+2493,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,μαραίνομαι,wither,wither action photo,generated
+2494,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,μειώνω,reduce,reduce action photo,generated
+2495,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,μετατρέπω,convert,convert action photo,generated
+2496,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,μπουμπουκιάζω,,,no_english
+2497,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,νυχτώνω(-ει),,,no_english
+2498,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,ξημερώνω(-ει),dawn,dawn action photo,generated
+2499,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,περιμένω,wait,wait action photo,generated
+2500,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,περνώ,a more formal variant of περνάω (pernáo),,needs_review
+2501,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,"πηγαίνειμπροστά,πίσω(τορολόι)",,,no_english
+2502,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,πλημμυρίζω,flood,flood action photo,generated
+2503,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,πρασινίζω,,,no_english
+2504,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,ρυπαίνω(τηνατμόσφαιρα),,,no_english
+2505,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,ρίχνειχαλάζι,,,no_english
+2506,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,σκοτεινιάζω(ει),darken,darken action photo,generated
+2507,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,σημειώνεταιάνοδοςτηςθερμοκρασίας-,,,no_english
+2508,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,σουρουπώνω(-ει),,,no_english
+2509,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,συννεφιάζω(-ει),,,no_english
+2510,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,τελειώνω,finish,finish action photo,generated
+2511,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,φθινοπωριάζω(-ει),,,no_english
+2512,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,φυσάω(-ει),blow,blow action photo,generated
+2513,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,χαράζω(-ει),imprint in memory,imprint in memory action photo,generated
+2514,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,χιονίζω(-ει),Ι snow,Ι snow action photo,generated
+2515,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,χρονίζω(-ει),take long time,take long time action photo,generated
+2516,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,χειμωνιάζω(-ει),,,no_english
+2517,9,Ο χρόνος και οι εποχές - Ο καιρός,Ρήματα,verb,,ψιχαλίζω(-ει),,,no_english
+2752,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,αγοράζω,"buy, purchase",,needs_review
+2753,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,ακυρώνω,annul,annul action photo,generated
+2754,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,αναβάλλω,postpone,postpone action photo,generated
+2755,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,αναθεωρώ,reconsider,reconsider action photo,generated
+2756,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,ανανεώνω,renew,renew action photo,generated
+2757,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,αναχωρώ,depart,depart action photo,generated
+2758,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,ανεβαίνω,ascend,ascend action photo,generated
+2759,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,αποβιβάζω-ομαι,put ashore,put ashore action photo,generated
+2760,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,απογειώνω-ομαι,get into air,get into air action photo,generated
+2761,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,βγαίνω,come up,come up action photo,generated
+2762,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,διανυκτερεύω,be up all night,be up all night action photo,generated
+2763,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,διασχίζω,traverse,traverse action photo,generated
+2764,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,επιβιβάζω-ομαι,ship,ship action photo,generated
+2765,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,επισκέπτομαι,visit,visit action photo,generated
+2766,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,ζητώ,a more formal variant of ζητάω (zitáo),,needs_review
+2767,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,θεωρώ,consider,consider action photo,generated
+2768,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,ισχύω,be valid,be valid action photo,generated
+2769,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,καθυστερώ,am late,am late action photo,generated
+2770,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,κάνωδιακοπές,,,no_english
+2771,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,κάνωκράτηση,,,no_english
+2772,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,κάνωμπάνιο,,,no_english
+2773,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,κάνωσκι,,,no_english
+2774,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,καταγράφω,register,register action photo,generated
+2775,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,κατασκηνώνω,camp,camp action photo,generated
+2776,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,κατεβαίνω,descend,descend action photo,generated
+2777,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,κλείνωθέση,,,no_english
+2778,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,κόβωεισιτήριο,,,no_english
+2779,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,κολυμπώ,a more formal variant of κολυμπάω (kolympáo) swim,,needs_review
+2780,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,ξεναγώ,show around,show around action photo,generated
+2781,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,παίρνω(τοαεροπλάνο),take,take action photo,generated
+2782,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,παραθερίζω,,,no_english
+2783,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,πηγαίνω,literally go → interchangeable with πάω,literally go → interchangeable with πάω action photo,generated
+2784,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,προσγειώνω-ομαι,land,land action photo,generated
+2785,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,προσδένομαι,,,no_english
+2786,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,ταξιδεύωμε,,,no_english
+2787,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,χάνω(τοτρένο),lose,lose action photo,generated
+2788,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,φεύγω,leave,leave action photo,generated
+2789,10,Μεταφορικά μέσα - Ταξίδια,Ρήματα,verb,,φθάνω(φτάνω),(more formal) Alternative form of φτάνω (ftáno),,needs_review
+3053,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,αισθάνομαι,feel,feel action photo,generated
+3054,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,αναπνέω,breathe,breathe action photo,generated
+3055,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,αναρρώνω,recover,recover action photo,generated
+3056,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,ανεβάζωπυρετό,,,no_english
+3057,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,αρρωσταίνω,become ill,become ill action photo,generated
+3058,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,βάζωένεση,,,no_english
+3059,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,βάζωσεγύψο,,,no_english
+3060,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,βγάζωδόντια,,,no_english
+3061,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,βήχω,cough,cough action photo,generated
+3062,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,εμβολιάζομαι,innoculate,innoculate action photo,generated
+3063,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,εμβολιάζω,innoculate,innoculate action photo,generated
+3064,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,εξετάζομαι,am examined,am examined action photo,generated
+3065,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,εξετάζω,examine,examine action photo,generated
+3066,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,επιδένω(τραύμα),,,no_english
+3067,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,θεραπεύομαι,heal,heal action photo,generated
+3068,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,θεραπεύω,heal,heal action photo,generated
+3069,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,κάνωένεση,,,no_english
+3070,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,καταπίνω,swallow,swallow action photo,generated
+3071,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,λαχανιάζω,pant,pant action photo,generated
+3072,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,λιποθυμώ,a more formal variant of λιποθυμάω (lipothymáo),,needs_review
+3073,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,μασάω,chew,chew action photo,generated
+3074,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,νιώθω,feel,feel action photo,generated
+3075,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,νοσηλεύομαι,,,no_english
+3076,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,νοσηλεύω,,,no_english
+3077,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,περιθάλπτω,,,no_english
+3078,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,πληγώνομαι,,,no_english
+3079,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,πληγώνω,wound,wound action photo,generated
+3080,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,πονάω-ώ,ache,ache action photo,generated
+3081,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,"σπάνω-σπάω(τοπόδιμου,τοχέριμου)",break,break action photo,generated
+3082,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,σφραγίζωδόντι,,,no_english
+3083,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,τραυματίζομαι,wound,wound action photo,generated
+3084,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,τραυματίζω,wound,wound action photo,generated
+3085,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,υποφέρω,suffer,suffer action photo,generated
+3086,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,φτερνίζομαι,sneeze,sneeze action photo,generated
+3087,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,χάνω(ξαναβρίσκω)τιςαισθήσειςμου,,,no_english
+3088,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,χειρουργώ,,,no_english
+3089,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,χτυπάω,strike,strike action photo,generated
+3090,11,Το ανθρώπινο σώμα - Η υγεία,Ρήματα,verb,,χωνεύω,,,no_english
+3341,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,αρμέγω,milk,cow milking,override
+3342,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,βελάζω,,,no_english
+3343,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,γαβγίζω,bark,barking dog,override
+3344,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,γεννώ,"variant of γεννάω (gennáo): give birth, beget",,needs_review
+3345,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,γκαρίζω,bray,braying donkey,override
+3346,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,γρυλίζω,,,no_english
+3347,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,δαγκώνω,I bite,I bite action photo,generated
+3348,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,δαμάζω,tame,tame action photo,generated
+3349,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,εκπαιδεύω,educate,educate action photo,generated
+3350,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,εκτρέφω,,,no_english
+3351,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,ζέβω,,,no_english
+3352,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,ιππεύω,,,no_english
+3353,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,κακαρίζω,,,no_english
+3354,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,κελαηδώ,less frequent variant of κελαηδάω (kelaïdáo),,needs_review
+3355,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,κλωσσώ,,,no_english
+3356,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,κοάζω,,,no_english
+3357,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,κολυμπώ,a more formal variant of κολυμπάω (kolympáo) swim,,needs_review
+3358,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,κυνηγώ,a more formal variant of κυνηγάω (kynigáo),,needs_review
+3359,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,μηρυκάζω,ruminate,ruminate action photo,generated
+3360,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,νιαουρίζω,meow,meowing cat,override
+3361,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,ορμώ,,,no_english
+3362,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,πηδώ,less frequent variant of πηδάω (pidáo),,needs_review
+3363,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,προστατεύω-ομαι,protect,protect action photo,generated
+3364,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,σέρνομαι,drag oneself,drag oneself action photo,generated
+3365,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,σκαρφαλώνω,climb,climbing animal,override
+3366,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,σκοτώνω-ομαι,kill,kill action photo,generated
+3367,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,ταΐζω,feed,feeding animals,override
+3368,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,τρέχω,flee,flee action photo,generated
+3369,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,"τσιμπώ(τοκουνούπιτσιμπάει,τοψάριτσιμπάει",,,no_english
+3370,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,στοαγκίστρι),,,no_english
+3371,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,χλιμιντρίζω,neigh,neighing horse,override
+3372,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,ψαρεύω,fish,fish action photo,generated
+3543,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,ανθίζω,flower,flower action photo,generated
+3544,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,ευωδιάζω,produce pleasant smell,produce pleasant smell action photo,generated
+3545,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,θερίζω,reap,reap action photo,generated
+3546,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,θροΐζω,,,no_english
+3547,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,κιτρινίζω,,,no_english
+3548,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,κλαδεύω,prune,prune action photo,generated
+3549,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,κόβω,take shortcut,take shortcut action photo,generated
+3550,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,κοκκινίζω,blush,blush action photo,generated
+3551,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,μαζεύω,collect,collect action photo,generated
+3552,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,μπουμπουκιάζω,,,no_english
+3553,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,ποτίζω,give drink to,give drink to action photo,generated
+3554,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,πρασινίζω,,,no_english
+3555,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,ριζώνω,,,no_english
+3556,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,σαπίζω,(intransitive) rot,,needs_review
+3557,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,σκαλίζω,"hoe, cultivate, dig around",,needs_review
+3558,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,σπέρνω,disperse seeds,disperse seeds action photo,generated
+3559,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,φυτεύω,plant,plant action photo,generated
+3560,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,φυτρώνω,grow roots,grow roots action photo,generated
+3561,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,ωριμάζω,mature,mature action photo,generated

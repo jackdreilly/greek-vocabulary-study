@@ -1,0 +1,471 @@
+entry_id,theme_id,theme,category,type,subsection,lemma,primary_sense,query,query_status
+3110,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,αγέλη,herd,herd animals,override
+3111,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,αμφίβιο,amphibian,amphibian photo,override
+3112,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,άνθρωπος,people,people photo,generated
+3113,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,βιότοπος,,,no_english
+3114,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,βοσκή,natural pasture and grassland,natural pasture and grassland photo,generated
+3115,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,βοσκός,shepherd,shepherd with sheep,override
+3116,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,βοσκότοπος,pasture,pasture photo,generated
+3117,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,έντομο,insect,insect photo,override
+3118,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ερπετό,reptile,reptile photo,override
+3119,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,εταιρίαπροστασίαςζώων,,,no_english
+3120,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ζώο,mammal,mammal photo,generated
+3121,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ζωολογικόςκηπος,,,no_english
+3122,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,θαλασσινά,seafood,seafood photo,override
+3123,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,θηλαστικό,mammal,mammal photo,generated
+3124,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,θηρίο,wild animal,wild animal photo,generated
+3125,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κλουβί,cage,cage photo,generated
+3126,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κοπάδι,herd,herd animals,override
+3127,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κοτέτσι,henhouse,henhouse photo,generated
+3128,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κτηνιατρείο,,,no_english
+3129,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κτηνίατρος,"vet, veterinary surgeon",,needs_review
+3130,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,μαντρί,"pen, fold, enclosure (for animals)",,needs_review
+3131,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,μαστός,breast,breast photo,generated
+3132,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,πουλερικό,poultry,poultry photo,generated
+3133,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,πουλί,checker,checker photo,generated
+3134,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,πτηνό,bird,bird photo,generated
+3135,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,σμήνος,bevy,bevy photo,generated
+3136,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,στάβλος,,,no_english
+3137,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,στάνη,pen (fenced area for animals),,needs_review
+3138,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,τσομπάνος,,,no_english
+3139,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,υγροβιότοπος,,,no_english
+3140,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,φωλιά,animal's home,animal's home photo,generated
+3141,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ψάρι,fish,fish photo,generated
+3142,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,τακατοικίδιαζώα,,,no_english
+3143,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,αγελάδα,fat woman,fat woman photo,generated
+3144,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,άλογο,Nominative,Nominative photo,generated
+3145,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,αρνί,lamb,lamb photo,generated
+3146,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,βόδι,ox,,needs_review
+3147,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,βουβάλι,buffalo,buffalo photo,generated
+3148,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,γάϊδαρος,donkey,donkey photo,generated
+3149,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,γαϊδούρι,(literally and figuratively) Alternative form of γάιδαρος (gáidaros),,needs_review
+3150,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,γαϊδουράκι,,,no_english
+3151,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,γαλοπούλα,Nominative,Nominative photo,generated
+3152,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,γάτα,crafty person,crafty person photo,generated
+3153,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,γουρούνι,"pig, hog, swine (male pig)",,needs_review
+3154,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κατσίκα,nanny goat,nanny goat photo,generated
+3155,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κλώσσα,sitter,sitter photo,generated
+3156,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κόκκορας,,,no_english
+3157,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κότα,chicken,chicken photo,generated
+3158,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κουνέλι,rabbit,rabbit photo,generated
+3159,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κύκνος,swan,swan photo,generated
+3160,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,μουλάρι,mule,mule photo,generated
+3161,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,παγόνι,peacock,peacock photo,generated
+3162,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,πάπια,duck,duck photo,generated
+3163,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,πετεινός,cock,cock photo,generated
+3164,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,πρόβατο,sheep,sheep photo,generated
+3165,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,σκυλί,beast,beast photo,generated
+3166,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,σκύλος,beast,beast photo,generated
+3167,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,τράγος,billy goat,billy goat photo,generated
+3168,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,φραγκόκοτα,guinea fowl,guinea fowl photo,generated
+3169,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ταζώαδάσους,,,no_english
+3170,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,αγριογούρουνο,wild boar,wild boar photo,generated
+3171,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,αλεπού,cunning or sly person,cunning or sly person photo,generated
+3172,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,αρκούδα,bear,bear photo,generated
+3173,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ασβός,badger,badger photo,generated
+3174,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ελάφι,red deer,red deer photo,generated
+3175,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ζαρκάδι,roe deer,roe deer photo,generated
+3176,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,λαγός,hare,hare photo,generated
+3177,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,λύκος,wolf,wolf photo,generated
+3178,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,σκατζόχοιρος,,,no_english
+3179,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,σκίουρος,squirrel,squirrel photo,generated
+3180,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,τσακάλι,jackal,jackal photo,generated
+3181,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,τυφλοπόντικας,mole,mole photo,generated
+3182,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,χελώνα,turtle,turtle photo,generated
+3183,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ταπολικάζώα,,,no_english
+3184,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,λευκήαρκούδα,,,no_english
+3185,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,πιγκουίνος,penguin,penguin photo,generated
+3186,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,τάρανδος,reindeer,reindeer photo,generated
+3187,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,φώκια,seal,seal photo,generated
+3188,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ταζώατηςσαβάνας,,,no_english
+3189,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,αντιλόπη,antelope,antelope photo,generated
+3190,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,γορίλας,gorilla,gorilla photo,generated
+3191,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ελέφαντας,elephant,elephant photo,generated
+3192,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ζέβρα,zebra,zebra photo,generated
+3193,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ιπποπόταμος,hippopotamus,hippopotamus photo,generated
+3194,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,"καγκουρό,η(το)",,,no_english
+3195,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,καμηλοπάρδαλη,giraffe,giraffe photo,generated
+3196,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κροκόδειλος,crocodile,crocodile photo,generated
+3197,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,μαϊμού,monkey,monkey photo,generated
+3198,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,λεοντάρι,,,no_english
+3199,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,λεοπάρδαλη,leopard,leopard photo,generated
+3200,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,λιοντάρι,lion,lion photo,generated
+3201,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,πάνθηρας,panther,panther photo,generated
+3202,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,πίθηκος,uncivilised person,uncivilised person photo,generated
+3203,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ρινόκερος,rhinoceros,rhinoceros photo,generated
+3204,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,τίγρη,tiger,tiger photo,generated
+3205,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ύαινα,hyena,hyena photo,generated
+3206,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,χιμπατζής,chimpanzee,chimpanzee photo,generated
+3207,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ταερπετά,,,no_english
+3208,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,βόας,,,no_english
+3209,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κόμπρα,cobra,cobra photo,generated
+3210,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κροταλίας,rattlesnake,rattlesnake photo,generated
+3211,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,οχιά,adder,adder photo,generated
+3212,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,σαύρα,lizard,lizard photo,generated
+3213,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,φίδι,snake,snake photo,generated
+3214,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,χαμαιλέοντας,chameleon,chameleon photo,generated
+3215,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ταπτηνά(πουλιά),,,no_english
+3216,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,αετός,eagle,eagle photo,generated
+3217,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,αηδόνι,nightingale,nightingale photo,generated
+3218,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,γεράκι,bird of prey,bird of prey photo,generated
+3219,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,γλάρος,gull,gull photo,generated
+3220,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,θαλασσοπούλι,,,no_english
+3221,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,καναρίνι,canary,canary photo,generated
+3222,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,καρακάξα,,,no_english
+3223,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κόρακας,raven,raven photo,generated
+3224,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κουκουβάγια,owl,,needs_review
+3225,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,νυχτερίδα,bat (small flying mammal),,needs_review
+3226,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,νυχτοπούλι,,,no_english
+3227,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ορτύκι,quail,quail photo,generated
+3228,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,πέρδικα,partridge,partridge photo,generated
+3229,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,περιστέρι,rock dove,rock dove photo,generated
+3230,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,σπουργίτι,sparrow,sparrow photo,generated
+3231,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,στρουθοκάμηλος,ostrich,ostrich photo,generated
+3232,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,τσαλαπετεινός,Upupa epops,Upupa epops photo,generated
+3233,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,φασιανός,pheasant,pheasant photo,generated
+3234,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,χελιδόνι,swallow,swallow photo,generated
+3235,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ταθαλάσσιαείδη,,,no_english
+3236,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,αστακός,lobster,lobster photo,generated
+3237,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,γαλέος,,,no_english
+3238,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,γαρίδα,shrimp,shrimp photo,generated
+3239,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,γαύρος,anchovy,anchovy photo,generated
+3240,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,γλώσσα,tongue,tongue photo,generated
+3241,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,δελφίνι,dolphin,dolphin photo,generated
+3242,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ιππόκαμπος,,,no_english
+3243,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,"θαλάσσια,χελώνα(καρέτα-καρέτα),η",,,no_english
+3244,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,καλαμάρι,squid,squid photo,generated
+3245,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,καραβίδα,,,no_english
+3246,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,καρχαρίας,shark,shark photo,generated
+3247,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κολιός,,,no_english
+3248,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,λαβράκι,,,no_english
+3249,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,λιθρίνι,common pandora,common pandora photo,generated
+3250,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,μπακαλιάρος,cod (marine fish of the family Gadidae),,needs_review
+3251,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,μύδι,mussel,mussel photo,generated
+3252,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ξιφίας,swordfish,swordfish photo,generated
+3253,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,πέστροφα,trout,trout photo,generated
+3254,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,σαρδέλα,sardine,sardine photo,generated
+3255,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,σολομός,,,no_english
+3256,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,σουπιά,cuttlefish,cuttlefish photo,generated
+3257,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,στρείδι,,,no_english
+3258,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,τόνος,΄ tonos,΄ tonos photo,generated
+3259,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,τσιπούρα,tsipouro,tsipouro photo,generated
+3260,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,φάλαινα,whale,whale photo,generated
+3261,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,φώκια,seal,seal photo,generated
+3262,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,χέλι,eel,,needs_review
+3263,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,χταπόδι,octopus,octopus photo,generated
+3264,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ψάριατουγλυκούνερού,,,no_english
+3265,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ταέντομα,,,no_english
+3266,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ακρίδα,locust,locust photo,generated
+3267,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,αράχνη,spider,spider photo,generated
+3268,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,βάτραχος,frog,frog photo,generated
+3269,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κάμπια,caterpillar,caterpillar photo,generated
+3270,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κουνούπι,mosquito,mosquito photo,generated
+3271,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,μέλισσα,bee,,needs_review
+3272,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,μύγα,"(zoology) fly, housefly (any insect of the order Diptera or Muscidae)",,needs_review
+3273,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,μυρμήγκι,insignificant person,insignificant person photo,generated
+3274,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,πεταλούδα,butterfly,butterfly photo,generated
+3275,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,σκνίπα,,,no_english
+3276,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,σφήκα,wasp,wasp photo,generated
+3277,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,τζίτζικας,cicada,cicada photo,generated
+3278,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,τρωκτικά,Rodentia,Rodentia photo,generated
+3279,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,αρουραίος,devious and evil person,devious and evil person photo,generated
+3280,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ποντίκι,mouse,mouse photo,generated
+3281,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ποντικός,mouse,mouse photo,generated
+3282,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,μαλάκια,masturbation,masturbation photo,generated
+3283,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κοχλίας,screw,screw photo,generated
+3284,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,σάλιαγκος,,,no_english
+3285,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,σαλιγκάρι,snail,snail photo,generated
+3286,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,άλλεςλέξεις,,,no_english
+3287,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,αλιεία,fishing,fishing photo,generated
+3288,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,αποδημητικόπουλί,,,no_english
+3289,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,αρπακτικόπουλί,,,no_english
+3290,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,αυγό,(literary) Alternative form of αβγό (avgó),,needs_review
+3291,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,γάβγισμα,,,no_english
+3292,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,γούνα,,,no_english
+3293,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,δάγκωμα,,,no_english
+3294,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,εκτροφείο,,,no_english
+3295,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,θηλαστικό,mammal,mammal photo,generated
+3296,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κακάρισμα,,,no_english
+3297,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κελάηδημα,,,no_english
+3298,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κερασφόροζώο,,,no_english
+3299,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κέρατο,horn,horn photo,generated
+3300,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κονικλοτροφείο,rabbit farm,rabbit farm photo,generated
+3301,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κράξιμο,,,no_english
+3302,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κτηνοτροφία,husbandry,husbandry photo,generated
+3303,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,κτηνοτρόφος,stock farmer,stock farmer photo,generated
+3304,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,λέπι,scale,scale photo,generated
+3305,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,μαργαριτάρι,pearl,pearl photo,generated
+3306,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,μούγκρισμα,,,no_english
+3307,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,μουσούδι,snout of animal,snout of animal photo,generated
+3308,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,μυρηκαστικόζώο,,,no_english
+3309,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,νιαούρισμα,,,no_english
+3310,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ορνιθοτροφείο,,,no_english
+3311,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,όστρακο,seashell,seashell photo,generated
+3312,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,οστρακοκαλλιέργεια,,,no_english
+3313,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ουρά,Nominative,Nominative photo,generated
+3314,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ουρλιαχτό,howl,howl photo,generated
+3315,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,πατημασιά,,,no_english
+3316,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,πέταλο,horseshoe,horseshoe photo,generated
+3317,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,πτερύγιο,mechanical part resembling fin,mechanical part resembling fin photo,generated
+3318,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,πτηνοτροφείο,,,no_english
+3319,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,πτηνοτρόφος,,,no_english
+3320,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,πούπουλο,soft feather,soft feather photo,generated
+3321,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,ράμφος,beak,beak photo,generated
+3322,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,σαμάρι,packsaddle,packsaddle photo,generated
+3323,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,σέλα,,,no_english
+3324,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,σφουγγαράς,,,no_english
+3325,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,σφουγγάρι,sponge,sponge photo,generated
+3326,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,τρίχωμα,,,no_english
+3327,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,τσίμπημα,bite,animal biting,override
+3328,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,φτερό,wing,wing photo,generated
+3329,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,χειμερίανάρκη,,,no_english
+3330,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Πανίδα,χλιμίντρισμα,,,no_english
+3331,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Πανίδα,άγριος-α-ο,undomesticated,undomesticated example photo,generated
+3332,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Πανίδα,δηλητηριώδης-ης-ες,poisonous,poisonous example photo,generated
+3333,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Πανίδα,εκπαιδευμένος-η-ο,educate,educate example photo,generated
+3334,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Πανίδα,εξωτικός-ή-ό,exotic,exotic example photo,generated
+3335,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Πανίδα,ζωολογικός-ή-ό,zoological,zoological example photo,generated
+3336,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Πανίδα,ήμερος-η-ο,domesticated,domesticated example photo,generated
+3337,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Πανίδα,κατοικίδιος-α-ο,,,no_english
+3338,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Πανίδα,λυσσασμένος-η-ο,who has rabies,who has rabies example photo,generated
+3339,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Πανίδα,ορνιθολογικός-ή-ό,,,no_english
+3340,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Πανίδα,προστατευόμενος-η-ο,protégé,protégé example photo,generated
+3341,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,αρμέγω,milk,cow milking,override
+3342,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,βελάζω,,,no_english
+3343,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,γαβγίζω,bark,barking dog,override
+3344,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,γεννώ,"variant of γεννάω (gennáo): give birth, beget",,needs_review
+3345,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,γκαρίζω,bray,braying donkey,override
+3346,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,γρυλίζω,,,no_english
+3347,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,δαγκώνω,I bite,I bite action photo,generated
+3348,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,δαμάζω,tame,tame action photo,generated
+3349,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,εκπαιδεύω,educate,educate action photo,generated
+3350,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,εκτρέφω,,,no_english
+3351,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,ζέβω,,,no_english
+3352,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,ιππεύω,,,no_english
+3353,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,κακαρίζω,,,no_english
+3354,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,κελαηδώ,less frequent variant of κελαηδάω (kelaïdáo),,needs_review
+3355,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,κλωσσώ,,,no_english
+3356,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,κοάζω,,,no_english
+3357,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,κολυμπώ,a more formal variant of κολυμπάω (kolympáo) swim,,needs_review
+3358,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,κυνηγώ,a more formal variant of κυνηγάω (kynigáo),,needs_review
+3359,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,μηρυκάζω,ruminate,ruminate action photo,generated
+3360,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,νιαουρίζω,meow,meowing cat,override
+3361,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,ορμώ,,,no_english
+3362,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,πηδώ,less frequent variant of πηδάω (pidáo),,needs_review
+3363,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,προστατεύω-ομαι,protect,protect action photo,generated
+3364,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,σέρνομαι,drag oneself,drag oneself action photo,generated
+3365,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,σκαρφαλώνω,climb,climbing animal,override
+3366,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,σκοτώνω-ομαι,kill,kill action photo,generated
+3367,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,ταΐζω,feed,feeding animals,override
+3368,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,τρέχω,flee,flee action photo,generated
+3369,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,"τσιμπώ(τοκουνούπιτσιμπάει,τοψάριτσιμπάει",,,no_english
+3370,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,στοαγκίστρι),,,no_english
+3371,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,χλιμιντρίζω,neigh,neighing horse,override
+3372,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Πανίδα,ψαρεύω,fish,fish action photo,generated
+3373,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,αγκάθι,thorn,thorn photo,generated
+3374,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,αγριολούλουδο,wild flower,wild flower photo,generated
+3375,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,αγριόχορτο,weed,weed photo,generated
+3376,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,αμπέλι,vine,vine photo,generated
+3377,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,αμπελώνας,vineyard,vineyard photo,generated
+3378,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,ανθοέκθεση,,,no_english
+3379,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,άνθος,blossom,blossom photo,generated
+3380,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,βλαστός,shoot,shoot photo,generated
+3381,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,βοτανικόςκήπος,,,no_english
+3382,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,βότανο,herb,herb photo,generated
+3383,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,γκαζόν,lawn,lawn photo,generated
+3384,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,γλάστρα,decorative showgirl,decorative showgirl photo,generated
+3385,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,γρασίδι,grass,grass photo,generated
+3386,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,δάσος,wood,wood photo,generated
+3387,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,δέντρο,tree,tree photo,generated
+3388,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,εθνικόςδρυμός,,,no_english
+3389,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,ελαιώνας,,,no_english
+3390,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,ευωδιά,fragrance,fragrance photo,generated
+3391,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,θάμνος,bush,bush photo,generated
+3392,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,καρπός,fruit,fruit photo,generated
+3393,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,κήπος,garden,garden photo,generated
+3394,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,κηπουρός,gardener,gardener photo,generated
+3395,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,κλαδί,branch,branch photo,generated
+3396,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,κορμός,trunk of tree,trunk of tree photo,generated
+3397,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,κουκουνάρι,,,no_english
+3398,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,λιβάδι,meadow,meadow photo,generated
+3399,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,λίπασμα,fertilizer,fertilizer photo,generated
+3400,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,λουλούδι,flower,flower photo,generated
+3401,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,μανιτάρι,mushroom,mushroom photo,generated
+3402,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,μποστάνι,,,no_english
+3403,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,μπουμπούκι,bud (of a plant's shoot or flower),,needs_review
+3404,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,περιβόλι,vegetable garden,vegetable garden photo,generated
+3405,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,πέταλο,horseshoe,horseshoe photo,generated
+3406,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,ρίζα,foot,foot photo,generated
+3407,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,σοδειά,harvest,harvest photo,generated
+3408,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,τσαμπί,bunch,bunch photo,generated
+3409,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,φύλλο,leaf,leaf photo,generated
+3410,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,φυλλόχωμα,,,no_english
+3411,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,φυλλωσιά,,,no_english
+3412,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,φυτόεσωτερικούχώρου,,,no_english
+3413,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,φυτό,plant,plant photo,generated
+3414,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,φυτοφάρμακο,,,no_english
+3415,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,φωτοσύνθεση,photosynthesis,photosynthesis photo,generated
+3416,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,χωράφι,field,field photo,generated
+3417,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,"ονομασίεςδέντρων,θάμνων,φυτών",,,no_english
+3418,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,α)αρωματικάφυτά,,,no_english
+3419,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,άνηθος,dill,dill photo,generated
+3420,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,βασίλικός,basil,basil photo,generated
+3421,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,δάφνη,laurel,laurel photo,generated
+3422,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,δεντρολίβανο,rosemary,rosemary photo,generated
+3423,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,δυόσμος,mint,mint photo,generated
+3424,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,θυμάρι,thyme,thyme photo,generated
+3425,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,κανέλλα,,,no_english
+3426,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,λεβάντα,lavender,lavender photo,generated
+3427,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,μαϊντανός,parsley,parsley photo,generated
+3428,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,μαντζουράνα,marjoram,marjoram photo,generated
+3429,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,μέντα,mint,mint photo,generated
+3430,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,μυρτιά,common myrtle,common myrtle photo,generated
+3431,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,ρίγανη,oregano,oregano photo,generated
+3432,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,τίλιο,,,no_english
+3433,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,τσουκνίδα,,,no_english
+3434,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,χαμομήλι,camomile,camomile photo,generated
+3435,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,β)δημητριακά,,,no_english
+3436,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,βρόμη,"oat, oats (widely cultivated cereal grass, typically Avena sativa)",,needs_review
+3437,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,καλαμπόκι,corn,corn photo,generated
+3438,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,κριθάρι,barley,barley photo,generated
+3439,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,ρύζι,rice,rice photo,generated
+3440,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,σίκαλη,rye,,needs_review
+3441,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,σιτάρι,wheat,wheat photo,generated
+3442,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,στάχυ,,,no_english
+3443,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,γ)δέντρα-καρποί,,,no_english
+3444,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,ακακία,acacia,acacia photo,generated
+3445,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,αμπέλι,vine,vine photo,generated
+3446,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,αμυγδαλιά,almond tree,almond tree photo,generated
+3447,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,αμύγδαλο,almond,almond photo,generated
+3448,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,αχλάδι,pear,pear photo,generated
+3449,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,αχλαδιά,pear tree,pear tree photo,generated
+3450,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,βελανιδιά,oak tree,oak tree photo,generated
+3451,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,βελανίδι,acorn,acorn photo,generated
+3452,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,βερικοκιά,apricot tree,apricot tree photo,generated
+3453,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,βερίκοκο,apricot,apricot photo,generated
+3454,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,δαμασκηνιά,plum tree,plum tree photo,generated
+3455,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,δαμάσκηνο,plum,plum photo,generated
+3456,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,έλατο,fir tree,fir tree photo,generated
+3457,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,ελιά,olive,olive photo,generated
+3458,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,ιτιά,,,no_english
+3459,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,καρύδι,walnut,walnut photo,generated
+3460,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,καρυδιά,walnut tree,walnut tree photo,generated
+3461,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,καστανιά,chestnut tree,chestnut tree photo,generated
+3462,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,κάστανο,brown,brown photo,generated
+3463,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,κέδρος,,,no_english
+3464,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,κλήμα,vine,vine photo,generated
+3465,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,κυπαρίσσι,cypress tree,cypress tree photo,generated
+3466,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,κυπαρισσόμηλο,cypress cone,cypress cone photo,generated
+3467,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,λεμόνι,lemon,lemon photo,generated
+3468,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,λεμονιά,lemon tree,lemon tree photo,generated
+3469,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,μηλιά,apple tree,apple tree photo,generated
+3470,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,μήλο,apple,apple photo,generated
+3471,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,οξιά,beech,beech photo,generated
+3472,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,πεύκο,pine tree,pine tree photo,generated
+3473,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,πλατάνι,plane tree,plane tree photo,generated
+3474,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,πορτοκαλιά,orange tree,orange tree photo,generated
+3475,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,πορτοκάλι,orange,orange photo,generated
+3476,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,μανταρινιά,mandarin orange tree,mandarin orange tree photo,generated
+3477,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,μανταρίνι,tangerine,tangerine photo,generated
+3478,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,μαστιχιά,mastic tree,mastic tree photo,generated
+3479,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,ρόδι,pomegranate,pomegranate photo,generated
+3480,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,ροδιά,Nominative,Nominative photo,generated
+3481,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,σταφύλι,grape,grape photo,generated
+3482,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,συκιά,fig tree,fig tree photo,generated
+3483,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,σύκο,fig (fruit),,needs_review
+3484,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,φοίνικας,palm tree,palm tree photo,generated
+3485,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,φουντούκι,hazelnut,hazelnut photo,generated
+3486,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,φουντουκιά,Hazel bush or tree,Hazel bush or tree photo,generated
+3487,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,χουρμαδιά,date palm tree,date palm tree photo,generated
+3488,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,χουρμάς,date,date photo,generated
+3489,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,"δ)λουλούδια-φυτά,άνθη",,,no_english
+3490,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,αγιόκλημα,honeysuckle,honeysuckle photo,generated
+3491,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,ανεμώνη,anemone,anemone photo,generated
+3492,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,βιολέτα,violet,violet photo,generated
+3493,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,γαϊδουράγκαθο,cotton thistle,cotton thistle photo,generated
+3494,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,γαριφαλιά,,,no_english
+3495,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,γαρίφαλο,,,no_english
+3496,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,γεράνι,,,no_english
+3497,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,γιασεμί,jasmine,jasmine photo,generated
+3498,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,γλαδιόλα,,,no_english
+3499,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,γλαδίολος,,,no_english
+3500,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,ζουμπούλι,hyacinth,hyacinth photo,generated
+3501,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,ιβίσκος,hibiscus,hibiscus photo,generated
+3502,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,κάκτος,cactus,cactus photo,generated
+3503,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,καμέλια,,,no_english
+3504,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,κισσός,,,no_english
+3505,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,κρίνος,,,no_english
+3506,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,κυκλάμινο,,,no_english
+3507,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,μαργαρίτα,daisy,daisy photo,generated
+3508,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,μενεξές,violet,violet photo,generated
+3509,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,μπουκαμβίλια,bougainvillea,bougainvillea photo,generated
+3510,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,νάρκισσος,narcissus,narcissus photo,generated
+3511,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,νούφαρο,lotus,lotus photo,generated
+3512,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,ντάλια,dahlia,dahlia photo,generated
+3513,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,πανσές,pansy,pansy photo,generated
+3514,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,παπαρούνα,poppy,poppy photo,generated
+3515,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,πασχαλιά,lilac,lilac photo,generated
+3516,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,πετούνια,,,no_english
+3517,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,πουρνάρι,kermes oak,kermes oak photo,generated
+3518,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,τουλίπα,,,no_english
+3519,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,τριανταφυλλιά,rosebush,rosebush photo,generated
+3520,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,τριαντάφυλλο,rose,rose photo,generated
+3521,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,υάκινθος,hyacinth,hyacinth photo,generated
+3522,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,φίκος,,,no_english
+3523,12,Πανίδα - Χλωρίδα,Ουσιαστικά,noun,Χλωρίδα,χρυσάνθεμο,chrysanthemum,chrysanthemum photo,generated
+3524,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Χλωρίδα,αγκαθωτός-ή-ό,prickly,prickly example photo,generated
+3525,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Χλωρίδα,αναρριχώμενος-η-ο,,,no_english
+3526,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Χλωρίδα,ανθισμένος-η-ο,flowering,flowering example photo,generated
+3527,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Χλωρίδα,αποξηραμένος-η-ο,dried,dried example photo,generated
+3528,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Χλωρίδα,αρωματικός-ή-ό,,,no_english
+3529,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Χλωρίδα,βιολογικός-ή-ό,biological,biological example photo,generated
+3530,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Χλωρίδα,ευωδιαστός-ή-ό,fragrant,fragrant example photo,generated
+3531,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Χλωρίδα,καλλωπιστικός-ή-ό,,,no_english
+3532,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Χλωρίδα,καρποφόρος-α-ο,,,no_english
+3533,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Χλωρίδα,μενεξεδένιος-α-ο,,,no_english
+3534,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Χλωρίδα,μεταλλαγμένος-η-ο,,,no_english
+3535,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Χλωρίδα,μυρωδάτος-η-ο,,,no_english
+3536,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Χλωρίδα,μυρωδικός-ή-ό,,,no_english
+3537,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Χλωρίδα,οπωροφόρος-α-ο,,,no_english
+3538,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Χλωρίδα,πράσινος-η-ο,green,green example photo,generated
+3539,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Χλωρίδα,σάπιος-α-ο,rotten,rotten example photo,generated
+3540,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Χλωρίδα,τριανταφυλλής-ιά-ί,rose,rose example photo,generated
+3541,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Χλωρίδα,φυλλοβόλος-α-ο,deciduous,deciduous example photo,generated
+3542,12,Πανίδα - Χλωρίδα,Επίθετα,adjective,Χλωρίδα,ώριμος-η-ο,ripe,ripe example photo,generated
+3543,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,ανθίζω,flower,flower action photo,generated
+3544,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,ευωδιάζω,produce pleasant smell,produce pleasant smell action photo,generated
+3545,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,θερίζω,reap,reap action photo,generated
+3546,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,θροΐζω,,,no_english
+3547,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,κιτρινίζω,,,no_english
+3548,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,κλαδεύω,prune,prune action photo,generated
+3549,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,κόβω,take shortcut,take shortcut action photo,generated
+3550,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,κοκκινίζω,blush,blush action photo,generated
+3551,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,μαζεύω,collect,collect action photo,generated
+3552,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,μπουμπουκιάζω,,,no_english
+3553,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,ποτίζω,give drink to,give drink to action photo,generated
+3554,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,πρασινίζω,,,no_english
+3555,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,ριζώνω,,,no_english
+3556,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,σαπίζω,(intransitive) rot,,needs_review
+3557,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,σκαλίζω,"hoe, cultivate, dig around",,needs_review
+3558,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,σπέρνω,disperse seeds,disperse seeds action photo,generated
+3559,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,φυτεύω,plant,plant action photo,generated
+3560,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,φυτρώνω,grow roots,grow roots action photo,generated
+3561,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,ωριμάζω,mature,mature action photo,generated
+3562,12,Πανίδα - Χλωρίδα,Εκφράσεις,phrase,,Αετίσιομάτι,,,no_english
+3563,12,Πανίδα - Χλωρίδα,Εκφράσεις,phrase,,Γαϊδάρουαυτιά...,,,no_english
+3564,12,Πανίδα - Χλωρίδα,Εκφράσεις,phrase,,Είναισαντημύγαμεςτογάλα,,,no_english
+3565,12,Πανίδα - Χλωρίδα,Εκφράσεις,phrase,,Έκανεφτερά...,,,no_english
+3566,12,Πανίδα - Χλωρίδα,Εκφράσεις,phrase,,«ΚάθεπράγμαστονκαιρότουκιοκολιόςτονΑύγουστο»,,,no_english
+3567,12,Πανίδα - Χλωρίδα,Εκφράσεις,phrase,,Κατάφωνήκαιογάιδαρος.,,,no_english
+3568,12,Πανίδα - Χλωρίδα,Εκφράσεις,phrase,,Κολοκύθιαμετηρίγανη!,,,no_english
+3569,12,Πανίδα - Χλωρίδα,Εκφράσεις,phrase,,Ότανλείπειηγάταχορεύουνταποντίκια.,,,no_english
+3570,12,Πανίδα - Χλωρίδα,Εκφράσεις,phrase,,Πάεισανχελώνα,,,no_english
+3571,12,Πανίδα - Χλωρίδα,Εκφράσεις,phrase,,Πεινώσανλύκος.,,,no_english
+3572,12,Πανίδα - Χλωρίδα,Εκφράσεις,phrase,,Πονηρόςσαναλεπού,,,no_english
+3573,12,Πανίδα - Χλωρίδα,Εκφράσεις,phrase,,...σαντοσκύλομετηγάτα,,,no_english
+3574,12,Πανίδα - Χλωρίδα,Εκφράσεις,phrase,,Σέρνεταισαντοφίδι,,,no_english
+3575,12,Πανίδα - Χλωρίδα,Εκφράσεις,phrase,,Τομήλοκάτωαπ’τημηλιάθαπέσει.,,,no_english
+3576,12,Πανίδα - Χλωρίδα,Εκφράσεις,phrase,,Τουπουλιούτογάλα!,,,no_english
+3577,12,Πανίδα - Χλωρίδα,Εκφράσεις,phrase,,Τρέχεισανλαγός,,,no_english
+3578,12,Πανίδα - Χλωρίδα,Εκφράσεις,phrase,,Φυτρώνειεκείπουδεντονσπέρνουν.,,,no_english
+3579,12,Πανίδα - Χλωρίδα,Εκφράσεις,phrase,,Χτυπιέταισανχταπόδι,,,no_english

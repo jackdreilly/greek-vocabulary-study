@@ -1,0 +1,246 @@
+entry_id,theme_id,theme,category,type,subsection,lemma,primary_sense,query,query_status
+1,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,αγάπη,"love (affection, liking, attraction)",,needs_review
+2,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,αγόρι,boyfriend,boyfriend photo,generated
+3,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,αγωγή,treatment,treatment photo,generated
+4,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,αδελφή,sister,sister photo,generated
+5,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,αδέλφια,sibling,sibling photo,generated
+6,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,αδελφός,brother,brother photo,generated
+7,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,ανατροφή,upbringing,upbringing photo,generated
+8,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,ανιψιά,niece,niece photo,generated
+9,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,ανιψιός,nephew,nephew photo,generated
+10,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,αντρόγυνο,(colloquial) Alternative form of ανδρόγυνο (andrógyno),,needs_review
+11,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,αρραβώνας,engagement,engagement photo,generated
+12,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,βάφτιση,,,no_english
+13,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,βαφτίσια,,,no_english
+14,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,βέρα,wedding ring,wedding ring photo,generated
+15,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,βρέφος,baby,baby photo,generated
+16,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,γάμος,marriage,marriage photo,generated
+17,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,γαμπρός,son-in-law,son-in-law photo,generated
+18,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,γενέθλια,birthday,birthday photo,generated
+19,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,γέννηση,start,start photo,generated
+20,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,γεννητικότητα,,,no_english
+21,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,γεράματα,old age (latter part of life),,needs_review
+22,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,γιαγιά,grandmother,grandmother photo,generated
+23,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,γιος,"son, a male child",,needs_review
+24,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,γλέντι,,,no_english
+25,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,γνωριμία,acquaintance,acquaintance photo,generated
+26,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,γονείς,Nominative,Nominative photo,generated
+27,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,γονιός,parent,parent photo,generated
+28,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,δεσμός,bond,bond photo,generated
+29,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,δημαρχείο,town hall,town hall photo,generated
+30,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,διαζύγιο,divorce,divorce photo,generated
+31,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,διαθήκη,will,will photo,generated
+32,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,διατροφή,nutrition,nutrition photo,generated
+33,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,διαπαιδαγώγηση,edification,edification photo,generated
+34,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,δώρο,gift,gift photo,generated
+35,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,εγκυμοσύνη,pregnancy,pregnancy photo,generated
+36,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,έγκυος,pregnant,pregnant photo,generated
+37,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,εκκλησία,church,church photo,generated
+38,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,εμπιστοσύνη,trust,trust photo,generated
+39,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,επέτειοςγάμου,,,no_english
+40,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,επιμέλειαπαιδιού,,,no_english
+41,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,έρωτας,passion,passion photo,generated
+42,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,ζευγάρι,married or in romantic liaison,married or in romantic liaison photo,generated
+43,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,θάνατος,death,death photo,generated
+44,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,θεία,aunt,aunt photo,generated
+45,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,θείος,uncle,uncle photo,generated
+46,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,θηλασμός,breastfeeding,breastfeeding photo,generated
+47,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,καβγαδάκι,,,no_english
+48,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,καροτσάκι,baby buggy,baby buggy photo,generated
+49,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,κεράκι,candle,candle photo,generated
+50,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,κεραυνοβόλοςέρωτας,,,no_english
+51,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,κηδεία,funeral,funeral photo,generated
+52,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,κηδεμόνας,guardian,guardian photo,generated
+53,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,κοιμητήριο,cemetery,cemetery photo,generated
+54,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,κληρονόμος,heir,heir photo,generated
+55,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,κολυμβήθρα,,,no_english
+56,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,κόρη,daughter,daughter photo,generated
+57,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,κορίτσι,girl,girl photo,generated
+58,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,κοστούμι,suit,suit photo,generated
+59,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,κουμπάρα,one's best man,one's best man photo,generated
+60,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,κουμπάρος,one's best man,one's best man photo,generated
+61,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,κούνια,swing,swing photo,generated
+62,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,κουνιάδα,,,no_english
+63,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,κουνιάδος,brother-in-law,brother-in-law photo,generated
+64,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,κουφέτο,,,no_english
+65,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,ληξιαρχικήπράξηγέννησης,,,no_english
+66,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,ληξιαρχικήπράξηγάμου,,,no_english
+67,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,ληξιαρχικήπράξηθανάτου,,,no_english
+68,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,μαία,midwife,midwife photo,generated
+69,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,μαιευτήρας,,,no_english
+70,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,μαιευτήριο,maternity hospital,maternity hospital photo,generated
+71,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,μακαρίτης,,,no_english
+72,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,μακαρίτισσα,,,no_english
+73,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,μάλωμα,argument,argument photo,generated
+74,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,μαμά,vehicle with unmodified factory-built equipment.,vehicle with unmodified factory-built equipment. photo,generated
+75,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,μάνα,bank,bank photo,generated
+76,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,μανούλα,,,no_english
+77,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,μητέρα,mother,mother photo,generated
+78,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,μητρότητα,,,no_english
+79,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,μνήμα,grave,grave photo,generated
+80,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,μπαμπάς,baba,baba photo,generated
+81,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,μπαμπάκας,,,no_english
+82,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,μπατζανάκης,,,no_english
+83,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,μπιμπερό,baby bottle,baby bottle photo,generated
+84,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,μπομπονιέρα,,,no_english
+85,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,νεογέννητο,,,no_english
+86,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,νονός,godfather,godfather photo,generated
+87,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,νονά,godmother,godmother photo,generated
+88,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,νύφη,bride,bride photo,generated
+89,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,νυφικό,wedding dress,wedding dress photo,generated
+90,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,ξαδέλφη,cousin,cousin photo,generated
+91,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,ξαδέλφια,cousin,cousin photo,generated
+92,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,ξάδελφος,cousin,cousin photo,generated
+93,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,οικογένεια,family,family photo,generated
+94,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,οίκοςευγηρίας,,,no_english
+95,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,όνομα,name,name photo,generated
+96,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,ορφανή,Nominative,Nominative photo,generated
+97,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,ορφανό,orphan,orphan photo,generated
+98,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,ορφανοτροφείο,orphanage,orphanage photo,generated
+99,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,παιδί,child,child photo,generated
+100,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,παππούς,grandfather,grandfather photo,generated
+101,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,παρανυφάκι,,,no_english
+102,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,πατέρας,father,father photo,generated
+103,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,πεθερά,mother-in-law,mother-in-law photo,generated
+104,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,πεθερός,father-in-law,father-in-law photo,generated
+105,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,προξενιό,,,no_english
+106,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,προσκλητήριο,,,no_english
+107,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,σόι,family,family photo,generated
+108,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,στέφανα,,,no_english
+109,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,στοργή,deep love and affection,deep love and affection photo,generated
+110,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,συγγενής,related,related photo,generated
+111,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,σύζυγος,yokefellow,yokefellow photo,generated
+112,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,συμβίωση,,,no_english
+113,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,συμπεθέρα,female relation by marriage,female relation by marriage photo,generated
+114,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,συμπεθεριό,,,no_english
+115,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,συμπέθερος,relation by marriage,relation by marriage photo,generated
+116,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,συνυφάδα,,,no_english
+117,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,ταξίδιτουμέλιτος,,,no_english
+118,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,τιμωρία,punishment,punishment photo,generated
+119,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,τοκετός,confinement,confinement photo,generated
+120,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,τούρτα,cake with layers of filling and icing,cake with layers of filling and icing photo,generated
+121,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,τρυφερότητα,,,no_english
+122,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,υιοθεσία,,,no_english
+123,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,φατρία,faction,faction photo,generated
+124,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,φιλί,kiss,kiss photo,generated
+125,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,φροντίδα,attention,attention photo,generated
+126,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,χάδι,,,no_english
+127,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,χήρα,widow,widow photo,generated
+128,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,χήρος,widower,widower photo,generated
+129,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ουσιαστικά,noun,,χωρισμός,,,no_english
+130,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,αδερφικός-ή-ό,brotherly,brotherly example photo,generated
+131,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,αντιπαθητικός-ή-ό,unpleasant,unpleasant example photo,generated
+132,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,ανυπάκουος-η-ο,disobedient,disobedient example photo,generated
+133,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,ανύπαντρος-η-ο,unmarried,unmarried example photo,generated
+134,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,απογοητευμένος-η-ο,disappointed,disappointed example photo,generated
+135,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,αρμονικός-ή-ό,harmonious,harmonious example photo,generated
+136,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,άτακτος-η-ο,cheeky,cheeky example photo,generated
+137,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,αυστηρός-ή-ό,strict,strict example photo,generated
+138,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,βρεφικός-ή-ό,,,no_english
+139,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,βρόμικος-η-ο,dirty,dirty example photo,generated
+140,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,γαμήλιος-α-ο,,,no_english
+141,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,γαμπριάτικος-η-ο,of bridegroom,of bridegroom example photo,generated
+142,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,γλυκός-ιά-ό,sweet in taste,sweet in taste example photo,generated
+143,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,γοητευμένος-η-ο,am enchanted,am enchanted example photo,generated
+144,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,δεμένος-η-ο(π.χ.δεμένηοικογένεια),tied,tied example photo,generated
+145,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,δευτερότοκος-η-ο,,,no_english
+146,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,διαζευγμένος-η-ο,,,no_english
+147,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,δίδυμος-η-ο,twin,twin example photo,generated
+148,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,ελεύθερος-η-ο,free,free example photo,generated
+149,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,ενθουσιασμένος-η-ο,excited,excited example photo,generated
+150,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,ερωτευμένος-η-ο,to fall in love with,to fall in love with example photo,generated
+151,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,ετοιμοθάνατος-η-ο,,,no_english
+152,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,ευγενικός-ή-ό,polite,polite example photo,generated
+153,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,ζηλιάρης-α-ικο,envious,envious example photo,generated
+154,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,ηλικιωμένος-η-ο,elderly man,elderly man example photo,generated
+155,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,ήσυχος-η-ο,quiet,quiet example photo,generated
+156,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,θετός-ή-ό,adopted,adopted example photo,generated
+157,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,καθαρός-ή-ό,clean,clean example photo,generated
+158,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,κακομαθημένος-η-ο,spoiled,spoiled example photo,generated
+159,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,καλομαθημένος-η-ο,spoiled,spoiled example photo,generated
+160,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,καλός-ή-ό,good,good example photo,generated
+161,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,κατάκοιτος-η-ο,,,no_english
+162,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,κλαψιάρης-α-ικο,,,no_english
+163,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,μητρικός-ή-ό,maternal,maternal example photo,generated
+164,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,μοντέρνος-α-ο,modern,modern example photo,generated
+165,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,νυφικός-ή-ό,,,no_english
+166,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,οικογενειακός-ή-ό,family,family example photo,generated
+167,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,όμορφος-η-ο,beautiful,beautiful example photo,generated
+168,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,παιδικός-ή-ό,belonging or referring to child,belonging or referring to child example photo,generated
+169,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,παραδοσιακός-ή-ό,traditional,traditional example photo,generated
+170,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,πατρικός-ή-ό,fatherly,fatherly example photo,generated
+171,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,πρωτότοκος-η-ο,,,no_english
+172,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,σκληρός-ή-ό,hard,hard example photo,generated
+173,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,στολισμένος-η-ο,dress up,dress up example photo,generated
+174,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,στοργικός-ή-ό,loving,loving example photo,generated
+175,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,συμπαθητικός-ή-ό,sympathetic,sympathetic example photo,generated
+176,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,τρυφερός-ή-ό,tender,tender example photo,generated
+177,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,υπάκουος-η-ο,obedient,obedient example photo,generated
+178,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,φρόνιμος-η-ο,sensible,sensible example photo,generated
+179,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,χαδιάρης-α-ικο,,,no_english
+180,1,Οικογένεια: ο θεσμός - οι δεσμοί,Επίθετα,adjective,,χωρισμένος-η-ο,divided,divided example photo,generated
+181,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,αγαπώ,variant of αγαπάω (agapáo),,needs_review
+182,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,αλλάζω,change,change action photo,generated
+183,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,ανατρέφω,bring up,bring up action photo,generated
+184,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,αρραβωνιάζομαι,,,no_english
+185,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,βαφτίζω,baptise,baptise action photo,generated
+186,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,γεννάω(ώ),give birth,give birth action photo,generated
+187,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,γεννιέμαι,be born,be born action photo,generated
+188,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,δηλώνωτηγέννηση/τονγάμο/τονθάνατο,,,no_english
+189,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,διαπαιδαγωγώ,,,no_english
+190,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,εκτιμώ,appreciate,appreciate action photo,generated
+191,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,εμπιστεύομαι,trust,trust action photo,generated
+192,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,ερωτεύομαι,to fall in love with,to fall in love with action photo,generated
+193,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,ζω,live,live action photo,generated
+194,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,θηλάζω,suckle,suckle action photo,generated
+195,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,θρέφω,,,no_english
+196,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,κηδεύω-ομαι,,,no_english
+197,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,κληροδοτώ,,,no_english
+198,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,κληρονομώ,inherit,inherit action photo,generated
+199,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,λούζω,wash,wash action photo,generated
+200,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,λυπάμαι,to be sorry,to be sorry action photo,generated
+201,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,μεγαλώνω,bring up,bring up action photo,generated
+202,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,μαλώνω,tell off,tell off action photo,generated
+203,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,νιώθω,feel,feel action photo,generated
+204,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,μοιάζω,look like,look like action photo,generated
+205,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,νανουρίζω,,,no_english
+206,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,νιώθω,feel,feel action photo,generated
+207,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,παντρεύομαι,marry,marry action photo,generated
+208,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,πεθαίνω,kill,kill action photo,generated
+209,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,περιμένω(παιδί),wait,wait action photo,generated
+210,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,πλένω,wash,wash action photo,generated
+211,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,προσέχω,watch,watch action photo,generated
+212,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,προσκαλώ,invite,invite action photo,generated
+213,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,προστατεύω,protect,protect action photo,generated
+214,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,προσφέρω,offer,offer action photo,generated
+215,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,σέβομαι,to respect,to respect action photo,generated
+216,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,στενοχωριέμαι,upset,upset action photo,generated
+217,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,συγχωρώ,forgive,forgive action photo,generated
+218,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,συζώ,,,no_english
+219,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,συμβουλεύω,advise,advise action photo,generated
+220,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,συναντιέμαι,meet,meet action photo,generated
+221,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,συνδέομαι(με),am connected → and see συνδέω,am connected → and see συνδέω action photo,generated
+222,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,ταίζω,feed,feeding animals,override
+223,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,τιμωρώ,punish,punish action photo,generated
+224,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,τσακώνομαι,fight,fight action photo,generated
+225,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,φιλιέμαι,Ι am kissed,Ι am kissed action photo,generated
+226,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,φροντίζω,care for,care for action photo,generated
+227,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,χαϊδεύω,caress,caress action photo,generated
+228,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,χαίρομαι,to be happy,to be happy action photo,generated
+229,1,Οικογένεια: ο θεσμός - οι δεσμοί,Ρήματα,verb,,χωρίζω,separate,separate action photo,generated
+230,1,Οικογένεια: ο θεσμός - οι δεσμοί,Εκφράσεις,phrase,,Ταενοίκωμηενδήμω.,,,no_english
+231,1,Οικογένεια: ο θεσμός - οι δεσμοί,Εκφράσεις,phrase,,Στοτέλοςξυρίζουντογαμπρό!,,,no_english
+232,1,Οικογένεια: ο θεσμός - οι δεσμοί,Εκφράσεις,phrase,,"Ανθέλειηνύφηκιογαμπρός,τύφλανα'χειοπεθερός.",,,no_english
+233,1,Οικογένεια: ο θεσμός - οι δεσμοί,Εκφράσεις,phrase,,Τρελόςπαπάςτονβάφτισε!,,,no_english
+234,1,Οικογένεια: ο θεσμός - οι δεσμοί,Εκφράσεις,phrase,,"Κατάμάνα,κατάκύρη.",,,no_english
+235,1,Οικογένεια: ο θεσμός - οι δεσμοί,Εκφράσεις,phrase,,Τοαίμανερόδεγίνεται.,,,no_english
+236,1,Οικογένεια: ο θεσμός - οι δεσμοί,Εκφράσεις,phrase,,Τομήλοκάτωαπότημηλιάθαπέσει.,,,no_english
+237,1,Οικογένεια: ο θεσμός - οι δεσμοί,Εκφράσεις,phrase,,Τοπαιδίτουσωλήνα.,,,no_english
+238,1,Οικογένεια: ο θεσμός - οι δεσμοί,Εκφράσεις,phrase,,παιδίαπόοικογένεια.,,,no_english
+239,1,Οικογένεια: ο θεσμός - οι δεσμοί,Εκφράσεις,phrase,,Άνθρωποςαπότζάκι,,,no_english
+240,1,Οικογένεια: ο θεσμός - οι δεσμοί,Εκφράσεις,phrase,,Πυρηνικήοικογένεια,,,no_english
+241,1,Οικογένεια: ο θεσμός - οι δεσμοί,Εκφράσεις,phrase,,Μονογονεϊκήοικογένεια,,,no_english
+242,1,Οικογένεια: ο θεσμός - οι δεσμοί,Εκφράσεις,phrase,,∆εμένηοικογένεια,,,no_english
+243,1,Οικογένεια: ο θεσμός - οι δεσμοί,Εκφράσεις,phrase,,"Πατριαρχικήοικογένεια,μητριαρχικήοικογένεια",,,no_english
+244,1,Οικογένεια: ο θεσμός - οι δεσμοί,Εκφράσεις,phrase,,Σανγαμπρός=γαμπριάτικος!,,,no_english
+245,1,Οικογένεια: ο θεσμός - οι δεσμοί,Εκφράσεις,phrase,,Χρόνιαπολλά!Ναζήσετε!Συγχαρητήρια!Συλλυπητήρια!,,,no_english
