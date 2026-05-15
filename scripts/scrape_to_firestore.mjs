@@ -117,9 +117,8 @@ async function scrape() {
     }
 
     count++;
-    
-    // Delay to stay within Pexels rate limit (200 req/hr = ~18s delay)
-    await new Promise(r => setTimeout(r, 20000));
+    // Delay to stay within Pexels rate limit, drastically reduced since limit is 25000/month
+    await new Promise(r => setTimeout(r, 1000));
   }
 }
 

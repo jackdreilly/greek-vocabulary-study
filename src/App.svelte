@@ -437,7 +437,7 @@
     if (!pexelsSearchQuery) return;
     pexelsSearching = true;
     try {
-      const apiKey = import.meta.env.VITE_PEXELS_API_KEY;
+      const apiKey = import.meta.env.VITE_PEXELS_API_KEY || "Clfd3MxZZAhHXFxcfjF9J2JUAU6VgUOXuP22gLKavAJfryn2r6yFIS9K";
       const res = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(pexelsSearchQuery)}&per_page=12`, {
         headers: { Authorization: apiKey }
       });
