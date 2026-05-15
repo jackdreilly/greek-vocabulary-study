@@ -48,9 +48,9 @@
   let pexelsCandidates = { entries: {} };
   let imagePreferences = { entries: {} };
   let editingEntry = null;
-  let pexelsSearchQuery = "";
-  let pexelsSearchResults = [];
-  let pexelsSearching = false;
+  let pixabaySearchQuery = "";
+  let pixabaySearchResults = [];
+  let pixabaySearching = false;
   let studyCardEl = null;
   let dragStart = null;
   let dragX = 0;
@@ -398,8 +398,8 @@
 
   function openEdit(entry) {
     editingEntry = JSON.parse(JSON.stringify(entry));
-    pexelsSearchQuery = entry.english_senses?.[0] || entry.english || entry.lemma;
-    pexelsSearchResults = [];
+    pixabaySearchQuery = entry.english_senses?.[0] || entry.english || entry.lemma;
+    pixabaySearchResults = [];
   }
 
   function addSense() {
@@ -433,20 +433,18 @@
     }
   }
 
-  async function searchPexelsInApp() {
-    if (!pexelsSearchQuery) return;
-    pexelsSearching = true;
+  async function searchPixabayInApp() {
+    if (!pixabaySearchQuery) return;
+    pixabaySearching = true;
     try {
-      const apiKey = import.meta.env.VITE_PEXELS_API_KEY || "Clfd3MxZZAhHXFxcfjF9J2JUAU6VgUOXuP22gLKavAJfryn2r6yFIS9K";
-      const res = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(pexelsSearchQuery)}&per_page=12`, {
-        headers: { Authorization: apiKey }
-      });
+      const apiKey = import.meta.env.VITE_PIXABAY_API_KEY || "55869685-497332976a7a50290c39c6c05";
+      const res = await fetch(`https://pixabay.com/api/?key=${apiKey}&q=${encodeURIComponent(pixabaySearchQuery)}&per_page=12`);
       const json = await res.json();
-      pexelsSearchResults = json.photos || [];
+      pixabaySearchResults = json.hits || [];
     } catch (err) {
-      console.error("Pexels search failed:", err);
+      console.error("Pixabay search failed:", err);
     } finally {
-      pexelsSearching = false;
+      pixabaySearching = false;
     }
   }
 
@@ -470,16 +468,16 @@
     }
   }
 
-  function selectPexelsPhoto(photo) {
+  function selectPixabayPhoto(photo) {
     if (!editingEntry) return;
     editingEntry.image = {
-      url: photo.src.original,
-      thumbnail: photo.src.medium,
+      url: photo.largeImageURL || photo.webformatURL,
+      thumbnail: photo.webformatURL,
       title: editingEntry.lemma,
-      creator: photo.photographer,
-      landing_url: photo.url,
-      source: "pexels",
-      pexels_id: photo.id,
+      creator: photo.user,
+      landing_url: photo.pageURL,
+      source: "pixabay",
+      pexels_id: photo.id, // keeping property name for DB consistency
       position: "center"
     };
   }
@@ -1214,17 +1212,17 @@
                 <div class="flex items-center gap-3 mb-4">
                   <input
                     type="text"
-                    bind:value={pexelsSearchQuery}
-                    placeholder="Search Pexels..."
+                    bind:value={pixabaySearchQuery}
+                    placeholder="Search Pixabay..."
                     class="flex-1 min-w-0 rounded-lg border border-line bg-paper px-3 py-1.5 text-sm outline-none focus:border-green transition"
-                    on:keydown={(e) => e.key === 'Enter' && searchPexelsInApp()}
+                    on:keydown={(e) => e.key === 'Enter' && searchPixabayInApp()}
                   />
                   <button
-                    on:click={searchPexelsInApp}
-                    disabled={pexelsSearching}
+                    on:click={searchPixabayInApp}
+                    disabled={pixabaySearching}
                     class="rounded-lg bg-green px-4 py-1.5 text-sm font-bold text-white hover:bg-green/90 transition disabled:opacity-50"
                   >
-                    {pexelsSearching ? '...' : 'Search'}
+                    {pixabaySearching ? '...' : 'Search'}
                   </button>
                 </div>
 
@@ -1245,19 +1243,19 @@
                   </div>
                 {/if}
                 
-                {#if pexelsSearchResults.length > 0}
+                {#if pixabaySearchResults.length > 0}
                   <div class="grid grid-cols-4 gap-2 overflow-y-auto max-h-32">
-                    {#each pexelsSearchResults as photo}
+                    {#each pixabaySearchResults as photo}
                       <button
-                        on:click={() => selectPexelsPhoto(photo)}
+                        on:click={() => selectPixabayPhoto(photo)}
                         class="aspect-square rounded-lg overflow-hidden border-2 transition
                                {editingEntry.image?.pexels_id === photo.id ? 'border-green scale-95 shadow-inner' : 'border-transparent hover:border-line'}"
                       >
-                        <img src={photo.src.tiny} alt="" class="w-full h-full object-cover" loading="lazy" decoding="async" />
+                        <img src={photo.previewURL || photo.webformatURL} alt="" class="w-full h-full object-cover" loading="lazy" decoding="async" />
                       </button>
                     {/each}
                   </div>
-                {:else if !pexelsSearching}
+                {:else if !pixabaySearching}
                   <p class="text-xs text-muted">Search for an image or upload your own.</p>
                 {/if}
               </div>

@@ -19,10 +19,10 @@ const storage = new Storage({
 const bucket = storage.bucket("didibros-6d3ed.firebasestorage.app");
 
 const envContent = await fs.readFile(DOTENV_PATH, "utf8");
-const PEXELS_API_KEY = envContent.split("\n").find(line => line.startsWith("PEXELS_API_KEY="))?.split("=")[1];
+const PIXABAY_API_KEY = envContent.split("\n").find(line => line.startsWith("PIXABAY_API_KEY="))?.split("=")[1];
 
-if (!PEXELS_API_KEY) {
-  console.error("PEXELS_API_KEY not found in .env");
+if (!PIXABAY_API_KEY) {
+  console.error("PIXABAY_API_KEY not found in .env");
   process.exit(1);
 }
 
@@ -43,14 +43,12 @@ async function uploadToStorage(imageUrl, filename) {
   }
 }
 
-async function searchPexels(query) {
-  const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=1`;
-  const response = await fetch(url, {
-    headers: { Authorization: PEXELS_API_KEY }
-  });
+async function searchPixabay(query) {
+  const url = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(query)}&per_page=3`;
+  const response = await fetch(url);
   if (!response.ok) return null;
   const data = await response.json();
-  return data.photos?.[0] || null;
+  return data.hits?.[0] || null;
 }
 
 async function scrape() {
@@ -90,24 +88,26 @@ async function scrape() {
         url: entry.image.landing_url
       };
     } else {
-      const query = entry.english_senses?.[0] || entry.english || entry.lemma;
-      console.log(`[${count+1}/${snapshot.size}] Searching Pexels for "${query}" (${entry.lemma})...`);
-      photo = await searchPexels(query);
+      let rawQuery = entry.english_senses?.[0] || entry.english || entry.lemma;
+      let query = rawQuery.replace(/\(.*?\)/g, '').split(',')[0].split(';')[0].trim();
+      if (!query) query = entry.lemma;
+      console.log(`[${count+1}/${snapshot.size}] Searching Pixabay for "${query}" (${entry.lemma})...`);
+      photo = await searchPixabay(query);
     }
 
     if (photo) {
-      const storageUrl = await uploadToStorage(photo.src.medium, `${photo.id}.jpg`);
+      const storageUrl = await uploadToStorage(photo.webformatURL, `pixabay_${photo.id}.jpg`);
       
       await doc.ref.update({
         image: {
           ...entry.image,
-          url: storageUrl || photo.src.original || photo.src.medium,
-          thumbnail: storageUrl || photo.src.medium,
+          url: storageUrl || photo.largeImageURL || photo.webformatURL,
+          thumbnail: storageUrl || photo.webformatURL,
           title: entry.lemma,
-          creator: photo.photographer || entry.image?.creator,
-          landing_url: photo.url || entry.image?.landing_url,
-          source: "pexels",
-          pexels_id: photo.id,
+          creator: photo.user || entry.image?.creator,
+          landing_url: photo.pageURL || entry.image?.landing_url,
+          source: "pixabay",
+          pexels_id: photo.id, // Keeping field name pexels_id to avoid schema breaks
           position: entry.image?.position || "center"
         }
       });
@@ -117,8 +117,8 @@ async function scrape() {
     }
 
     count++;
-    // Delay to stay within Pexels rate limit, drastically reduced since limit is 25000/month
-    await new Promise(r => setTimeout(r, 1000));
+    // Pixabay rate limit: 100 req/min (~600ms per request). We use 650ms to be safe.
+    await new Promise(r => setTimeout(r, 650));
   }
 }
 
