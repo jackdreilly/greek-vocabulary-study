@@ -37,6 +37,7 @@
   let translatedOnly = true;
   let cardsOpen = true;
   let showImages = true;
+  let loadMoreCount = 0;
   let cardIndex = 0;
   let cardFlipped = false;
   let cardMode = "gr-en";
@@ -653,7 +654,13 @@
   $: if (cardIndex >= deck.length) cardIndex = 0;
   $: currentCard = deck[cardIndex];
   $: currentDirection = currentCard ? directionForCard(currentCard, cardIndex) : "gr-en";
-  $: visibleEntries = filteredEntries.slice(0, cardsOpen ? STUDY_ENTRY_RENDER_LIMIT : ENTRY_RENDER_LIMIT);
+  $: {
+    // Reset load more count when filters change
+    selectedType; selectedGroup; search; translatedOnly; cardsOpen; selectedLessonId;
+    loadMoreCount = 0;
+  }
+  $: baseLimit = cardsOpen ? STUDY_ENTRY_RENDER_LIMIT : ENTRY_RENDER_LIMIT;
+  $: visibleEntries = filteredEntries.slice(0, baseLimit + (loadMoreCount * baseLimit));
   $: cardTransform = `translate(${dragX}px, ${dragY}px) rotate(${dragX / 28}deg)`;
 
   loadData();
@@ -1036,8 +1043,14 @@
         </div>
 
         {#if filteredEntries.length > visibleEntries.length}
-          <div class="mt-3 rounded-md border border-dashed border-line bg-white/70 p-4 text-sm text-muted">
-            Showing {visibleEntries.length.toLocaleString()} of {filteredEntries.length.toLocaleString()} words. Search or filter to narrow the lesson.
+          <div class="mt-4 flex flex-col items-center justify-center rounded-md border border-dashed border-line bg-white/70 p-6 text-sm text-muted">
+            <p class="mb-3 font-semibold">Showing {visibleEntries.length.toLocaleString()} of {filteredEntries.length.toLocaleString()} words.</p>
+            <button 
+              class="rounded-lg bg-green/10 px-5 py-2 font-bold text-green hover:bg-green/20 transition"
+              on:click={() => loadMoreCount++}
+            >
+              Load more words
+            </button>
           </div>
         {/if}
       </section>
