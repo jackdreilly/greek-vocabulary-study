@@ -13,7 +13,15 @@
     Shuffle,
     Volume2,
     X,
+    Edit2,
+    Image as ImageIcon,
+    Upload,
+    Plus,
+    Trash2,
   } from "lucide-svelte";
+  import { db, storage } from "./lib/firebase";
+  import { collection, getDocs, doc, updateDoc, getDoc } from "firebase/firestore";
+  import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
   const ENTRY_RENDER_LIMIT = 420;
   const STUDY_ENTRY_RENDER_LIMIT = 60;
@@ -28,6 +36,7 @@
   let search = "";
   let translatedOnly = true;
   let cardsOpen = true;
+  let showImages = true;
   let cardIndex = 0;
   let cardFlipped = false;
   let cardMode = "gr-en";
@@ -35,7 +44,12 @@
   let currentAudio = null;
   let audioLoadingId = null;
   let shortcutsOpen = false;
-  let imageData = { entries: {} };
+  let pexelsCandidates = { entries: {} };
+  let imagePreferences = { entries: {} };
+  let editingEntry = null;
+  let pexelsSearchQuery = "";
+  let pexelsSearchResults = [];
+  let pexelsSearching = false;
   let studyCardEl = null;
   let dragStart = null;
   let dragX = 0;
@@ -49,31 +63,30 @@
     "Ρήματα": "Verbs",
     "Εκφράσεις": "Phrases",
     "Top 5000": "Top 5000",
-    SilentShuffle: "Top 5000",
   };
 
   const groupLabels = {
-    art: "Article",
-    part: "Particle",
-    v: "Verb",
-    n: "Noun",
-    adj: "Adjective",
-    adv: "Adverb",
-    prep: "Preposition",
-    pron: "Pronoun",
-    conj: "Conjunction",
-    interj: "Interjection",
-    inter: "Interjection",
-    int: "Interjection",
-    det: "Determiner",
-    num: "Number",
+    art: "Articles",
+    part: "Particles",
+    v: "Verbs",
+    n: "Nouns",
+    adj: "Adjectives",
+    adv: "Adverbs",
+    prep: "Prepositions",
+    pron: "Pronouns",
+    conj: "Conjunctions",
+    interj: "Interjections",
+    inter: "Interjections",
+    int: "Interjections",
+    det: "Determiners",
+    num: "Numbers",
     coll: "Collective",
   };
 
   const cardModes = [
-    { value: "gr-en", label: "Greek to English" },
-    { value: "en-gr", label: "English to Greek" },
-    { value: "mixed", label: "Mixed" },
+    { value: "gr-en", label: "Greek to English", short: "GR → EN" },
+    { value: "en-gr", label: "English to Greek", short: "EN → GR" },
+    { value: "mixed", label: "Mixed", short: "Mixed" },
   ];
 
   const normalise = (value) =>
@@ -156,12 +169,16 @@
   }
 
   function prepareData(payload) {
-    const entries = payload.entries.map((entry) => ({
-      ...entry,
-      theme: Number(entry.theme_id) === TOP_5000_ID ? "Top 5000" : entry.theme,
-      category: cleanType(entry.category),
-      groupKeys: groupKeysFrom(entry.subsection),
-    }));
+    const entries = payload.entries.map((entry) => {
+      const senses = getSenses(entry);
+      return {
+        ...entry,
+        theme: Number(entry.theme_id) === TOP_5000_ID ? "Top 5000" : entry.theme,
+        category: cleanType(entry.category),
+        groupKeys: groupKeysFrom(entry.subsection),
+        english_senses: senses,
+      };
+    });
 
     const themes = payload.themes.map((theme) => {
       const themeEntries = entries.filter((entry) => entry.theme_id === theme.id);
@@ -179,27 +196,18 @@
 
   async function loadData() {
     try {
-      const params = new URLSearchParams(window.location.search);
-      const bucket = "didibros-6d3ed.firebasestorage.app";
-      const prodDataUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/data%2Flexilogio.json?alt=media`;
-      const [response, imageResponse] = await Promise.all([
-        fetch(params.has("prod") ? prodDataUrl : "/data/lexilogio.json"),
-        fetch("/data/word-images.json").catch(() => null),
-      ]);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const loadedImageData = imageResponse?.ok ? await imageResponse.json() : { entries: {} };
-      const imageEntries = loadedImageData.entries ?? {};
-      imageData = { ...loadedImageData, entries: imageEntries };
-      const payload = await response.json();
-      payload.entries = payload.entries.map((entry) => ({
-        ...entry,
-        image: imageEntries[entry.id]?.image ?? null,
-        image_attribution: imageEntries[entry.id] ?? null,
-      }));
+      const themesSnapshot = await getDocs(collection(db, "themes"));
+      const entriesSnapshot = await getDocs(collection(db, "entries"));
+      
+      const themes = themesSnapshot.docs.map(d => d.data());
+      const rawEntries = entriesSnapshot.docs.map(d => d.data());
+      
+      const payload = { themes, entries: rawEntries };
       data = prepareData(payload);
       loadStateFromUrl();
     } catch (error) {
-      loadError = `Could not load the collection: ${error.message}`;
+      console.error("Critical loading error:", error);
+      loadError = `Could not load from Firestore: ${error.message}`;
     }
   }
 
@@ -231,21 +239,20 @@
     return `/lesson/${id}`;
   }
 
-  function imageReviewUrl() {
-    return "/image-review";
-  }
-
   function buildUrl() {
     const params = new URLSearchParams();
-    if (view === "image-review") return imageReviewUrl();
     if (selectedType !== "all") params.set("type", selectedType);
     if (selectedGroup !== "all") params.set("group", selectedGroup);
     if (search) params.set("q", search);
     if (!translatedOnly) params.set("all", "1");
     if (cardMode !== "gr-en") params.set("dir", cardMode);
-    if (cardsOpen && view === "study") params.set("cards", "1");
+    if (cardsOpen) params.set("cards", "1");
+    if (!showImages) params.set("noimg", "1");
     if (cardIndex > 0 && view === "study") params.set("card", cardIndex + 1);
-    const base = view === "study" && selectedLessonId ? lessonUrl(selectedLessonId) : "/lessons";
+    
+    let base = "/lessons";
+    if (view === "study" && selectedLessonId) base = lessonUrl(selectedLessonId);
+    
     return params.toString() ? `${base}?${params.toString()}` : base;
   }
 
@@ -267,12 +274,6 @@
     commitUrl(push);
   }
 
-  function showImageReview(push = true) {
-    view = "image-review";
-    selectedLessonId = null;
-    commitUrl(push);
-  }
-
   function showLessons(push = true) {
     view = "lessons";
     selectedLessonId = null;
@@ -283,14 +284,17 @@
     commitUrl(push);
   }
 
-  function setType(value) {
-    selectedType = value;
-    resetCards();
-    commitUrl();
-  }
-
-  function setGroup(value) {
-    selectedGroup = value;
+  function setFilter(filter) {
+    if (!filter) {
+      selectedType = "all";
+      selectedGroup = "all";
+    } else if (filter.kind === 'type') {
+      selectedType = filter.id;
+      selectedGroup = "all";
+    } else {
+      selectedGroup = filter.id;
+      selectedType = "all";
+    }
     resetCards();
     commitUrl();
   }
@@ -356,12 +360,9 @@
 
   function loadStateFromUrl() {
     const params = new URLSearchParams(window.location.search);
-    if (window.location.pathname === "/image-review") {
-      view = "image-review";
-      selectedLessonId = null;
-      return;
-    }
-    const lessonFromPath = window.location.pathname.match(/^\/lesson\/(\d+)/);
+    const path = window.location.pathname;
+    
+    const lessonFromPath = path.match(/^\/lesson\/(\d+)/);
     const lesson = Number(lessonFromPath?.[1] ?? params.get("lesson"));
     if (lesson && data.themes.some((theme) => theme.id === lesson)) {
       selectedLessonId = lesson;
@@ -370,14 +371,105 @@
       selectedLessonId = null;
       view = "lessons";
     }
+
     selectedType = params.get("type") || "all";
     selectedGroup = params.get("group") || "all";
     search = params.get("q") || "";
     cardMode = cardModes.some((mode) => mode.value === params.get("dir")) ? params.get("dir") : "gr-en";
     translatedOnly = !params.has("all");
-    cardsOpen = params.has("cards") || view === "study";
+    cardsOpen = params.has("cards");
+    showImages = !params.has("noimg");
+    
     const requestedCard = Number(params.get("card"));
     if (requestedCard > 0) cardIndex = requestedCard - 1;
+  }
+
+  function openEdit(entry) {
+    editingEntry = JSON.parse(JSON.stringify(entry));
+    pexelsSearchQuery = entry.english_senses?.[0] || entry.english || entry.lemma;
+    pexelsSearchResults = [];
+  }
+
+  function addSense() {
+    if (!editingEntry) return;
+    editingEntry.english_senses = [...editingEntry.english_senses, ""];
+  }
+
+  function removeSense(index) {
+    if (!editingEntry) return;
+    editingEntry.english_senses = editingEntry.english_senses.filter((_, i) => i !== index);
+  }
+
+  function closeEdit() {
+    editingEntry = null;
+  }
+
+  async function saveEdit() {
+    if (!editingEntry) return;
+    try {
+      const entryRef = doc(db, "entries", String(editingEntry.id));
+      await updateDoc(entryRef, {
+        english_senses: editingEntry.english_senses || [],
+        image: editingEntry.image || null
+      });
+      data.entries = data.entries.map(e => e.id === editingEntry.id ? { ...editingEntry } : e);
+      data = { ...data }; // Trigger reactivity
+      closeEdit();
+    } catch (err) {
+      console.error("Save failed:", err);
+      alert("Error saving: " + err.message);
+    }
+  }
+
+  async function searchPexelsInApp() {
+    if (!pexelsSearchQuery) return;
+    pexelsSearching = true;
+    try {
+      const apiKey = import.meta.env.VITE_PEXELS_API_KEY;
+      const res = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(pexelsSearchQuery)}&per_page=12`, {
+        headers: { Authorization: apiKey }
+      });
+      const json = await res.json();
+      pexelsSearchResults = json.photos || [];
+    } catch (err) {
+      console.error("Pexels search failed:", err);
+    } finally {
+      pexelsSearching = false;
+    }
+  }
+
+  async function handleImageUpload(event) {
+    const file = event.target.files?.[0];
+    if (!file || !editingEntry) return;
+    try {
+      const storageRef = ref(storage, `images/${editingEntry.id}_${Date.now()}_${file.name}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(snapshot.ref);
+      editingEntry.image = {
+        url,
+        thumbnail: url,
+        title: editingEntry.lemma,
+        creator: "User Upload",
+        source: "custom"
+      };
+    } catch (err) {
+      console.error("Upload failed:", err);
+      alert("Upload failed: " + err.message);
+    }
+  }
+
+  function selectPexelsPhoto(photo) {
+    if (!editingEntry) return;
+    editingEntry.image = {
+      url: photo.src.original,
+      thumbnail: photo.src.medium,
+      title: editingEntry.lemma,
+      creator: photo.photographer,
+      landing_url: photo.url,
+      source: "pexels",
+      pexels_id: photo.id,
+      position: "center"
+    };
   }
 
   function handleKeydown(event) {
@@ -508,20 +600,46 @@
     if (translatedOnly && !entry.english) return false;
     return matchesSearch(entry);
   });
-  $: lessonTypes = [...new Set(typeCandidateEntries.map((entry) => entry.category))]
+  $: lessonTypes = [...new Set(lessonEntries.map((entry) => entry.category))]
     .filter(Boolean)
-    .sort((a, b) => displayType(a).localeCompare(displayType(b)));
+    .map(t => ({ id: t, label: displayType(t), kind: 'type' }));
+    
   $: groupOptions = [...new Set(lessonEntries.flatMap((entry) => entry.groupKeys))]
     .filter(Boolean)
-    .sort((a, b) => displayGroup(a).localeCompare(displayGroup(b)));
-  $: if (data && view === "study" && selectedType !== "all" && !lessonTypes.includes(selectedType)) {
+    .map(g => ({ id: g, label: displayGroup(g), kind: 'group' }));
+
+  $: allFilters = [...lessonTypes, ...groupOptions]
+    .sort((a, b) => a.label.localeCompare(b.label))
+    .filter((v, i, a) => a.findIndex(t => t.label === v.label) === i);
+  $: if (data && view === "study" && selectedType !== "all" && !lessonTypes.some(t => t.id === selectedType)) {
     selectedType = "all";
     resetCards();
     queueMicrotask(() => commitUrl());
   }
+  $: if (data && view === "study" && selectedGroup !== "all" && !groupOptions.some(t => t.id === selectedGroup)) {
+    selectedGroup = "all";
+    resetCards();
+    queueMicrotask(() => commitUrl());
+  }
   $: filteredEntries = lessonEntries.filter((entry) => {
-    if (selectedType !== "all" && entry.category !== selectedType) return false;
-    if (selectedGroup !== "all" && !entry.groupKeys.includes(selectedGroup)) return false;
+    // If we've selected a specific part-of-speech (either via category or tag)
+    if (selectedType !== "all" || selectedGroup !== "all") {
+      const activeFilterId = selectedType !== "all" ? selectedType : selectedGroup;
+      const activeFilterLabel = (selectedType !== "all" ? displayType(selectedType) : displayGroup(selectedGroup)).toLowerCase();
+      
+      // 1. Check category match
+      const entryCategoryLabel = displayType(entry.category).toLowerCase();
+      const matchesCategory = entryCategoryLabel === activeFilterLabel || entryCategoryLabel.startsWith(activeFilterLabel) || activeFilterLabel.startsWith(entryCategoryLabel);
+      
+      // 2. Check tag match
+      const hasMatchingTag = entry.groupKeys.some(g => {
+        const tagLabel = displayGroup(g).toLowerCase();
+        return tagLabel === activeFilterLabel || tagLabel.startsWith(activeFilterLabel) || activeFilterLabel.startsWith(tagLabel);
+      });
+      
+      if (!matchesCategory && !hasMatchingTag) return false;
+    }
+    
     if (translatedOnly && !entry.english) return false;
     return matchesSearch(entry);
   });
@@ -536,12 +654,6 @@
   $: currentCard = deck[cardIndex];
   $: currentDirection = currentCard ? directionForCard(currentCard, cardIndex) : "gr-en";
   $: visibleEntries = filteredEntries.slice(0, cardsOpen ? STUDY_ENTRY_RENDER_LIMIT : ENTRY_RENDER_LIMIT);
-  $: imageReviewEntries = Object.values(imageData.entries ?? {})
-    .map((record) => ({
-      ...record,
-      entry: data?.entries.find((entry) => entry.id === Number(record.entry_id)),
-    }))
-    .filter((record) => record.entry);
   $: cardTransform = `translate(${dragX}px, ${dragY}px) rotate(${dragX / 28}deg)`;
 
   loadData();
@@ -561,13 +673,16 @@
         Greek
       </a>
       <div class="flex min-w-0 items-center gap-2">
-        <a
-          href="/image-review"
-          class="hidden rounded-md px-2 py-1.5 text-sm font-semibold text-muted hover:bg-paper hover:text-ink sm:inline-flex"
-          on:click|preventDefault={() => showImageReview(true)}
-        >
-          Images
-        </a>
+        {#if view === "study"}
+          <button
+            class="flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-bold transition
+                   {showImages ? 'text-green bg-green/10' : 'text-muted hover:bg-paper'}"
+            on:click={() => { showImages = !showImages; commitUrl(); }}
+          >
+            <ImageIcon size={14} />
+            <span>{showImages ? 'Images On' : 'Images Off'}</span>
+          </button>
+        {/if}
         {#if view === "study" && selectedLesson}
           <div class="min-w-0 truncate text-sm font-semibold text-muted">{selectedLesson.title}</div>
         {/if}
@@ -590,90 +705,6 @@
     </section>
   {:else if !data}
     <section class="mx-auto max-w-3xl px-4 py-16 text-sm text-muted">Loading vocabulary...</section>
-  {:else if view === "image-review"}
-    <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 class="text-2xl font-bold tracking-normal text-ink sm:text-3xl">Image review</h1>
-          <p class="mt-2 max-w-2xl text-sm leading-6 text-muted">
-            Sample matches from Openverse. Use this page to judge whether the automated image query is good enough before scaling.
-          </p>
-        </div>
-        <a
-          class="inline-flex h-10 items-center justify-center rounded-md border border-line bg-panel px-3 text-sm font-bold text-ink hover:border-green hover:text-green"
-          href="/lesson/12"
-          on:click|preventDefault={() => openLesson(12, true)}
-        >
-          View lesson
-        </a>
-      </div>
-
-      {#if !imageReviewEntries.length}
-        <div class="rounded-md border border-dashed border-line bg-panel p-5 text-sm text-muted">
-          No image sample found yet. Run <span class="font-mono">npm run images:sample</span> to generate one.
-        </div>
-      {:else}
-        <div class="grid gap-4 lg:grid-cols-2">
-          {#each imageReviewEntries as record}
-            <article class="rounded-md border border-line bg-panel p-3 shadow-sm">
-              <div class="mb-3 flex items-start justify-between gap-3">
-                <div>
-                  <h2 class="text-lg font-bold text-ink">{record.entry.lemma}</h2>
-                  <p class="mt-1 text-sm text-muted">{getSenses(record.entry)[0]}</p>
-                </div>
-                <span class="chip">{record.type}</span>
-              </div>
-
-              <div class="grid gap-3 sm:grid-cols-[220px_1fr]">
-                <a href={record.image.landing_url} target="_blank" rel="noreferrer" class="block">
-                  <img
-                    class="aspect-[4/3] w-full rounded-md border border-line object-cover"
-                    src={imageSrc(record.image)}
-                    alt=""
-                    loading="lazy"
-                  />
-                </a>
-                <div class="min-w-0">
-                  <div class="mb-2 text-xs font-bold uppercase text-muted">Query</div>
-                  <div class="mb-3 rounded-md bg-paper px-2.5 py-2 text-sm font-semibold text-ink">{record.query}</div>
-
-                  <div class="text-sm font-bold text-ink">{record.image.title}</div>
-                  <div class="mt-1 text-xs leading-5 text-muted">
-                    {record.image.creator || "Unknown creator"} · {record.image.license?.toUpperCase()}
-                    {#if record.image.license_version}
-                      {record.image.license_version}
-                    {/if}
-                  </div>
-                  {#if record.image.license_url}
-                    <a class="mt-1 inline-flex text-xs font-bold text-green hover:underline" href={record.image.license_url} target="_blank" rel="noreferrer">
-                      License
-                    </a>
-                  {/if}
-                </div>
-              </div>
-
-              {#if record.candidates?.length > 1}
-                <div class="mt-3 border-t border-line pt-3">
-                  <div class="mb-2 text-xs font-bold uppercase text-muted">Alternates</div>
-                  <div class="grid grid-cols-3 gap-2">
-                    {#each record.candidates.slice(0, 3) as candidate}
-                      <a href={candidate.landing_url} target="_blank" rel="noreferrer" title={candidate.title}>
-                        <img
-                          class="aspect-[4/3] w-full rounded-md border border-line object-cover"
-                          src={imageSrc(candidate)}
-                          alt=""
-                          loading="lazy"
-                        />
-                      </a>
-                    {/each}
-                  </div>
-                </div>
-              {/if}
-            </article>
-          {/each}
-        </div>
-      {/if}
-    </section>
   {:else if view === "lessons"}
     <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -743,39 +774,28 @@
           <section class="rounded-md border border-line bg-panel p-3 shadow-sm">
             <h2 class="mb-3 flex items-center gap-2 text-sm font-bold text-ink">
               <Layers3 size={16} />
-              Type
+              Classification
             </h2>
-            <div class="grid gap-1">
+            <div class="flex flex-wrap gap-1">
               <button
-                class="rounded-md px-3 py-2 text-left text-sm font-semibold {selectedType === 'all' ? 'bg-green text-white' : 'text-muted hover:bg-paper hover:text-ink'}"
+                class="rounded-md px-3 py-1.5 text-xs font-bold {selectedType === 'all' && selectedGroup === 'all' ? 'bg-green text-white shadow-sm' : 'bg-paper text-muted border border-line hover:border-ink hover:text-ink transition'}"
                 type="button"
-                on:click={() => setType("all")}
+                on:click={() => setFilter(null)}
               >
-                All types
+                All
               </button>
-              {#each lessonTypes as type}
+              {#each allFilters as filter}
                 <button
-                  class="rounded-md px-3 py-2 text-left text-sm font-semibold {selectedType === type ? 'bg-green text-white' : 'text-muted hover:bg-paper hover:text-ink'}"
+                  class="rounded-md px-3 py-1.5 text-xs font-bold transition-all
+                         {(selectedType === filter.id || selectedGroup === filter.id) ? 'bg-green text-white shadow-md' : 'bg-paper text-muted border border-line hover:border-ink hover:text-ink'}"
                   type="button"
-                  on:click={() => setType(type)}
+                  on:click={() => setFilter(filter)}
                 >
-                  {displayType(type)}
+                  {filter.label}
                 </button>
               {/each}
             </div>
           </section>
-
-          {#if showGroupFilter}
-            <section class="rounded-md border border-line bg-panel p-3 shadow-sm">
-              <h2 class="mb-3 text-sm font-bold text-ink">Group</h2>
-              <select class="control" bind:value={selectedGroup} on:change={() => setGroup(selectedGroup)}>
-                <option value="all">All groups</option>
-                {#each groupOptions as group}
-                  <option value={group}>{displayGroup(group)}</option>
-                {/each}
-              </select>
-            </section>
-          {/if}
 
           <label class="flex items-center gap-2 rounded-md border border-line bg-panel p-3 text-sm font-semibold text-ink shadow-sm">
             <input
@@ -835,15 +855,15 @@
             </div>
           </div>
 
-          <div class="mb-3 grid gap-1 rounded-md bg-paper p-1 sm:inline-grid sm:grid-cols-3">
+          <div class="mb-3 flex items-center gap-1 rounded-full bg-subtle p-1 border border-line w-fit">
             {#each cardModes as mode}
               <button
-                class="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md px-3 text-sm font-bold transition {cardMode === mode.value ? 'bg-white text-green shadow-sm' : 'text-muted hover:text-ink'}"
+                class="inline-flex h-8 items-center justify-center rounded-full px-4 text-xs font-bold transition-all
+                       {cardMode === mode.value ? 'bg-green text-white shadow-md scale-105' : 'text-muted hover:text-ink hover:bg-white'}"
                 type="button"
                 on:click={() => setCardMode(mode.value)}
               >
-                <Languages size={15} />
-                {mode.label}
+                {mode.short || mode.label}
               </button>
             {/each}
           </div>
@@ -872,7 +892,14 @@
             }}
           >
             {#if currentCard}
-              <div class="grid max-w-3xl gap-4">
+              <div class="group relative grid max-w-3xl gap-4">
+                <button
+                  class="absolute -top-4 -right-4 rounded-full bg-paper p-2 text-muted shadow-sm border border-line hover:text-ink hover:scale-110 transition md:opacity-0 group-hover:opacity-100"
+                  title="Edit word"
+                  on:click|stopPropagation={() => openEdit(currentCard)}
+                >
+                  <Edit2 size={16} />
+                </button>
                 <div class="mx-auto w-full max-w-md">
                   <div class="mb-2 flex items-center justify-between text-xs font-bold text-muted">
                     <span class={cardFlipped ? "rounded-md bg-gold/15 px-2 py-1 text-gold" : ""}>
@@ -884,16 +911,18 @@
                     <div class="h-full rounded-full bg-green" style={`width: ${((cardIndex + 1) / deck.length) * 100}%`}></div>
                   </div>
                 </div>
-                {#if cardFlipped && currentCard.image}
+                {#if cardFlipped && currentCard.image && showImages}
                   <figure class="mx-auto grid max-w-xs gap-1.5">
                     <img
-                      class="max-h-36 w-full rounded-md border border-line object-cover shadow-sm"
+                      class="aspect-[16/10] w-full rounded-md border border-line object-cover shadow-sm transition-all"
+                      style={`object-position: ${currentCard.image.position || 'center'};`}
                       src={imageSrc(currentCard.image)}
                       alt=""
                       loading="lazy"
+                      decoding="async"
                     />
-                    <figcaption class="line-clamp-1 text-xs font-semibold text-muted">
-                      {currentCard.image.title}
+                    <figcaption class="line-clamp-1 text-[10px] font-bold uppercase tracking-wider text-muted">
+                      Source: {currentCard.image.source}
                     </figcaption>
                   </figure>
                 {/if}
@@ -946,13 +975,22 @@
 
         <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {#each visibleEntries as entry}
-            <article class="min-h-32 rounded-md border border-line bg-panel p-3 shadow-sm">
-              {#if entry.image}
+            <article class="group relative min-h-32 rounded-md border border-line bg-panel p-3 shadow-sm hover:border-green transition">
+              <button
+                class="absolute right-2 top-2 z-10 rounded-full bg-paper p-1.5 text-muted shadow-sm border border-line hover:text-ink opacity-0 group-hover:opacity-100 transition"
+                title="Edit word"
+                on:click={() => openEdit(entry)}
+              >
+                <Edit2 size={14} />
+              </button>
+              {#if entry.image && showImages}
                 <img
-                  class="mb-3 h-28 w-full rounded-md border border-line object-cover"
+                  class="mb-3 aspect-[16/9] w-full rounded-md border border-line object-cover transition-all duration-300 hover:aspect-square hover:max-h-64 cursor-zoom-in"
+                  style={`object-position: ${entry.image.position || 'center'};`}
                   src={imageSrc(entry.image)}
                   alt=""
                   loading="lazy"
+                  decoding="async"
                 />
               {/if}
               <div class="mb-2 flex items-start justify-between gap-3">
@@ -1056,6 +1094,155 @@
             <dd class="m-0 text-muted">Back to lessons</dd>
           </div>
         </dl>
+      </div>
+    </div>
+  {/if}
+  {#if editingEntry}
+    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+      <div class="absolute inset-0 bg-ink/40 backdrop-blur-sm" on:click={closeEdit}></div>
+      <div class="relative w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-2xl bg-paper shadow-2xl flex flex-col border border-line">
+        <div class="flex items-center justify-between border-b border-line p-4">
+          <h2 class="text-xl font-bold text-ink">Edit Word</h2>
+          <button on:click={closeEdit} class="rounded-lg p-2 text-muted hover:bg-subtle transition">
+            <X class="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto p-6 space-y-8">
+          <!-- Definitions -->
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold uppercase tracking-wider text-muted">Definitions</h3>
+              <button
+                on:click={addSense}
+                class="flex items-center gap-1.5 rounded-lg bg-green/10 px-3 py-1.5 text-xs font-bold text-green hover:bg-green/20 transition"
+              >
+                <Plus class="h-3.5 w-3.5" />
+                <span>Add Meaning</span>
+              </button>
+            </div>
+            
+            <div class="space-y-3">
+              <div class="space-y-1.5">
+                <label class="text-xs font-bold text-muted ml-1">Lemma (Greek)</label>
+                <input
+                  type="text"
+                  bind:value={editingEntry.lemma}
+                  class="w-full rounded-xl border border-line bg-subtle px-4 py-2.5 font-bold text-ink focus:border-green focus:ring-4 focus:ring-green/10 outline-none transition"
+                />
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-muted ml-1">English Meanings</label>
+                {#each editingEntry.english_senses as sense, i}
+                  <div class="flex items-center gap-2 group/sense">
+                    <div class="flex-1 relative">
+                      <input
+                        type="text"
+                        bind:value={editingEntry.english_senses[i]}
+                        class="w-full rounded-xl border border-line bg-subtle px-4 py-2 text-sm text-ink focus:border-green focus:ring-4 focus:ring-green/10 outline-none transition"
+                        placeholder={`Sense #${i + 1}`}
+                      />
+                    </div>
+                    <button
+                      on:click={() => removeSense(i)}
+                      class="p-2 text-muted hover:text-red-500 transition opacity-0 group-hover/sense:opacity-100"
+                    >
+                      <Trash2 class="h-4 w-4" />
+                    </button>
+                  </div>
+                {/each}
+                {#if editingEntry.english_senses.length === 0}
+                  <p class="text-xs text-muted italic ml-1">No meanings defined yet.</p>
+                {/if}
+              </div>
+            </div>
+          </div>
+
+          <!-- Image Section -->
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold uppercase tracking-wider text-muted">Image</h3>
+              <label class="flex items-center gap-2 cursor-pointer rounded-lg bg-green/10 px-3 py-1.5 text-xs font-bold text-green hover:bg-green/20 transition">
+                <Upload class="h-3.5 w-3.5" />
+                <span>Upload Custom</span>
+                <input type="file" class="hidden" accept="image/*" on:change={handleImageUpload} />
+              </label>
+            </div>
+            
+            <div class="flex gap-4 p-4 rounded-2xl bg-subtle border border-line">
+              <div class="w-32 aspect-square rounded-xl overflow-hidden bg-paper border border-line shrink-0">
+                {#if editingEntry.image}
+                  <img src={editingEntry.image.thumbnail} alt="" class="w-full h-full object-cover" loading="lazy" decoding="async" />
+                {:else}
+                  <div class="w-full h-full flex items-center justify-center text-muted">
+                    <ImageIcon class="h-8 w-8 opacity-20" />
+                  </div>
+                {/if}
+              </div>
+              <div class="flex-1 min-w-0 flex flex-col justify-center">
+                <div class="flex items-center gap-3 mb-4">
+                  <input
+                    type="text"
+                    bind:value={pexelsSearchQuery}
+                    placeholder="Search Pexels..."
+                    class="flex-1 min-w-0 rounded-lg border border-line bg-paper px-3 py-1.5 text-sm outline-none focus:border-green transition"
+                    on:keydown={(e) => e.key === 'Enter' && searchPexelsInApp()}
+                  />
+                  <button
+                    on:click={searchPexelsInApp}
+                    disabled={pexelsSearching}
+                    class="rounded-lg bg-green px-4 py-1.5 text-sm font-bold text-white hover:bg-green/90 transition disabled:opacity-50"
+                  >
+                    {pexelsSearching ? '...' : 'Search'}
+                  </button>
+                </div>
+
+                {#if editingEntry.image}
+                  <div class="mb-4">
+                    <label class="text-[10px] font-bold text-muted uppercase tracking-wider mb-2 block">Crop Focus</label>
+                    <div class="flex gap-2">
+                      {#each ['top', 'center', 'bottom'] as pos}
+                        <button
+                          class="flex-1 py-1 rounded-md text-[10px] font-bold uppercase tracking-tight border transition
+                                 {editingEntry.image.position === pos ? 'bg-ink text-white border-ink' : 'bg-paper text-muted border-line hover:border-ink'}"
+                          on:click={() => editingEntry.image.position = pos}
+                        >
+                          {pos}
+                        </button>
+                      {/each}
+                    </div>
+                  </div>
+                {/if}
+                
+                {#if pexelsSearchResults.length > 0}
+                  <div class="grid grid-cols-4 gap-2 overflow-y-auto max-h-32">
+                    {#each pexelsSearchResults as photo}
+                      <button
+                        on:click={() => selectPexelsPhoto(photo)}
+                        class="aspect-square rounded-lg overflow-hidden border-2 transition
+                               {editingEntry.image?.pexels_id === photo.id ? 'border-green scale-95 shadow-inner' : 'border-transparent hover:border-line'}"
+                      >
+                        <img src={photo.src.tiny} alt="" class="w-full h-full object-cover" loading="lazy" decoding="async" />
+                      </button>
+                    {/each}
+                  </div>
+                {:else if !pexelsSearching}
+                  <p class="text-xs text-muted">Search for an image or upload your own.</p>
+                {/if}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-line p-4 flex justify-end gap-3 bg-subtle">
+          <button on:click={closeEdit} class="px-6 py-2 rounded-xl text-sm font-bold text-muted hover:text-ink transition">
+            Cancel
+          </button>
+          <button on:click={saveEdit} class="px-8 py-2 rounded-xl bg-ink text-white text-sm font-bold hover:bg-black transition">
+            Save Changes
+          </button>
+        </div>
       </div>
     </div>
   {/if}

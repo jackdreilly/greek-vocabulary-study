@@ -10,3 +10,7 @@ public/audio/
 # Local packaging scratch.
 .artifacts/
 *.zip
+
+.env
+service-account-key.json
+

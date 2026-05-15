@@ -2,6 +2,10 @@
   "storage": {
     "rules": "storage.rules"
   },
+  "firestore": {
+    "database": "greek-vocab",
+    "rules": "firestore.rules"
+  },
   "hosting": {
     "site": "didibros-6d3ed-greek-vocab",
     "public": "site",
