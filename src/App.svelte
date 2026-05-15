@@ -642,7 +642,7 @@
           </div>
 
           <div
-            class="grid min-h-72 w-full place-items-center rounded-md border border-line bg-paper p-5 text-center transition hover:border-green {currentCard ? 'cursor-pointer' : 'opacity-60'}"
+            class="grid min-h-72 w-full place-items-center rounded-md border p-5 text-center transition {cardFlipped ? 'border-gold/60 bg-[#fff9ec] shadow-sm' : 'border-line bg-paper hover:border-green'} {currentCard ? 'cursor-pointer' : 'opacity-60'}"
             role="button"
             tabindex={currentCard ? 0 : -1}
             aria-disabled={!currentCard}
@@ -662,7 +662,9 @@
               <div class="grid max-w-3xl gap-4">
                 <div class="mx-auto w-full max-w-md">
                   <div class="mb-2 flex items-center justify-between text-xs font-bold text-muted">
-                    <span>{cardFlipped ? "Answer" : directionLabel(currentDirection)}</span>
+                    <span class={cardFlipped ? "rounded-md bg-gold/15 px-2 py-1 text-gold" : ""}>
+                      {cardFlipped ? "Answer" : directionLabel(currentDirection)}
+                    </span>
                     <span>{cardIndex + 1} / {deck.length.toLocaleString()}</span>
                   </div>
                   <div class="h-2 overflow-hidden rounded-full bg-white">
