@@ -38,6 +38,7 @@
   let cardsOpen = true;
   let imageMode = "back"; // "back", "front", "none"
   let loadMoreCount = 0;
+  let expandedImageId = null;
   let cardIndex = 0;
   let cardFlipped = false;
   let cardMode = "gr-en";
@@ -1004,14 +1005,20 @@
                 <Edit2 size={14} />
               </button>
               {#if entry.image && imageMode !== "none"}
-                <img
-                  class="mb-3 aspect-[16/9] w-full rounded-md border border-line object-cover transition-all duration-300 hover:aspect-square hover:max-h-64 cursor-zoom-in"
-                  style={`object-position: ${entry.image.position || 'center'};`}
-                  src={imageSrc(entry.image)}
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                />
+                <button 
+                  type="button" 
+                  class="block w-full outline-none text-left"
+                  on:click={() => expandedImageId = expandedImageId === entry.id ? null : entry.id}
+                >
+                  <img
+                    class="mb-3 w-full rounded-md border border-line object-cover transition-all duration-300 {expandedImageId === entry.id ? 'aspect-square max-h-64 cursor-zoom-out' : 'aspect-[16/9] cursor-zoom-in'}"
+                    style={`object-position: ${entry.image.position || 'center'};`}
+                    src={imageSrc(entry.image)}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </button>
               {/if}
               <div class="mb-2 flex items-start justify-between gap-3">
                 <div class="break-words text-lg font-bold leading-snug text-ink">{entry.lemma}</div>
