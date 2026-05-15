@@ -36,7 +36,7 @@
   let search = "";
   let translatedOnly = true;
   let cardsOpen = true;
-  let showImages = true;
+  let imageMode = "back"; // "back", "front", "none"
   let loadMoreCount = 0;
   let cardIndex = 0;
   let cardFlipped = false;
@@ -132,9 +132,16 @@
 
   const displayGroup = (key) => groupLabels[key] ?? key;
 
-  function directionForCard(entry, index) {
-    if (cardMode !== "mixed") return cardMode;
-    return (entry.id + index) % 2 === 0 ? "gr-en" : "en-gr";
+  function directionForCard(entry, index, mode) {
+    let dir = mode;
+    if (dir === "mixed") {
+      dir = (entry.id + index) % 2 === 0 ? "gr-en" : "en-gr";
+    }
+    // NEVER show a missing english definition on the front
+    if (dir === "en-gr" && getSenses(entry).length === 0) {
+      return "gr-en";
+    }
+    return dir;
   }
 
   function directionLabel(direction) {
@@ -248,7 +255,8 @@
     if (!translatedOnly) params.set("all", "1");
     if (cardMode !== "gr-en") params.set("dir", cardMode);
     if (cardsOpen) params.set("cards", "1");
-    if (!showImages) params.set("noimg", "1");
+    if (imageMode === "front") params.set("img", "front");
+    else if (imageMode === "none") params.set("noimg", "1");
     if (cardIndex > 0 && view === "study") params.set("card", cardIndex + 1);
     
     let base = "/lessons";
@@ -379,7 +387,10 @@
     cardMode = cardModes.some((mode) => mode.value === params.get("dir")) ? params.get("dir") : "gr-en";
     translatedOnly = !params.has("all");
     cardsOpen = params.has("cards");
-    showImages = !params.has("noimg");
+    
+    if (params.get("img") === "front") imageMode = "front";
+    else if (params.has("noimg")) imageMode = "none";
+    else imageMode = "back";
     
     const requestedCard = Number(params.get("card"));
     if (requestedCard > 0) cardIndex = requestedCard - 1;
@@ -653,7 +664,7 @@
     : deckBase;
   $: if (cardIndex >= deck.length) cardIndex = 0;
   $: currentCard = deck[cardIndex];
-  $: currentDirection = currentCard ? directionForCard(currentCard, cardIndex) : "gr-en";
+  $: currentDirection = currentCard ? directionForCard(currentCard, cardIndex, cardMode) : "gr-en";
   $: {
     // Reset load more count when filters change
     selectedType; selectedGroup; search; translatedOnly; cardsOpen; selectedLessonId;
@@ -683,11 +694,16 @@
         {#if view === "study"}
           <button
             class="flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-bold transition
-                   {showImages ? 'text-green bg-green/10' : 'text-muted hover:bg-paper'}"
-            on:click={() => { showImages = !showImages; commitUrl(); }}
+                   {imageMode !== 'none' ? 'text-green bg-green/10' : 'text-muted hover:bg-paper'}"
+            on:click={() => { 
+              if (imageMode === 'back') imageMode = 'front';
+              else if (imageMode === 'front') imageMode = 'none';
+              else imageMode = 'back';
+              commitUrl(); 
+            }}
           >
             <ImageIcon size={14} />
-            <span>{showImages ? 'Images On' : 'Images Off'}</span>
+            <span>Images: {imageMode === 'back' ? 'Back' : imageMode === 'front' ? 'Front' : 'Off'}</span>
           </button>
         {/if}
         {#if view === "study" && selectedLesson}
@@ -877,7 +893,7 @@
 
           <div
             bind:this={studyCardEl}
-            class="grid min-h-72 w-full touch-pan-y select-none place-items-center rounded-md border p-5 text-center transition {dragTransition ? 'duration-150 ease-out' : ''} {cardFlipped ? 'border-gold/60 bg-[#fff9ec] shadow-sm' : 'border-line bg-paper hover:border-green'} {currentCard ? 'cursor-pointer' : 'opacity-60'}"
+            class="grid min-h-72 w-full touch-pan-y select-none place-items-center rounded-md border p-5 text-center transition outline-none {dragTransition ? 'duration-150 ease-out' : ''} {cardFlipped ? 'border-gold/60 bg-[#fff9ec] shadow-sm' : 'border-line bg-paper hover:border-green'} {currentCard ? 'cursor-pointer' : 'opacity-60'}"
             style={`transform: ${cardTransform};`}
             role="button"
             tabindex={currentCard ? 0 : -1}
@@ -892,14 +908,9 @@
                 suppressNextClick = false;
               }
             }}
-            on:keydown={(event) => {
-              if (!currentCard || (event.key !== "Enter" && event.key !== " " && event.key !== "Spacebar")) return;
-              event.preventDefault();
-              flipCard();
-            }}
           >
             {#if currentCard}
-              <div class="group relative grid max-w-3xl gap-4">
+              <div class="group relative grid w-full max-w-3xl gap-4">
                 <button
                   class="absolute -top-4 -right-4 rounded-full bg-paper p-2 text-muted shadow-sm border border-line hover:text-ink hover:scale-110 transition md:opacity-0 group-hover:opacity-100"
                   title="Edit word"
@@ -907,7 +918,7 @@
                 >
                   <Edit2 size={16} />
                 </button>
-                <div class="mx-auto w-full max-w-md">
+                <div class="mx-auto w-64 sm:w-80">
                   <div class="mb-2 flex items-center justify-between text-xs font-bold text-muted">
                     <span class={cardFlipped ? "rounded-md bg-gold/15 px-2 py-1 text-gold" : ""}>
                       {cardFlipped ? "Answer" : directionLabel(currentDirection)}
@@ -918,7 +929,7 @@
                     <div class="h-full rounded-full bg-green" style={`width: ${((cardIndex + 1) / deck.length) * 100}%`}></div>
                   </div>
                 </div>
-                {#if cardFlipped && currentCard.image && showImages}
+                {#if currentCard.image && imageMode !== "none" && ((imageMode === "front" && !cardFlipped) || (imageMode === "back" && cardFlipped))}
                   <figure class="mx-auto grid max-w-xs gap-1.5">
                     <img
                       class="aspect-[16/10] w-full rounded-md border border-line object-cover shadow-sm transition-all"
