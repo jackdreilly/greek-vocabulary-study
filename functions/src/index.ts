@@ -878,7 +878,6 @@ ${entrySummary(input.entries.slice(0, 40)) || '(use the tools)'}`;
       output: { schema: GenerateLessonPlanOutputSchema },
       config: {
         maxOutputTokens: 16384,
-        tools: [{ urlContext: {} }],
       },
       system:
         'You design beautiful, structured Modern Greek lesson plans as JSON only. Each plan is one coherent textbook-style module woven from lesson vocabulary. Be inventive, varied, and pedagogically tight. Prefer targeted tool calls over relying on the small fallback sample.',
