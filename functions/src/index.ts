@@ -22,6 +22,7 @@ const GOOGLE_GENAI_API_KEY = defineSecret('GOOGLE_GENAI_API_KEY');
 const GAME_GENERATION_MODEL = 'googleai/gemini-3-flash-preview';
 const GAME_SCORING_MODEL = 'googleai/gemini-3.1-flash-lite-preview';
 const YIAYIA_CHAT_MODEL = 'googleai/gemini-3.1-flash-lite-preview';
+const PLAN_GENERATION_MODEL = 'googleai/gemini-3-flash-preview';
 const VOCAB_DATABASE_ID = 'greek-vocab';
 
 let _ai: ReturnType<typeof genkit> | null = null;
@@ -623,6 +624,271 @@ Visible vocabulary: ${input.exercise.vocabulary.map((item) => `${item.greek}=${i
     }
     return fullText;
   },
+);
+
+const PlanWidgetTypeSchema = z.enum([
+  'heading',
+  'prose',
+  'callout',
+  'vocab_table',
+  'conjugation_table',
+  'comparison_table',
+  'reading_passage',
+  'dialogue',
+  'mini_quiz',
+  'word_tree',
+  'fill_in_blanks',
+]);
+
+const QuizQuestionSchema = z.object({
+  question: z.string(),
+  options: z.array(z.string()).min(2).max(5),
+  answerIndex: z.number().int().min(0).max(4),
+  explanation: z.string().default(''),
+});
+
+const TableRowSchema = z.object({
+  label: z.string().default(''),
+  cells: z.array(z.string()),
+});
+
+const PlanWidgetSchema = z.object({
+  type: PlanWidgetTypeSchema,
+
+  // heading: { level: 1-3, text }
+  level: z.number().int().min(1).max(3).optional(),
+  text: z.string().optional(),
+
+  // prose: { body } (plain prose or light markdown: **bold**, *italic*, simple lists)
+  body: z.string().optional(),
+
+  // callout: { calloutKind, title, body }
+  calloutKind: z
+    .enum(['pattern', 'history', 'etymology', 'tip', 'cultural', 'mnemonic'])
+    .optional(),
+  title: z.string().optional(),
+
+  // vocab_table: a clean reference table of lesson words
+  vocabEntries: z
+    .array(
+      z.object({
+        greek: z.string(),
+        article: z.string().optional().default(''),
+        english: z.string(),
+        example: z.string().optional().default(''),
+      }),
+    )
+    .optional(),
+
+  // conjugation_table & comparison_table: { lemma?, tense?, columns, rows, notes? }
+  lemma: z.string().optional(),
+  tense: z.string().optional(),
+  columns: z.array(z.string()).optional(),
+  rows: z.array(TableRowSchema).optional(),
+  notes: z.string().optional(),
+
+  // reading_passage: { title?, greek, english, glossary? }
+  greek: z.string().optional(),
+  english: z.string().optional(),
+  glossary: z
+    .array(z.object({ greek: z.string(), english: z.string() }))
+    .optional(),
+
+  // dialogue: { title?, setting?, lines: [{ speaker, greek, english }] }
+  setting: z.string().optional(),
+  lines: z
+    .array(
+      z.object({
+        speaker: z.string(),
+        greek: z.string(),
+        english: z.string().default(''),
+      }),
+    )
+    .optional(),
+
+  // mini_quiz: { title, questions: [{ question, options, answerIndex, explanation }] }
+  questions: z.array(QuizQuestionSchema).optional(),
+
+  // fill_in_blanks: { title, instructions, blankItems: [{ sentence (with "___"), answer, english }] }
+  instructions: z.string().optional(),
+  blankItems: z
+    .array(
+      z.object({
+        sentence: z.string(),
+        answer: z.string(),
+        english: z.string().default(''),
+      }),
+    )
+    .optional(),
+
+  // word_tree: a root word with derived/related branches
+  rootGreek: z.string().optional(),
+  rootEnglish: z.string().optional(),
+  rootGloss: z.string().optional(),
+  branches: z
+    .array(
+      z.object({
+        greek: z.string(),
+        english: z.string(),
+        relation: z.string().default(''),
+      }),
+    )
+    .optional(),
+});
+
+const LessonPlanSchema = z.object({
+  id: z.string(),
+  lessonId: z.number(),
+  planNumber: z.number().int().min(1),
+  title: z.string(),
+  subtitle: z.string().default(''),
+  estimatedMinutes: z.number().int().min(2).max(30).default(8),
+  coveredWords: z.array(z.string()).max(40).default([]),
+  coveredConcepts: z.array(z.string()).max(12).default([]),
+  widgets: z.array(PlanWidgetSchema).min(4).max(16),
+});
+
+const PreviousPlanSummarySchema = z.object({
+  planNumber: z.number().int().min(1),
+  title: z.string(),
+  subtitle: z.string().default(''),
+  coveredWords: z.array(z.string()).default([]),
+  coveredConcepts: z.array(z.string()).default([]),
+});
+
+const GenerateLessonPlanInputSchema = z.object({
+  lessonId: z.number(),
+  lessonTitle: z.string(),
+  planNumber: z.number().int().min(1).default(1),
+  previousPlans: z.array(PreviousPlanSummarySchema).max(50).default([]),
+  entries: z.array(LessonEntrySchema).max(160).default([]),
+  preferences: LearningPreferencesSchema.default({ responseLanguage: 'english', cefrLevel: 'A2' }),
+});
+
+const GenerateLessonPlanOutputSchema = z.object({
+  plan: LessonPlanSchema,
+});
+
+const generateLessonPlanFlow = getAI().defineFlow(
+  {
+    name: 'generateLessonPlan',
+    inputSchema: GenerateLessonPlanInputSchema,
+    outputSchema: GenerateLessonPlanOutputSchema,
+  },
+  async (input) => {
+    const preferences = normalizePreferences(input.preferences);
+    const previousList = input.previousPlans.length
+      ? input.previousPlans
+          .map(
+            (plan) =>
+              `Plan #${plan.planNumber} "${plan.title}" — concepts: [${plan.coveredConcepts.join(
+                ', ',
+              )}]; words: [${plan.coveredWords.join(', ')}]`,
+          )
+          .join('\n')
+      : '(none yet)';
+
+    const prompt = `Design Plan #${input.planNumber} for lesson ${input.lessonId}: ${input.lessonTitle}.
+
+A "Plan" is a 1–2 textbook-page pedagogical module woven from lesson vocabulary. It must feel
+like reading a beautifully designed language textbook — engaging, structured, and varied —
+while staying anchored to the lesson's actual vocab. Every plan is one focused theme/angle.
+
+Learner preferences:
+${preferenceContext(preferences)}
+
+PREVIOUSLY GENERATED PLANS for this lesson (DO NOT REPEAT their concepts or word focus):
+${previousList}
+
+WORKFLOW:
+1. Call getLessonOverview to scan the lesson and pick an UNCOVERED angle (a thematic cluster,
+   a grammar pattern, a verb family, a register, a register/cultural slice…).
+2. Call searchLessonWords with targeted queries/categories to pull the exact words you need
+   for this plan's theme. Aim for 12–24 lesson words at the heart of the plan.
+3. Call getExerciseCoverage if useful to avoid overlap with practice exercises.
+4. Compose 6–12 widgets that flow like a coherent textbook section.
+
+WIDGET TYPES (use a varied mix, NOT all of one kind):
+- heading: { type, level (2|3), text } — section dividers; start with a level-2 heading.
+- prose: { type, body } — explanatory paragraphs. Light markdown allowed (**bold**, *italic*,
+   simple "- " bullet lists). Keep paragraphs tight (≤4 sentences each).
+- callout: { type, calloutKind, title, body } — kinds: pattern (grammar/morphology rule),
+   history (≤2 sentences of brief historical/etymological context), etymology, tip, cultural,
+   mnemonic. Use sparingly: at most 1 history and 1 etymology per plan.
+- vocab_table: { type, title, vocabEntries: [{ greek, article?, english, example? }] }
+   Grouped reference of key words for this plan. 6–12 rows. Examples should be a 3–6 word Greek phrase.
+- conjugation_table: { type, title, lemma, tense?, columns, rows: [{ label, cells }], notes? }
+   For verbs: columns like ["Singular","Plural"], rows labeled "1st / εγώ", "2nd / εσύ", etc.
+   For nouns: columns like ["Singular","Plural"], rows labeled "Nominative", "Genitive", "Accusative", "Vocative".
+   Only include if the lemma genuinely has the relevant paradigm in Modern Greek.
+- comparison_table: { type, title, columns, rows, notes? } — side-by-side contrasts
+   (e.g. masculine vs feminine vs neuter forms, formal vs informal register).
+- reading_passage: { type, title, greek, english, glossary?: [{ greek, english }] }
+   A 4–8 sentence Greek passage using the plan's target vocab in realistic context. Provide a
+   natural English translation. Glossary holds 4–10 trickier words from the passage.
+- dialogue: { type, title, setting?, lines: [{ speaker, greek, english }] } — a 4–10 line
+   short conversation. Speakers should be named (e.g. "Μαρία", "Δάσκαλος").
+- mini_quiz: { type, title, questions: [{ question, options (2–4), answerIndex, explanation }] }
+   3–5 multiple-choice questions that test the plan's content. Mix Greek->English, English->Greek,
+   meaning-in-context, and pattern recognition. Explanations should teach, not just confirm.
+- word_tree: { type, rootGreek, rootEnglish, rootGloss?, branches: [{ greek, english, relation }] }
+   Center on a productive root (e.g. γράφ-, μαθ-) and show derived words from the lesson + close cousins.
+   relation = short label like "verb", "agent noun", "adjective", "abstract noun".
+- fill_in_blanks: { type, title, instructions, blankItems: [{ sentence, answer, english }] }
+   Interactive 3–5 cloze items. Sentence MUST contain "___" exactly once where the answer goes.
+   Answer is the surface form that fills the blank.
+
+PEDAGOGY (BE INVENTIVE):
+- Lead with a hook (a vivid prose paragraph or short scene-setting passage), not a dry definition.
+- Tie words together by SHARED ROOT, SHARED SEMANTIC FIELD, or SHARED PATTERN — never a random pile.
+- Whenever you teach a pattern, immediately follow with a callout (kind=pattern) crystallising it,
+   then a small interactive widget (quiz or fill_in_blanks) that USES that pattern.
+- For verb-heavy plans include exactly one conjugation_table for a representative verb.
+- For noun-heavy plans consider a comparison_table contrasting genders/cases.
+- Include at most one tiny historical_context or etymology callout: 1–2 sentences, e.g. the
+   Ancient root behind a modern word. Never more than 2 historical/etymology callouts total.
+- Add at least one truly INTERACTIVE widget (mini_quiz or fill_in_blanks). At least one.
+- End with a "wrap-up" mini_quiz OR a short reflection prose paragraph.
+
+OUTPUT RULES:
+- Return JSON matching the schema exactly. No extra keys, no markdown wrapper.
+- id must be "l${input.lessonId}-plan-${input.planNumber}".
+- lessonId = ${input.lessonId}, planNumber = ${input.planNumber}.
+- coveredWords: list the Greek lemmas (no articles) this plan focuses on (8–24 entries).
+- coveredConcepts: short tags describing the angles you covered (e.g. "present tense -ω verbs",
+   "classroom objects", "agent nouns -της", "diminutives -ακι"). 3–8 tags.
+- estimatedMinutes: realistic reading + interaction time (typically 6–12).
+- Total prose+passage word count should land near 350–700 words of reading material
+   (this is the "1–2 textbook pages" target).
+- Honor responseLanguage for instructional/explanatory text (prose, callouts, glossary,
+   instructions, explanations). Greek target content (passages, dialogue lines greek field,
+   table cells with Greek forms, vocab entries) always stays Greek.
+
+Small fallback vocabulary sample (use the tools for the real list):
+${entrySummary(input.entries.slice(0, 40)) || '(use the tools)'}`;
+
+    const { output } = await getAI().generate({
+      model: PLAN_GENERATION_MODEL,
+      output: { schema: GenerateLessonPlanOutputSchema },
+      system:
+        'You design beautiful, structured Modern Greek lesson plans as JSON only. Each plan is one coherent textbook-style module woven from lesson vocabulary. Be inventive, varied, and pedagogically tight. Prefer targeted tool calls over relying on the small fallback sample.',
+      prompt,
+      tools: [getLessonOverviewTool, getExerciseCoverageTool, searchLessonWordsTool],
+    });
+
+    if (!output) throw new Error('Plan generation returned no output.');
+    return output;
+  },
+);
+
+export const generateLessonPlan = onCallGenkit(
+  {
+    secrets: [GOOGLE_GENAI_API_KEY],
+    cors: true,
+    timeoutSeconds: 300,
+    memory: '1GiB',
+  },
+  generateLessonPlanFlow,
 );
 
 export const generateLessonGames = onCallGenkit(

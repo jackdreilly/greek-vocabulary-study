@@ -5,6 +5,7 @@
     Layers3,
     Sparkles,
     BookOpen,
+    GraduationCap,
     Menu,
     X,
     Keyboard,
@@ -26,13 +27,14 @@
   import FlashcardsPage from "./FlashcardsPage.svelte";
   import AIPractice from "./AIPractice.svelte";
   import VocabPage from "./VocabPage.svelte";
+  import PlansPage from "./PlansPage.svelte";
   import YiaYiaChat from "./YiaYiaChat.svelte";
 
   // Data State
   let data = null;
   let loadError = "";
   let view = "courses"; // "courses" | "lessons" | "study"
-  let activeTab = "cards"; // "cards" | "games" | "vocab"
+  let activeTab = "cards"; // "cards" | "games" | "vocab" | "plans"
 
   // Selection State
   let selectedCourse = null;
@@ -395,14 +397,17 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
           </button>
 
           <nav class="tabs-nav">
+            <button class:active={activeTab === 'vocab'} on:click={() => setTab('vocab')}>
+              <Layers3 size={18} /> <span>Vocabulary</span>
+            </button>
             <button class:active={activeTab === 'cards'} on:click={() => setTab('cards')}>
               <BookOpen size={18} /> <span>Flashcards</span>
             </button>
             <button class:active={activeTab === 'games'} on:click={() => setTab('games')}>
               <Sparkles size={18} /> <span>Games</span>
             </button>
-            <button class:active={activeTab === 'vocab'} on:click={() => setTab('vocab')}>
-              <Layers3 size={18} /> <span>Vocabulary</span>
+            <button class:active={activeTab === 'plans'} on:click={() => setTab('plans')}>
+              <GraduationCap size={18} /> <span>Plans</span>
             </button>
           </nav>
 
@@ -460,6 +465,11 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
                 {imageMode} {audioLoadingId}
                 onPlayAudio={playAudio}
                 onOpenEdit={openEdit}
+              />
+            {:else if activeTab === 'plans'}
+              <PlansPage
+                lesson={selectedLesson}
+                entries={lessonEntries}
               />
             {/if}
           </div>

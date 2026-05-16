@@ -1,0 +1,67 @@
+import { httpsCallable } from "firebase/functions";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  setDoc,
+} from "firebase/firestore";
+import { db, functions } from "./firebase";
+import { entriesForAI } from "./aiGames";
+
+const PLANS_COLLECTION = "lesson_ai_plans";
+
+export async function loadLessonPlans(lessonId) {
+  const snapshot = await Promise.race([
+    getDocs(collection(db, PLANS_COLLECTION)),
+    new Promise((_, reject) => setTimeout(() => reject(new Error("Firestore timed out")), 5000)),
+  ]);
+  return snapshot.docs
+    .map((item) => item.data())
+    .filter((item) => Number(item.lessonId) === Number(lessonId) && item.status !== "removed")
+    .sort((a, b) => (Number(a.planNumber) || 0) - (Number(b.planNumber) || 0));
+}
+
+export async function saveLessonPlan(plan) {
+  const payload = { ...plan, status: plan.status || "active", updatedAt: Date.now() };
+  await setDoc(doc(db, PLANS_COLLECTION, String(payload.id)), payload, { merge: true });
+  return payload;
+}
+
+export async function removeLessonPlan(plan) {
+  await deleteDoc(doc(db, PLANS_COLLECTION, String(plan.id)));
+}
+
+export function planSummary(plan) {
+  return {
+    planNumber: plan.planNumber,
+    title: plan.title,
+    subtitle: plan.subtitle || "",
+    coveredWords: (plan.coveredWords || []).slice(0, 30),
+    coveredConcepts: (plan.coveredConcepts || []).slice(0, 12),
+  };
+}
+
+export async function generateLessonPlan({ lesson, entries, previousPlans = [], preferences }) {
+  const callable = httpsCallable(functions, "generateLessonPlan");
+  const planNumber = (previousPlans.reduce((max, p) => Math.max(max, p.planNumber || 0), 0) || 0) + 1;
+  const result = await callable({
+    lessonId: lesson.id,
+    lessonTitle: lesson.title,
+    planNumber,
+    previousPlans: previousPlans.map(planSummary),
+    entries: entriesForAI(entries).slice(0, 140),
+    preferences,
+  });
+  const plan = result.data?.plan;
+  if (!plan) throw new Error("Plan generation returned no plan.");
+  return {
+    ...plan,
+    lessonId: lesson.id,
+    planNumber,
+    status: "active",
+    generatedBy: "ai",
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
+}
