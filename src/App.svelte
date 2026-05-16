@@ -75,6 +75,59 @@
   let aiEditGenerating = false;
   let aiEditError = '';
 
+  // Image picker state (within the edit modal)
+  let imagePickerOpen = false;
+  let imagePickerQuery = '';
+  let imagePickerResults = [];
+  let imagePickerLoading = false;
+  let imagePickerError = '';
+
+  async function searchPexelsImages() {
+    if (!imagePickerQuery.trim()) return;
+    imagePickerLoading = true;
+    imagePickerError = '';
+    imagePickerResults = [];
+    try {
+      const key = import.meta.env.VITE_PEXELS_API_KEY;
+      const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(imagePickerQuery.trim())}&per_page=6&orientation=landscape`;
+      const res = await fetch(url, { headers: { Authorization: key } });
+      if (!res.ok) throw new Error(`Pexels error ${res.status}`);
+      const data = await res.json();
+      imagePickerResults = data.photos ?? [];
+    } catch (e) {
+      imagePickerError = e.message || 'Search failed';
+    } finally {
+      imagePickerLoading = false;
+    }
+  }
+
+  function openImagePicker() {
+    const senses = editingEntry?.english_senses ?? [];
+    imagePickerQuery = senses.length ? senses[0].replace(/\(.*?\)/g, '').split(/[;,]/)[0].trim() : editingEntry?.lemma ?? '';
+    imagePickerResults = [];
+    imagePickerError = '';
+    imagePickerOpen = true;
+    searchPexelsImages();
+  }
+
+  function pickPexelsImage(photo) {
+    editingEntry = {
+      ...editingEntry,
+      image: {
+        url: photo.src.large,
+        thumbnail: photo.src.medium,
+        position: 'center',
+      }
+    };
+    imagePickerOpen = false;
+    imagePickerResults = [];
+  }
+
+  function removeImage() {
+    editingEntry = { ...editingEntry, image: null };
+    imagePickerOpen = false;
+  }
+
   // AI Generate Lesson state
   let genLessonOpen = false;
   let genLessonPrompt = '';
@@ -775,6 +828,50 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
           </div>
           {#if aiEditError}<p class="ai-error">{aiEditError}</p>{/if}
         </div>
+
+        <div class="image-section">
+          <p class="image-section-label"><ImageIcon size={12} /> Image</p>
+          {#if editingEntry.image}
+            <div class="image-current">
+              <img src={editingEntry.image.thumbnail || editingEntry.image.url} alt="current" />
+              <div class="image-current-actions">
+                <button class="img-action-btn" on:click={openImagePicker}><ImageIcon size={13} /> Replace</button>
+                <button class="img-action-btn img-remove-btn" on:click={removeImage}><X size={13} /> Remove</button>
+              </div>
+            </div>
+          {:else}
+            <button class="add-btn" on:click={openImagePicker}><ImageIcon size={13} /> Add Image from Pexels</button>
+          {/if}
+
+          {#if imagePickerOpen}
+            <div class="image-picker">
+              <div class="ai-assist-row">
+                <input
+                  class="ai-assist-input"
+                  type="text"
+                  placeholder="Search Pexels…"
+                  bind:value={imagePickerQuery}
+                  on:keydown={(e) => { if (e.key === 'Enter') searchPexelsImages(); }}
+                  disabled={imagePickerLoading}
+                />
+                <button class="ai-assist-btn" type="button" disabled={imagePickerLoading || !imagePickerQuery.trim()} on:click={searchPexelsImages}>
+                  {#if imagePickerLoading}<LoaderCircle class="animate-spin" size={13} />{:else}Search{/if}
+                </button>
+              </div>
+              {#if imagePickerError}<p class="ai-error">{imagePickerError}</p>{/if}
+              {#if imagePickerResults.length}
+                <div class="pexels-grid">
+                  {#each imagePickerResults as photo}
+                    <button class="pexels-thumb" on:click={() => pickPexelsImage(photo)} title={photo.photographer}>
+                      <img src={photo.src.small} alt={photo.alt || photo.photographer} />
+                    </button>
+                  {/each}
+                </div>
+                <p class="pexels-credit">Photos from <a href="https://www.pexels.com" target="_blank" rel="noreferrer">Pexels</a></p>
+              {/if}
+            </div>
+          {/if}
+        </div>
       </div>
       <div class="modal-footer">
         <button class="cancel" on:click={closeEdit}>Cancel</button>
@@ -1103,6 +1200,23 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
 
   /* Add Vocab modal */
   .modal-wide { max-width: 640px; }
+
+  .image-section { display: flex; flex-direction: column; gap: 8px; }
+  .image-section-label { margin: 0; font-size: 12px; font-weight: 700; color: #667085; display: flex; align-items: center; gap: 4px; }
+  .image-current { display: flex; align-items: center; gap: 12px; }
+  .image-current img { width: 80px; height: 54px; object-fit: cover; border-radius: 6px; border: 1px solid #e5e8ef; }
+  .image-current-actions { display: flex; gap: 6px; }
+  .img-action-btn { display: flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 8px; border: 1px solid #d9dee7; background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; color: #344054; }
+  .img-action-btn:hover { background: #f7f8fb; }
+  .img-remove-btn { color: #a24f3f; border-color: #f5c0b0; }
+  .img-remove-btn:hover { background: #fff5f3; }
+  .image-picker { display: flex; flex-direction: column; gap: 10px; padding: 12px; background: #f7f8fb; border-radius: 10px; border: 1px solid #e5e8ef; }
+  .pexels-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .pexels-thumb { padding: 0; border: 2px solid transparent; border-radius: 6px; overflow: hidden; cursor: pointer; background: none; transition: border-color 0.15s; }
+  .pexels-thumb:hover { border-color: #17614f; }
+  .pexels-thumb img { width: 100%; height: 70px; object-fit: cover; display: block; }
+  .pexels-credit { margin: 0; font-size: 11px; color: #999; text-align: right; }
+  .pexels-credit a { color: #17614f; }
   .add-vocab-prompt-row { display: flex; gap: 8px; }
   .add-vocab-input {
     flex: 1; height: 40px; border-radius: 8px;
