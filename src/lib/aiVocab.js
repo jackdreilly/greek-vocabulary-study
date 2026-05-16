@@ -29,6 +29,22 @@ export async function aiAssistVocabEntry({ entry, prompt }) {
   return senses;
 }
 
+export async function generateLessonContent({ prompt, courseName = '', lessonTitles = [], generateCourseName = false }) {
+  const callable = httpsCallable(functions, "generateLessonContent");
+  const result = await callable({ prompt, courseName, existingLessonTitles: lessonTitles, generateCourseName });
+  const data = result.data;
+  if (!data?.lessonTitle || !Array.isArray(data?.entries)) throw new Error("Lesson generation returned no content.");
+  return data;
+}
+
+export async function saveNewLesson({ lessonTitle, courseName, entries }) {
+  const themeId = Date.now() * 1000 + Math.floor(Math.random() * 1000);
+  const theme = { id: themeId, title: lessonTitle, course: courseName };
+  await setDoc(doc(db, "themes", String(themeId)), theme);
+  const savedEntries = await Promise.all(entries.map(e => saveNewVocabEntry({ entry: e, lessonId: themeId })));
+  return { theme: { ...theme, entry_count: savedEntries.length, translated_count: savedEntries.length, audio_count: 0 }, entries: savedEntries };
+}
+
 export async function saveNewVocabEntry({ entry, lessonId }) {
   const id = Date.now() * 1000 + Math.floor(Math.random() * 1000);
   const payload = {

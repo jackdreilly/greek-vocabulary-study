@@ -939,6 +939,72 @@ Return 5–20 vocabulary entries relevant to the request. Include only high-qual
   },
 );
 
+const GenerateLessonContentInputSchema = z.object({
+  prompt: z.string().max(600),
+  courseName: z.string().max(200).default(''),
+  existingLessonTitles: z.array(z.string()).max(60).default([]),
+  generateCourseName: z.boolean().default(false),
+});
+
+const GenerateLessonContentOutputSchema = z.object({
+  lessonTitle: z.string(),
+  courseName: z.string().default(''),
+  entries: z.array(VocabSuggestionSchema).min(5).max(40),
+});
+
+const generateLessonContentFlow = getAI().defineFlow(
+  {
+    name: 'generateLessonContent',
+    inputSchema: GenerateLessonContentInputSchema,
+    outputSchema: GenerateLessonContentOutputSchema,
+  },
+  async (input) => {
+    const existingLine = input.existingLessonTitles.length
+      ? `\nExisting lessons in this course (do NOT duplicate them): ${input.existingLessonTitles.slice(0, 40).join('; ')}`
+      : '';
+    const courseNameLine = input.courseName
+      ? `\nCourse: "${input.courseName}"`
+      : '';
+    const courseNameRequest = input.generateCourseName
+      ? '\nAlso generate a concise course name (3–6 words) that describes this collection of lessons.'
+      : '';
+
+    const { output } = await getAI().generate({
+      model: GAME_GENERATION_MODEL,
+      output: { schema: GenerateLessonContentOutputSchema },
+      system: 'You are a Modern Greek curriculum designer. Create well-structured lesson content with accurate vocabulary as JSON.',
+      prompt: `Design a new Modern Greek vocabulary lesson.${courseNameLine}${existingLine}${courseNameRequest}
+
+User request: ${input.prompt}
+
+Rules:
+- lessonTitle: a clear, descriptive title (4–8 words), e.g. "At the Restaurant: Ordering Food"
+- courseName: ${input.generateCourseName ? 'a short, clear course name describing the overall theme (3–6 words)' : 'leave as empty string ""'}
+- entries: 10–25 vocabulary entries. Each entry:
+  - lemma: dictionary form (nominative singular for nouns, 1st-person present for verbs)
+  - article: ο / η / το for nouns, null for verbs/adjectives/other
+  - english_senses: 1–4 concise English meanings
+  - category: Ουσιαστικά | Ρήματα | Επίθετα | Εκφράσεις
+  - notes: brief usage note or empty string
+
+Return only vocabulary genuinely relevant to the request. Prioritise frequent, learner-useful words.`,
+    });
+
+    if (!output) throw new Error('Lesson generation returned no output.');
+    return output;
+  },
+);
+
+export const generateLessonContent = onCallGenkit(
+  {
+    secrets: [GOOGLE_GENAI_API_KEY],
+    cors: true,
+    timeoutSeconds: 90,
+    memory: '512MiB',
+  },
+  generateLessonContentFlow,
+);
+
 export const generateVocabSuggestions = onCallGenkit(
   {
     secrets: [GOOGLE_GENAI_API_KEY],

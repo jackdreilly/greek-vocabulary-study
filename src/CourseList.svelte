@@ -1,8 +1,9 @@
 <script>
-  import { ChevronRight, BookOpen, Volume2, Hash } from "lucide-svelte";
+  import { ChevronRight, BookOpen, Volume2, Hash, Sparkles } from "lucide-svelte";
 
   export let courses = [];
   export let onOpenCourse = () => {};
+  export let onGenerateCourse = null;
 
   const COURSE_META = {
     "Afrodite Lourbakos": {
@@ -36,8 +37,17 @@
 
 <div class="course-list">
   <header class="hero">
-    <h1 class="hero-title">Fanari Go</h1>
-    <p class="hero-sub">Choose a course and start where you left off.</p>
+    <div class="hero-row">
+      <div>
+        <h1 class="hero-title">Fanari Go</h1>
+        <p class="hero-sub">Choose a course and start where you left off.</p>
+      </div>
+      {#if onGenerateCourse}
+        <button class="gen-course-btn" type="button" on:click={onGenerateCourse}>
+          <Sparkles size={14} /> Generate Course
+        </button>
+      {/if}
+    </div>
   </header>
 
   <div class="grid">
@@ -93,8 +103,10 @@
     padding: 48px 24px 64px;
   }
 
-  .hero {
-    margin-bottom: 40px;
+  .hero { margin-bottom: 40px; }
+
+  .hero-row {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;
   }
 
   .hero-title {
@@ -110,6 +122,16 @@
     color: #667085;
     margin: 0;
   }
+
+  .gen-course-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 10px 18px; border-radius: 12px; border: none;
+    background: #17614f; color: #fff;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    opacity: 0.9; transition: opacity 0.2s, box-shadow 0.2s;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .gen-course-btn:hover { opacity: 1; box-shadow: 0 4px 14px rgba(23,97,79,0.25); }
 
   .grid {
     display: grid;

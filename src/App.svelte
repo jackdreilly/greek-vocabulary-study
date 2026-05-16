@@ -18,7 +18,7 @@
   } from "lucide-svelte";
   import { db, storage } from "./lib/firebase";
   import { textMatchesSearch } from "./lib/search.js";
-  import { generateVocabSuggestions, aiAssistVocabEntry, saveNewVocabEntry } from "./lib/aiVocab.js";
+  import { generateVocabSuggestions, aiAssistVocabEntry, saveNewVocabEntry, generateLessonContent, saveNewLesson } from "./lib/aiVocab.js";
   import { collection, getDocsFromServer, doc, updateDoc } from "firebase/firestore";
   import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
   
@@ -32,7 +32,8 @@
   import YiaYiaChat from "./YiaYiaChat.svelte";
 
   // Data State
-  let data = null;
+  let data = null;       // set once themes are ready; entries may still be loading
+  let entriesReady = false;
   let loadError = "";
   let view = "courses"; // "courses" | "lessons" | "study"
   let activeTab = "cards"; // "cards" | "games" | "vocab" | "plans"
@@ -70,6 +71,27 @@
   let aiEditGenerating = false;
   let aiEditError = '';
 
+  // AI Generate Lesson state
+  let genLessonOpen = false;
+  let genLessonPrompt = '';
+  let genLessonGenerating = false;
+  let genLessonResult = null; // { lessonTitle, entries[], selectedEntries: Set }
+  let genLessonTitle = '';
+  let genLessonSelected = new Set();
+  let genLessonSaving = false;
+  let genLessonError = '';
+
+  // AI Generate Course state
+  let genCourseOpen = false;
+  let genCoursePrompt = '';
+  let genCourseGenerating = false;
+  let genCourseResult = null; // { courseName, lessonTitle, entries[] }
+  let genCourseName = '';
+  let genCourseLessonTitle = '';
+  let genCourseSelected = new Set();
+  let genCourseSaving = false;
+  let genCourseError = '';
+
   // Search/Filters (Shared)
   let globalSearch = "";
 
@@ -91,33 +113,51 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
 
   async function loadData() {
     try {
-      const fetchFirestore = async () => {
-        const [tSnap, eSnap] = await Promise.all([
-          getDocsFromServer(collection(db, "themes")),
-          getDocsFromServer(collection(db, "entries"))
-        ]);
-        return { themes: tSnap.docs.map(d => d.data()), entries: eSnap.docs.map(d => d.data()) };
-      };
-      const fetchLocal = async () => (await fetch("/data/lexilogio.json")).json();
+      // Fire both fetches simultaneously — don't wait for entries to show UI
+      const tPromise = getDocsFromServer(collection(db, "themes"));
+      const ePromise = getDocsFromServer(collection(db, "entries"));
 
-      const [mainPayload, everydayPayload] = await Promise.all([
-        Promise.race([
-          fetchFirestore(),
-          new Promise((_, r) => setTimeout(() => r(new Error("Timeout")), 10000))
-        ]).catch(fetchLocal),
-        fetch("/data/everyday_greek.json").then(r => r.json()).catch(() => ({ themes: [], entries: [] })),
-      ]);
-
-      const payload = {
-        themes: [...mainPayload.themes, ...everydayPayload.themes],
-        entries: [...mainPayload.entries, ...everydayPayload.entries],
-      };
-
-      data = prepareData(payload);
+      const rawThemes = (await tPromise).docs.map(d => d.data());
+      data = { themes: prepareThemesOnly(rawThemes), entries: [] };
       loadStateFromUrl();
+
+      const rawEntries = (await ePromise).docs.map(d => d.data());
+      data = prepareData({ themes: rawThemes, entries: rawEntries });
+      entriesReady = true;
     } catch (e) {
-      loadError = e.message;
+      if (!data) {
+        // Nothing rendered yet — try local fallback
+        try {
+          const payload = await fetch("/data/lexilogio.json").then(r => r.json());
+          data = prepareData(payload);
+          entriesReady = true;
+          loadStateFromUrl();
+        } catch {
+          loadError = e.message;
+        }
+      }
+      // If themes loaded but entries failed, course/lesson browsing still works
     }
+  }
+
+  function prepareThemesOnly(rawThemes) {
+    return rawThemes
+      .filter(t => Number(t.id) !== TOP_5000_ID)
+      .map(t => ({
+        ...t,
+        entry_count: t.entry_count ?? 0,
+        translated_count: t.translated_count ?? 0,
+        audio_count: t.audio_count ?? 0,
+        course: COURSE_DEFS.find(c => c.ids(Number(t.id)))?.name ?? "Other",
+      }))
+      .sort((a, b) => {
+        const courseOrder = COURSE_DEFS.map(c => c.name);
+        const ca = courseOrder.indexOf(a.course);
+        const cb = courseOrder.indexOf(b.course);
+        if (ca !== cb) return ca - cb;
+        return Number(a.id) - Number(b.id);
+      });
+    // Top 5000 sub-themes omitted until entries load (they need rank data)
   }
 
   function prepareData(payload) {
@@ -133,13 +173,14 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
     const themes = payload.themes
       .filter(t => Number(t.id) !== TOP_5000_ID)
       .map(t => {
-        const tEntries = entries.filter(e => e.theme_id === t.id);
+        const tEntries = entries.filter(e => Number(e.theme_id) === Number(t.id));
         return {
           ...t,
           entry_count: tEntries.length,
-          translated_count: tEntries.filter(e => e.english).length,
+          translated_count: tEntries.filter(e => e.english || e.english_senses?.length).length,
           audio_count: tEntries.filter(e => e.audio_available).length,
-          course: COURSE_DEFS.find(c => c.ids(Number(t.id)))?.name ?? "Other",
+          // Use explicit course field if stored on the doc (AI-generated lessons), else derive from ID range
+          course: t.course || COURSE_DEFS.find(c => c.ids(Number(t.id)))?.name || "Other",
         };
       })
       .sort((a, b) => Number(a.id) - Number(b.id));
@@ -370,6 +411,87 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
     addVocabSelected = next;
   }
 
+  // --- Generate Lesson ---
+  function openGenLesson() {
+    genLessonOpen = true; genLessonPrompt = ''; genLessonResult = null;
+    genLessonTitle = ''; genLessonSelected = new Set(); genLessonError = '';
+  }
+  function closeGenLesson() { genLessonOpen = false; }
+
+  async function runGenLesson() {
+    if (!genLessonPrompt.trim() || genLessonGenerating) return;
+    genLessonGenerating = true; genLessonError = '';
+    try {
+      const result = await generateLessonContent({
+        prompt: genLessonPrompt,
+        courseName: selectedCourse || '',
+        lessonTitles: courseLessons.map(l => l.title),
+        generateCourseName: false,
+      });
+      genLessonResult = result;
+      genLessonTitle = result.lessonTitle;
+      genLessonSelected = new Set(result.entries.map((_, i) => i));
+    } catch (e) { genLessonError = e.message || 'Generation failed.'; }
+    finally { genLessonGenerating = false; }
+  }
+
+  async function saveGenLesson() {
+    if (genLessonSaving || !genLessonResult) return;
+    genLessonSaving = true; genLessonError = '';
+    try {
+      const toSave = genLessonResult.entries.filter((_, i) => genLessonSelected.has(i));
+      const { theme, entries: saved } = await saveNewLesson({
+        lessonTitle: genLessonTitle,
+        courseName: selectedCourse,
+        entries: toSave,
+      });
+      data = { ...data, themes: [...data.themes, { ...theme, groupKeys: [] }], entries: [...data.entries, ...saved] };
+      closeGenLesson();
+    } catch (e) { genLessonError = e.message || 'Save failed.'; }
+    finally { genLessonSaving = false; }
+  }
+
+  // --- Generate Course ---
+  function openGenCourse() {
+    genCourseOpen = true; genCoursePrompt = ''; genCourseResult = null;
+    genCourseName = ''; genCourseLessonTitle = ''; genCourseSelected = new Set(); genCourseError = '';
+  }
+  function closeGenCourse() { genCourseOpen = false; }
+
+  async function runGenCourse() {
+    if (!genCoursePrompt.trim() || genCourseGenerating) return;
+    genCourseGenerating = true; genCourseError = '';
+    try {
+      const result = await generateLessonContent({
+        prompt: genCoursePrompt,
+        courseName: '',
+        lessonTitles: [],
+        generateCourseName: true,
+      });
+      genCourseResult = result;
+      genCourseName = result.courseName || 'New Course';
+      genCourseLessonTitle = result.lessonTitle;
+      genCourseSelected = new Set(result.entries.map((_, i) => i));
+    } catch (e) { genCourseError = e.message || 'Generation failed.'; }
+    finally { genCourseGenerating = false; }
+  }
+
+  async function saveGenCourse() {
+    if (genCourseSaving || !genCourseResult) return;
+    genCourseSaving = true; genCourseError = '';
+    try {
+      const toSave = genCourseResult.entries.filter((_, i) => genCourseSelected.has(i));
+      const { theme, entries: saved } = await saveNewLesson({
+        lessonTitle: genCourseLessonTitle,
+        courseName: genCourseName,
+        entries: toSave,
+      });
+      data = { ...data, themes: [...data.themes, { ...theme, groupKeys: [] }], entries: [...data.entries, ...saved] };
+      closeGenCourse();
+    } catch (e) { genCourseError = e.message || 'Save failed.'; }
+    finally { genCourseSaving = false; }
+  }
+
   $: courses = (() => {
     if (!data) return [];
     const map = new Map();
@@ -379,7 +501,13 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
       map.get(c).lessons.push(t);
     }
     const order = COURSE_DEFS.map(d => d.name);
-    return [...map.values()].sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name));
+    return [...map.values()].sort((a, b) => {
+      const ai = order.indexOf(a.name), bi = order.indexOf(b.name);
+      if (ai === -1 && bi === -1) return a.name.localeCompare(b.name);
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
   })();
 
   $: courseLessons = data?.themes.filter(t => t.course === selectedCourse) ?? [];
@@ -464,9 +592,9 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
         <p>Illuminating vocabulary...</p>
       </div>
     {:else if view === "courses"}
-      <CourseList {courses} onOpenCourse={openCourse} />
+      <CourseList {courses} onOpenCourse={openCourse} onGenerateCourse={openGenCourse} />
     {:else if view === "lessons"}
-      <LessonList lessons={courseLessons} courseName={selectedCourse ?? ""} onOpenLesson={openLesson} onBack={showCourses} />
+      <LessonList lessons={courseLessons} courseName={selectedCourse ?? ""} onOpenLesson={openLesson} onBack={showCourses} onGenerateLesson={openGenLesson} />
     {:else}
       <div class="study-layout">
         <aside class="sidebar" class:open={lessonSidebarOpen}>
@@ -525,7 +653,9 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
           </header>
 
           <div class="page-container">
-            {#if activeTab === 'cards'}
+            {#if !entriesReady}
+              <div class="loading-state"><LoaderCircle class="animate-spin" size={36} /><p>Loading vocabulary…</p></div>
+            {:else if activeTab === 'cards'}
               <FlashcardsPage 
                 {deck} {cardIndex} {cardFlipped} {cardMode} {imageMode} {audioLoadingId}
                 onMoveCard={moveCard}
@@ -716,6 +846,151 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
   </div>
 {/if}
 
+{#if genLessonOpen}
+  {@const result = genLessonResult}
+  <div class="modal-overlay" on:click={closeGenLesson}>
+    <div class="modal-content modal-wide" on:click|stopPropagation>
+      <div class="modal-header">
+        <h2>Generate Lesson — {selectedCourse}</h2>
+        <button on:click={closeGenLesson}><X /></button>
+      </div>
+      <div class="modal-body">
+        <div class="add-vocab-prompt-row">
+          <input class="add-vocab-input" type="text"
+            placeholder="Describe the lesson, e.g. 'Greek verbs of motion' or 'colors and adjectives'…"
+            bind:value={genLessonPrompt}
+            on:keydown={(e) => { if (e.key === 'Enter') runGenLesson(); }}
+            disabled={genLessonGenerating} />
+          <button class="add-vocab-gen-btn" type="button"
+            disabled={genLessonGenerating || !genLessonPrompt.trim()} on:click={runGenLesson}>
+            {#if genLessonGenerating}
+              <LoaderCircle class="animate-spin" size={13} /> Generating…
+            {:else}
+              <Sparkles size={13} /> Generate
+            {/if}
+          </button>
+        </div>
+        {#if genLessonError}<p class="ai-error">{genLessonError}</p>{/if}
+        {#if result}
+          <label class="gen-title-label">Lesson title
+            <input class="gen-title-input" type="text" bind:value={genLessonTitle} />
+          </label>
+          <div class="suggestions-header">
+            <span>{genLessonSelected.size} of {result.entries.length} words selected</span>
+            <div class="suggestions-select-btns">
+              <button type="button" on:click={() => genLessonSelected = new Set(result.entries.map((_,i)=>i))}>All</button>
+              <button type="button" on:click={() => genLessonSelected = new Set()}>None</button>
+            </div>
+          </div>
+          <div class="suggestions-list">
+            {#each result.entries as s, i}
+              <label class="suggestion-row" class:selected={genLessonSelected.has(i)}>
+                <input type="checkbox" checked={genLessonSelected.has(i)} on:change={() => { const n = new Set(genLessonSelected); n.has(i) ? n.delete(i) : n.add(i); genLessonSelected = n; }} />
+                <div class="suggestion-body">
+                  <div class="suggestion-greek">
+                    {#if s.article}<span class="sug-article">{s.article}</span>{/if}
+                    <span class="sug-lemma">{s.lemma}</span>
+                    <span class="sug-cat">{s.category}</span>
+                  </div>
+                  <div class="suggestion-english">{(s.english_senses || []).join(' · ')}</div>
+                  {#if s.notes}<div class="suggestion-notes">{s.notes}</div>{/if}
+                </div>
+              </label>
+            {/each}
+          </div>
+        {/if}
+      </div>
+      {#if result}
+        <div class="modal-footer">
+          <button class="cancel" on:click={closeGenLesson}>Cancel</button>
+          <button class="save" disabled={genLessonSelected.size === 0 || genLessonSaving || !genLessonTitle.trim()} on:click={saveGenLesson}>
+            {#if genLessonSaving}
+              <LoaderCircle class="animate-spin" size={13} /> Saving…
+            {:else}
+              Create lesson ({genLessonSelected.size} words)
+            {/if}
+          </button>
+        </div>
+      {/if}
+    </div>
+  </div>
+{/if}
+
+{#if genCourseOpen}
+  {@const result = genCourseResult}
+  <div class="modal-overlay" on:click={closeGenCourse}>
+    <div class="modal-content modal-wide" on:click|stopPropagation>
+      <div class="modal-header">
+        <h2>Generate New Course</h2>
+        <button on:click={closeGenCourse}><X /></button>
+      </div>
+      <div class="modal-body">
+        <div class="add-vocab-prompt-row">
+          <input class="add-vocab-input" type="text"
+            placeholder="Describe the course, e.g. 'Greek food and cooking vocabulary' or 'travel and transportation'…"
+            bind:value={genCoursePrompt}
+            on:keydown={(e) => { if (e.key === 'Enter') runGenCourse(); }}
+            disabled={genCourseGenerating} />
+          <button class="add-vocab-gen-btn" type="button"
+            disabled={genCourseGenerating || !genCoursePrompt.trim()} on:click={runGenCourse}>
+            {#if genCourseGenerating}
+              <LoaderCircle class="animate-spin" size={13} /> Generating…
+            {:else}
+              <Sparkles size={13} /> Generate
+            {/if}
+          </button>
+        </div>
+        {#if genCourseError}<p class="ai-error">{genCourseError}</p>{/if}
+        {#if result}
+          <div class="gen-two-col">
+            <label class="gen-title-label">Course name
+              <input class="gen-title-input" type="text" bind:value={genCourseName} />
+            </label>
+            <label class="gen-title-label">First lesson title
+              <input class="gen-title-input" type="text" bind:value={genCourseLessonTitle} />
+            </label>
+          </div>
+          <div class="suggestions-header">
+            <span>{genCourseSelected.size} of {result.entries.length} words selected</span>
+            <div class="suggestions-select-btns">
+              <button type="button" on:click={() => genCourseSelected = new Set(result.entries.map((_,i)=>i))}>All</button>
+              <button type="button" on:click={() => genCourseSelected = new Set()}>None</button>
+            </div>
+          </div>
+          <div class="suggestions-list">
+            {#each result.entries as s, i}
+              <label class="suggestion-row" class:selected={genCourseSelected.has(i)}>
+                <input type="checkbox" checked={genCourseSelected.has(i)} on:change={() => { const n = new Set(genCourseSelected); n.has(i) ? n.delete(i) : n.add(i); genCourseSelected = n; }} />
+                <div class="suggestion-body">
+                  <div class="suggestion-greek">
+                    {#if s.article}<span class="sug-article">{s.article}</span>{/if}
+                    <span class="sug-lemma">{s.lemma}</span>
+                    <span class="sug-cat">{s.category}</span>
+                  </div>
+                  <div class="suggestion-english">{(s.english_senses || []).join(' · ')}</div>
+                  {#if s.notes}<div class="suggestion-notes">{s.notes}</div>{/if}
+                </div>
+              </label>
+            {/each}
+          </div>
+        {/if}
+      </div>
+      {#if result}
+        <div class="modal-footer">
+          <button class="cancel" on:click={closeGenCourse}>Cancel</button>
+          <button class="save" disabled={genCourseSelected.size === 0 || genCourseSaving || !genCourseName.trim() || !genCourseLessonTitle.trim()} on:click={saveGenCourse}>
+            {#if genCourseSaving}
+              <LoaderCircle class="animate-spin" size={13} /> Saving…
+            {:else}
+              Create course ({genCourseSelected.size} words)
+            {/if}
+          </button>
+        </div>
+      {/if}
+    </div>
+  </div>
+{/if}
+
 <style>
   :global(body) { margin: 0; background: #f7f8fb; overflow: hidden; }
   .app-shell { display: flex; flex-direction: column; height: 100vh; font-family: Inter, sans-serif; }
@@ -860,6 +1135,18 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
   .sug-cat { font-size: 10px; font-weight: 800; color: #99a1b3; text-transform: uppercase; letter-spacing: 0.06em; }
   .suggestion-english { font-size: 13px; color: #344054; }
   .suggestion-notes { font-size: 11px; color: #99a1b3; font-style: italic; }
+
+  /* Generate lesson/course */
+  .gen-title-label {
+    display: flex; flex-direction: column; gap: 5px;
+    font-size: 11px; font-weight: 800; color: #667085; text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .gen-title-input {
+    height: 40px; border-radius: 8px; border: 1px solid #d9dee7;
+    padding: 0 12px; font-size: 14px; font-weight: 600; color: #202124; outline: none;
+  }
+  .gen-title-input:focus { border-color: #17614f; }
+  .gen-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
   @media (max-width: 768px) {
     .sidebar { position: absolute; left: 0; top: 0; bottom: 0; transform: translateX(-100%); }

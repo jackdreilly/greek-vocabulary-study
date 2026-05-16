@@ -1,11 +1,12 @@
 <script>
-  import { ChevronRight, Search, ChevronLeft } from "lucide-svelte";
+  import { ChevronRight, Search, ChevronLeft, Sparkles } from "lucide-svelte";
   import { textMatchesSearch } from "./lib/search.js";
 
   export let lessons = [];
   export let courseName = "";
   export let onOpenLesson = () => {};
   export let onBack = () => {};
+  export let onGenerateLesson = null;
 
   let search = "";
 
@@ -37,6 +38,11 @@
       <span class="lesson-count" style="background:{colors.pill}; color:{colors.accent}">
         {lessons.length} lessons
       </span>
+      {#if onGenerateLesson}
+        <button class="gen-lesson-btn" style="background:{colors.accent}" type="button" on:click={onGenerateLesson}>
+          <Sparkles size={13} /> Generate Lesson
+        </button>
+      {/if}
     </div>
 
     <div class="search-box">
@@ -285,4 +291,12 @@
   }
 
   .card:hover .cta { opacity: 1; }
+
+  .gen-lesson-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: 10px; border: none;
+    color: #fff; font-size: 13px; font-weight: 700; cursor: pointer;
+    opacity: 0.88; transition: opacity 0.2s;
+  }
+  .gen-lesson-btn:hover { opacity: 1; }
 </style>
