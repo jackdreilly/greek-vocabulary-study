@@ -5,34 +5,29 @@
   export let onOpenCourse = () => {};
   export let onGenerateCourse = null;
 
-  const COURSE_META = {
-    "Afrodite Lourbakos": {
-      description: "12 thematic units from the Lexilogio textbook — family, food, travel, body, and more.",
-      emoji: "📖",
-    },
-    "Top 5000": {
-      description: "The 5,000 most common Greek words, split into 20 bite-sized lessons with audio.",
-      emoji: "📊",
-    },
-    "3rd Grade A1 Certification": {
-      description: "Vocabulary sets from your daughter's 3rd-grade Greek storybooks and lessons.",
-      emoji: "🎒",
-    },
-    "Every Day Greek": {
-      description: "20 real-life lessons built around what actually comes up at home — feelings, food, family, and Greek expressions.",
-      emoji: "🏡",
-    },
-  };
+  const COURSE_PALETTES = [
+    { bg: "#fff8f0", border: "#f3d3b2", accent: "#a65318", pill: "#fdebd0", grad: "linear-gradient(135deg, #fff3e3 0%, #fde8c8 100%)" },
+    { bg: "#f0f4ff", border: "#c5d4f5", accent: "#2952b3", pill: "#dce7ff", grad: "linear-gradient(135deg, #edf2ff 0%, #d4e0ff 100%)" },
+    { bg: "#f3fff5", border: "#b8eac4", accent: "#1a7a40", pill: "#d2f5dc", grad: "linear-gradient(135deg, #edfff2 0%, #ccf5d8 100%)" },
+    { bg: "#fff5f7", border: "#edbdc6", accent: "#a33f55", pill: "#f9dbe2", grad: "linear-gradient(135deg, #fff0f3 0%, #f8d8df 100%)" },
+    { bg: "#f3fbff", border: "#b7ddea", accent: "#1f6e87", pill: "#d4edf5", grad: "linear-gradient(135deg, #edfaff 0%, #d4edf5 100%)" },
+  ];
 
-  const COURSE_COLORS = {
-    "Afrodite Lourbakos":         { bg: "#fff8f0", border: "#f3d3b2", accent: "#c2621c", pill: "#fdebd0", grad: "linear-gradient(135deg, #fff3e3 0%, #fde8c8 100%)" },
-    "Top 5000":                   { bg: "#f0f4ff", border: "#c5d4f5", accent: "#2952b3", pill: "#dce7ff", grad: "linear-gradient(135deg, #edf2ff 0%, #d4e0ff 100%)" },
-    "3rd Grade A1 Certification": { bg: "#f3fff5", border: "#b8eac4", accent: "#1a7a40", pill: "#d2f5dc", grad: "linear-gradient(135deg, #edfff2 0%, #ccf5d8 100%)" },
-    "Every Day Greek":            { bg: "#fdf3ff", border: "#ddb5f0", accent: "#7a1a8e", pill: "#f0d5ff", grad: "linear-gradient(135deg, #faf0ff 0%, #f0d8ff 100%)" },
-  };
+  function hashName(name) {
+    return [...String(name || "")].reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+  }
+
+  function courseColors(course) {
+    return COURSE_PALETTES[hashName(course.name) % COURSE_PALETTES.length];
+  }
 
   function totalWords(c) { return c.lessons.reduce((s, l) => s + (l.entry_count ?? 0), 0); }
   function totalAudio(c) { return c.lessons.reduce((s, l) => s + (l.audio_count ?? 0), 0); }
+  function courseDescription(c) {
+    if (c.description) return c.description;
+    const lessonText = `${c.lessons.length} lesson${c.lessons.length !== 1 ? "s" : ""}`;
+    return `${lessonText} ready to study.`;
+  }
 </script>
 
 <div class="course-list">
@@ -52,20 +47,19 @@
 
   <div class="grid">
     {#each courses as course}
-      {@const colors = COURSE_COLORS[course.name] ?? { bg: "#f7f8fb", border: "#d9dee7", accent: "#444", pill: "#e5e8ef", grad: "#f7f8fb" }}
-      {@const meta = COURSE_META[course.name] ?? { description: "", emoji: "📚" }}
+      {@const colors = courseColors(course)}
       <button
         class="card"
         style="--bg:{colors.bg}; --border:{colors.border}; --accent:{colors.accent}; --pill:{colors.pill}; --grad:{colors.grad}"
-        on:click={() => onOpenCourse(course.name)}
+        on:click={() => onOpenCourse(course.id)}
       >
         <div class="card-banner">
-          <span class="card-emoji">{meta.emoji}</span>
+          <BookOpen size={34} />
         </div>
 
         <div class="card-body">
           <h2 class="card-title">{course.name}</h2>
-          <p class="card-desc">{meta.description}</p>
+          <p class="card-desc">{courseDescription(course)}</p>
 
           <div class="stats">
             <span class="stat">

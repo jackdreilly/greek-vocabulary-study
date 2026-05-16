@@ -2,6 +2,17 @@ import { httpsCallable } from "firebase/functions";
 import { doc, setDoc } from "firebase/firestore";
 import { db, functions } from "./firebase";
 
+function courseIdFromName(name) {
+  const base = String(name || "course")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return base || `course-${Date.now()}`;
+}
+
 export async function generateVocabSuggestions({ lesson, entries, prompt }) {
   const callable = httpsCallable(functions, "generateVocabSuggestions");
   const existingLemmas = (entries || []).map((e) => e.lemma).filter(Boolean);
@@ -37,9 +48,16 @@ export async function generateLessonContent({ prompt, courseName = '', lessonTit
   return data;
 }
 
-export async function saveNewLesson({ lessonTitle, courseName, entries }) {
+export async function saveNewLesson({ lessonTitle, courseName, courseId = '', entries }) {
   const themeId = Date.now() * 1000 + Math.floor(Math.random() * 1000);
-  const theme = { id: themeId, title: lessonTitle, course: courseName };
+  const resolvedCourseId = courseId || courseIdFromName(courseName);
+  await setDoc(doc(db, "courses", resolvedCourseId), {
+    id: resolvedCourseId,
+    title: courseName,
+    updatedAt: Date.now(),
+  }, { merge: true });
+
+  const theme = { id: themeId, title: lessonTitle, courseId: resolvedCourseId, course: courseName };
   await setDoc(doc(db, "themes", String(themeId)), theme);
   const savedEntries = await Promise.all(entries.map(e => saveNewVocabEntry({ entry: e, lessonId: themeId })));
   return { theme: { ...theme, entry_count: savedEntries.length, translated_count: savedEntries.length, audio_count: 0 }, entries: savedEntries };

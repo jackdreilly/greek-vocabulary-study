@@ -15,14 +15,19 @@
     return Math.round((lesson.translated_count / lesson.entry_count) * 100);
   }
 
-  const COURSE_COLORS = {
-    "Afrodite Lourbakos":         { bg: "#fff8f0", accent: "#c2621c", pill: "#fdebd0" },
-    "Top 5000":                   { bg: "#f0f4ff", accent: "#2952b3", pill: "#dce7ff" },
-    "3rd Grade A1 Certification": { bg: "#f3fff5", accent: "#1a7a40", pill: "#d2f5dc" },
-    "Every Day Greek":            { bg: "#fdf3ff", accent: "#7a1a8e", pill: "#f0d5ff" },
-  };
+  const COURSE_PALETTES = [
+    { bg: "#fff8f0", accent: "#a65318", pill: "#fdebd0" },
+    { bg: "#f0f4ff", accent: "#2952b3", pill: "#dce7ff" },
+    { bg: "#f3fff5", accent: "#1a7a40", pill: "#d2f5dc" },
+    { bg: "#fff5f7", accent: "#a33f55", pill: "#f9dbe2" },
+    { bg: "#f3fbff", accent: "#1f6e87", pill: "#d4edf5" },
+  ];
 
-  $: colors = COURSE_COLORS[courseName] ?? { bg: "#f7f8fb", accent: "#444", pill: "#e5e8ef" };
+  function hashName(name) {
+    return [...String(name || "")].reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+  }
+
+  $: colors = COURSE_PALETTES[hashName(courseName) % COURSE_PALETTES.length];
   $: filtered = lessons.filter(l => textMatchesSearch(l.title, search));
 </script>
 
@@ -58,14 +63,15 @@
   </header>
 
   <div class="grid">
-    {#each filtered as lesson}
+    {#each filtered as lesson, i}
+      {@const lessonNumber = lesson.displayNumber ?? lesson.lessonNumber ?? lesson.order ?? i + 1}
       <button
         class="card"
         style="--bg:{colors.bg}; --accent:{colors.accent}; --pill:{colors.pill}"
         on:click={() => onOpenLesson(lesson.id)}
       >
         <div class="card-top">
-          <div class="num">{lesson.id > 1300 ? lesson.id - 1300 : lesson.id}</div>
+          <div class="num">{lessonNumber}</div>
           <h2 class="card-title">{lesson.title}</h2>
           <ChevronRight class="arrow" size={18} />
         </div>

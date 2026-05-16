@@ -10,6 +10,7 @@ const PROJECT_ID = "didibros-6d3ed";
 const DATABASE_ID = "greek-vocab";
 const BUCKET_NAME = "didibros-6d3ed.firebasestorage.app";
 const FIRST_XLSX_THEME_ID = 14;
+const XLSX_COURSE_NAME = "3rd Grade A1 Certification";
 
 const args = new Set(process.argv.slice(2));
 const fillImages = !args.has("--skip-images");
@@ -62,6 +63,17 @@ function imageQuery(entry) {
   if (entry.category === "Ρήματα") return `${base} action`;
   if (entry.category === "Επίθετα") return `${base} example`;
   return base;
+}
+
+function courseIdFromName(name) {
+  const base = String(name || "course")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return base || "course";
 }
 
 async function searchPixabay(query) {
@@ -124,6 +136,7 @@ async function addImage(entry) {
 async function commitDocuments(themes, entries) {
   let batch = db.batch();
   let pending = 0;
+  const courses = new Map();
   const commit = async () => {
     if (!pending) return;
     await batch.commit();
@@ -132,7 +145,15 @@ async function commitDocuments(themes, entries) {
   };
 
   for (const theme of themes) {
-    batch.set(db.collection("themes").doc(String(theme.id)), theme, { merge: true });
+    const courseTitle = theme.course || theme.courseName || XLSX_COURSE_NAME;
+    const courseId = theme.courseId || courseIdFromName(courseTitle);
+    courses.set(courseId, { id: courseId, title: courseTitle, updatedAt: Date.now() });
+    batch.set(db.collection("themes").doc(String(theme.id)), { ...theme, courseId }, { merge: true });
+    pending++;
+  }
+
+  for (const course of courses.values()) {
+    batch.set(db.collection("courses").doc(course.id), course, { merge: true });
     pending++;
   }
 

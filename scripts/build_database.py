@@ -51,6 +51,24 @@ THEMES = {
     19: "Nea Geitonia",
 }
 
+def course_for_theme(theme_id: int) -> str:
+    if 1 <= theme_id <= 12:
+        return "Afrodite Lourbakos"
+    if theme_id == 13:
+        return "Top 5000"
+    if 14 <= theme_id <= 19:
+        return "3rd Grade A1 Certification"
+    return "Other"
+
+
+def course_id_for_name(name: str) -> str:
+    return (
+        name.strip()
+        .lower()
+        .replace(" ", "-")
+        .replace("3rd-grade-a1-certification", "3rd-grade-a1-certification")
+    )
+
 PAGE_STRUCTURE = {
     1: (1, "Ουσιαστικά", None),
     2: (1, "Ουσιαστικά", None),
@@ -662,6 +680,8 @@ def build_json(entries: list[dict]) -> None:
             {
                 "id": theme_id,
                 "title": title,
+                "course": course_for_theme(theme_id),
+                "courseId": course_id_for_name(course_for_theme(theme_id)),
                 "entry_count": len(theme_entries),
                 "categories": dict(Counter(entry["category"] for entry in theme_entries)),
             }

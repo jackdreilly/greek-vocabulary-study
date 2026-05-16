@@ -1374,6 +1374,8 @@ def build_entries(lessons):
 
 def build_themes(lessons):
     themes = []
+    course = "Every Day Greek"
+    course_id = "every-day-greek"
     for theme_id, theme_title, categories in lessons:
         total = sum(len(v) for v in categories.values())
         translated = total  # all have english
@@ -1385,7 +1387,8 @@ def build_themes(lessons):
             "translated_count": translated,
             "audio_count": 0,
             "categories": cats,
-            "course": "Every Day Greek",
+            "course": course,
+            "courseId": course_id,
         })
     return themes
 
