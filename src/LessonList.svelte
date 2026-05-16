@@ -1,9 +1,11 @@
 <script>
-  import { ChevronRight, Search } from "lucide-svelte";
+  import { ChevronRight, Search, ChevronLeft } from "lucide-svelte";
   import { textMatchesSearch } from "./lib/search.js";
 
   export let lessons = [];
+  export let courseName = "";
   export let onOpenLesson = () => {};
+  export let onBack = () => {};
 
   let search = "";
 
@@ -11,17 +13,32 @@
     if (!lesson?.entry_count) return 0;
     return Math.round((lesson.translated_count / lesson.entry_count) * 100);
   }
-  
-  $: filteredLessons = lessons.filter(l => textMatchesSearch(l.title, search));
+
+  const COURSE_COLORS = {
+    "Afrodite Lourbakos":         { bg: "#fff8f0", accent: "#c2621c", pill: "#fdebd0" },
+    "Top 5000":                   { bg: "#f0f4ff", accent: "#2952b3", pill: "#dce7ff" },
+    "3rd Grade A1 Certification": { bg: "#f3fff5", accent: "#1a7a40", pill: "#d2f5dc" },
+    "Every Day Greek":            { bg: "#fdf3ff", accent: "#7a1a8e", pill: "#f0d5ff" },
+  };
+
+  $: colors = COURSE_COLORS[courseName] ?? { bg: "#f7f8fb", accent: "#444", pill: "#e5e8ef" };
+  $: filtered = lessons.filter(l => textMatchesSearch(l.title, search));
 </script>
 
-<div class="lesson-list-container">
-  <header class="list-header">
-    <div class="header-content">
-      <h1 class="title">Choose your next lesson</h1>
-      <p class="subtitle">Pick a set, do a quick round, and keep the words moving.</p>
+<div class="lesson-list">
+  <header class="page-header">
+    <button class="back-btn" on:click={onBack}>
+      <ChevronLeft size={18} />
+      <span>All Courses</span>
+    </button>
+
+    <div class="header-row">
+      <h1 class="course-title" style="color:{colors.accent}">{courseName}</h1>
+      <span class="lesson-count" style="background:{colors.pill}; color:{colors.accent}">
+        {lessons.length} lessons
+      </span>
     </div>
-    
+
     <div class="search-box">
       <Search class="search-icon" size={18} />
       <input
@@ -29,26 +46,28 @@
         bind:value={search}
         placeholder="Find a lesson..."
         class="search-input"
+        style="--focus-color:{colors.accent}"
       />
     </div>
   </header>
 
-  <div class="lessons-grid">
-    {#each filteredLessons as lesson}
+  <div class="grid">
+    {#each filtered as lesson}
       <button
-        class="lesson-card"
+        class="card"
+        style="--bg:{colors.bg}; --accent:{colors.accent}; --pill:{colors.pill}"
         on:click={() => onOpenLesson(lesson.id)}
       >
         <div class="card-top">
-          <div class="lesson-id">{lesson.id}</div>
-          <h2 class="lesson-title">{lesson.title}</h2>
-          <ChevronRight class="arrow-icon" size={20} />
+          <div class="num">{lesson.id > 1300 ? lesson.id - 1300 : lesson.id}</div>
+          <h2 class="card-title">{lesson.title}</h2>
+          <ChevronRight class="arrow" size={18} />
         </div>
-        
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: {lessonProgress(lesson)}%"></div>
+
+        <div class="progress-track">
+          <div class="progress-fill" style="width:{lessonProgress(lesson)}%"></div>
         </div>
-        
+
         <div class="stats-row">
           <span class="badge">{lesson.entry_count.toLocaleString()} words</span>
           <span class="badge">{lesson.translated_count.toLocaleString()} meanings</span>
@@ -56,12 +75,9 @@
             <span class="badge">{lesson.audio_count.toLocaleString()} audio</span>
           {/if}
         </div>
-        
+
         <div class="card-footer">
-          <span class="start-btn">
-            Start Lesson
-            <ChevronRight size={16} />
-          </span>
+          <span class="cta">Start <ChevronRight size={14} /></span>
         </div>
       </button>
     {/each}
@@ -69,44 +85,59 @@
 </div>
 
 <style>
-  .lesson-list-container {
-    max-width: 1200px;
+  .lesson-list {
+    max-width: 1100px;
     margin: 0 auto;
-    padding: 40px 24px;
+    padding: 36px 24px 64px;
   }
 
-  .list-header {
+  .page-header {
+    margin-bottom: 36px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    margin-bottom: 40px;
+    gap: 16px;
   }
 
-  @media (min-width: 768px) {
-    .list-header {
-      flex-direction: row;
-      align-items: flex-end;
-      justify-content: space-between;
-    }
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #667085;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s;
+    width: fit-content;
   }
 
-  .title {
-    font-size: 32px;
-    font-weight: 800;
-    color: #202124;
-    margin: 0 0 8px 0;
+  .back-btn:hover { color: #202124; }
+
+  .header-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .course-title {
+    font-size: 30px;
+    font-weight: 900;
+    margin: 0;
     letter-spacing: -0.02em;
   }
 
-  .subtitle {
-    font-size: 16px;
-    color: #667085;
-    margin: 0;
+  .lesson-count {
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
   }
 
   .search-box {
     position: relative;
-    width: 100%;
     max-width: 360px;
   }
 
@@ -121,136 +152,137 @@
 
   .search-input {
     width: 100%;
-    height: 48px;
-    padding: 0 16px 0 44px;
-    border-radius: 12px;
-    border: 1px solid #d9dee7;
+    height: 44px;
+    padding: 0 16px 0 42px;
+    border-radius: 10px;
+    border: 1.5px solid #d9dee7;
     background: #fff;
-    font-size: 15px;
-    transition: all 0.2s;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
   }
 
   .search-input:focus {
     outline: none;
-    border-color: #17614f;
-    box-shadow: 0 0 0 4px rgba(23, 97, 79, 0.1);
+    border-color: var(--focus-color);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus-color) 12%, transparent);
   }
 
-  .lessons-grid {
+  /* Grid */
+  .grid {
     display: grid;
-    gap: 24px;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   }
 
-  .lesson-card {
+  /* Card */
+  .card {
     display: flex;
     flex-direction: column;
-    padding: 24px;
-    border-radius: 16px;
-    border: 1px solid #d9dee7;
-    background: #fff;
+    padding: 18px;
+    border-radius: 14px;
+    border: 1.5px solid color-mix(in srgb, var(--accent) 15%, transparent);
+    background: var(--bg);
     text-align: left;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: transform 0.22s cubic-bezier(0.4,0,0.2,1), box-shadow 0.22s, border-color 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
   }
 
-  .lesson-card:hover {
-    transform: translateY(-4px);
-    border-color: #17614f;
-    box-shadow: 0 12px 24px rgba(23, 97, 79, 0.1);
+  .card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--accent) 12%, transparent);
   }
 
   .card-top {
     display: flex;
     align-items: flex-start;
-    gap: 16px;
-    margin-bottom: 20px;
+    gap: 10px;
+    margin-bottom: 14px;
   }
 
-  .lesson-id {
+  .num {
     display: grid;
     place-items: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    background: #f0f4f3;
-    color: #17614f;
-    font-size: 16px;
+    min-width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--pill);
+    color: var(--accent);
+    font-size: 13px;
     font-weight: 800;
     flex-shrink: 0;
+    padding: 0 5px;
   }
 
-  .lesson-title {
+  .card-title {
     flex: 1;
-    font-size: 20px;
+    font-size: 15px;
     font-weight: 700;
-    line-height: 1.3;
+    line-height: 1.35;
     color: #202124;
     margin: 0;
   }
 
-  .arrow-icon {
+  :global(.arrow) {
     color: #d9dee7;
-    transition: transform 0.3s, color 0.3s;
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: transform 0.2s, color 0.2s;
   }
 
-  .lesson-card:hover .arrow-icon {
-    color: #17614f;
-    transform: translateX(4px);
+  .card:hover :global(.arrow) {
+    color: var(--accent);
+    transform: translateX(3px);
   }
 
-  .progress-bar {
-    height: 6px;
-    background: #f0f2f7;
-    border-radius: 3px;
+  .progress-track {
+    height: 4px;
+    background: color-mix(in srgb, var(--accent) 10%, white);
+    border-radius: 2px;
     overflow: hidden;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
   }
 
   .progress-fill {
     height: 100%;
-    background: #17614f;
-    border-radius: 3px;
+    background: var(--accent);
+    border-radius: 2px;
+    opacity: 0.65;
   }
 
   .stats-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 24px;
+    gap: 5px;
+    margin-bottom: 14px;
   }
 
   .badge {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
-    color: #667085;
-    background: #f7f8fb;
-    padding: 4px 10px;
-    border-radius: 6px;
-    border: 1px solid #e5e8ef;
+    color: var(--accent);
+    background: var(--pill);
+    padding: 2px 8px;
+    border-radius: 5px;
   }
 
-  .card-footer {
-    margin-top: auto;
-  }
+  .card-footer { margin-top: auto; }
 
-  .start-btn {
+  .cta {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    border-radius: 10px;
-    background: #17614f;
+    gap: 4px;
+    background: var(--accent);
     color: #fff;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
-    transition: all 0.2s;
+    padding: 7px 14px;
+    border-radius: 8px;
+    opacity: 0.85;
+    transition: opacity 0.2s;
   }
 
-  .lesson-card:hover .start-btn {
-    background: #124a3c;
-    box-shadow: 0 4px 12px rgba(23, 97, 79, 0.2);
-  }
+  .card:hover .cta { opacity: 1; }
 </style>

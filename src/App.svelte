@@ -21,6 +21,7 @@
   import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
   
   // Components
+  import CourseList from "./CourseList.svelte";
   import LessonList from "./LessonList.svelte";
   import FlashcardsPage from "./FlashcardsPage.svelte";
   import AIPractice from "./AIPractice.svelte";
@@ -30,10 +31,11 @@
   // Data State
   let data = null;
   let loadError = "";
-  let view = "lessons"; // "lessons" | "study"
+  let view = "courses"; // "courses" | "lessons" | "study"
   let activeTab = "cards"; // "cards" | "games" | "vocab"
-  
+
   // Selection State
+  let selectedCourse = null;
   let selectedLessonId = null;
   let selectedType = "all";
   let selectedGroup = "all";
@@ -55,6 +57,16 @@
   let globalSearch = "";
 
   const TOP_5000_ID = 13;
+  const TOP_5000_SUB_BASE = 1300; // virtual IDs 1301-1320
+  const TOP_5000_CHUNK = 250;
+
+  // Course definitions: maps theme id ranges to course names
+  const COURSE_DEFS = [
+    { name: "Afrodite Lourbakos", ids: (id) => id >= 1 && id <= 12 },
+    { name: "Top 5000", ids: (id) => id > TOP_5000_SUB_BASE && id <= TOP_5000_SUB_BASE + 20 },
+    { name: "3rd Grade A1 Certification", ids: (id) => id >= 14 && id <= 19 },
+    { name: "Every Day Greek", ids: (id) => id >= 20 && id <= 39 },
+  ];
 
   // Formatting helpers
 const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": "Adjectives", "Ρήματα": "Verbs", "Εκφράσεις": "Phrases", "Top 5000": "Top 5000"})[v] ?? v;
@@ -70,12 +82,20 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
         return { themes: tSnap.docs.map(d => d.data()), entries: eSnap.docs.map(d => d.data()) };
       };
       const fetchLocal = async () => (await fetch("/data/lexilogio.json")).json();
-      
-      const payload = await Promise.race([
-        fetchFirestore(),
-        new Promise((_, r) => setTimeout(() => r(new Error("Timeout")), 10000))
-      ]).catch(fetchLocal);
-      
+
+      const [mainPayload, everydayPayload] = await Promise.all([
+        Promise.race([
+          fetchFirestore(),
+          new Promise((_, r) => setTimeout(() => r(new Error("Timeout")), 10000))
+        ]).catch(fetchLocal),
+        fetch("/data/everyday_greek.json").then(r => r.json()).catch(() => ({ themes: [], entries: [] })),
+      ]);
+
+      const payload = {
+        themes: [...mainPayload.themes, ...everydayPayload.themes],
+        entries: [...mainPayload.entries, ...everydayPayload.entries],
+      };
+
       data = prepareData(payload);
       loadStateFromUrl();
     } catch (e) {
@@ -89,12 +109,53 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
       theme: Number(e.theme_id) === TOP_5000_ID ? "Top 5000" : e.theme,
       category: e.category === "SilentShuffle" ? "Top 5000" : (e.category || "Top 5000"),
       english_senses: Array.isArray(e.english_senses) && e.english_senses.length ? e.english_senses : (e.english ? e.english.split(/\s*;\s*/).filter(Boolean) : []),
-      groupKeys: groupKeysFrom(e.subsection)
+      groupKeys: e.groupKeys?.length ? e.groupKeys : groupKeysFrom(e.subsection),
     }));
-    const themes = payload.themes.map(t => {
-      const tEntries = entries.filter(e => e.theme_id === t.id);
-      return { ...t, title: Number(t.id) === TOP_5000_ID ? "Top 5000" : t.title, entry_count: tEntries.length, translated_count: tEntries.filter(e => e.english).length, audio_count: tEntries.filter(e => e.audio_available).length };
-    }).sort((a, b) => Number(a.id) - Number(b.id));
+
+    // Build main themes (exclude raw Top 5000 theme from list view)
+    const themes = payload.themes
+      .filter(t => Number(t.id) !== TOP_5000_ID)
+      .map(t => {
+        const tEntries = entries.filter(e => e.theme_id === t.id);
+        return {
+          ...t,
+          entry_count: tEntries.length,
+          translated_count: tEntries.filter(e => e.english).length,
+          audio_count: tEntries.filter(e => e.audio_available).length,
+          course: COURSE_DEFS.find(c => c.ids(Number(t.id)))?.name ?? "Other",
+        };
+      })
+      .sort((a, b) => Number(a.id) - Number(b.id));
+
+    // Build 20 virtual Top 5000 sub-lessons
+    const top5kEntries = entries
+      .filter(e => Number(e.theme_id) === TOP_5000_ID)
+      .sort((a, b) => (Number(a.frequency_rank) || 9999) - (Number(b.frequency_rank) || 9999));
+
+    for (let i = 0; i < 20; i++) {
+      const chunk = top5kEntries.slice(i * TOP_5000_CHUNK, (i + 1) * TOP_5000_CHUNK);
+      const rankStart = chunk[0]?.frequency_rank ?? i * TOP_5000_CHUNK + 1;
+      const rankEnd = chunk[chunk.length - 1]?.frequency_rank ?? (i + 1) * TOP_5000_CHUNK;
+      themes.push({
+        id: TOP_5000_SUB_BASE + i + 1,
+        title: `Words ${rankStart}–${rankEnd}`,
+        entry_count: chunk.length,
+        translated_count: chunk.filter(e => e.english).length,
+        audio_count: chunk.filter(e => e.audio_available).length,
+        course: "Top 5000",
+        rankStart: Number(rankStart),
+        rankEnd: Number(rankEnd),
+      });
+    }
+
+    themes.sort((a, b) => {
+      const courseOrder = COURSE_DEFS.map(c => c.name);
+      const ca = courseOrder.indexOf(a.course);
+      const cb = courseOrder.indexOf(b.course);
+      if (ca !== cb) return ca - cb;
+      return Number(a.id) - Number(b.id);
+    });
+
     return { themes, entries: entries.sort((a,b) => Number(a.id) - Number(b.id)) };
   }
 
@@ -108,15 +169,24 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
     const path = window.location.pathname;
     const lessonMatch = path.match(/^\/lesson\/(\d+)/);
     const tabMatch = path.match(/^\/lesson\/\d+\/(\w+)/);
-    
+    const courseMatch = path.match(/^\/course\/(.+)/);
+
     if (lessonMatch) {
       selectedLessonId = Number(lessonMatch[1]);
       view = "study";
       activeTab = tabMatch?.[1] || "cards";
-    } else {
+      // Restore selectedCourse from the lesson's theme if we have data
+      if (data) {
+        const t = data.themes.find(th => th.id === selectedLessonId);
+        selectedCourse = t?.course ?? selectedCourse;
+      }
+    } else if (courseMatch) {
+      selectedCourse = decodeURIComponent(courseMatch[1]);
       view = "lessons";
+    } else {
+      view = "courses";
     }
-    
+
     selectedType = params.get("type") || "all";
     selectedGroup = params.get("group") || "all";
     globalSearch = params.get("q") || "";
@@ -133,13 +203,23 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
     if (!translatedOnly) params.set("all", "1");
     if (cardMode !== "gr-en") params.set("dir", cardMode);
     if (cardIndex > 0) params.set("card", cardIndex + 1);
-    
-    let url = view === "lessons" ? "/lessons" : `/lesson/${selectedLessonId}/${activeTab}`;
+
+    let url;
+    if (view === "courses") url = "/";
+    else if (view === "lessons") url = `/course/${encodeURIComponent(selectedCourse ?? "")}`;
+    else url = `/lesson/${selectedLessonId}/${activeTab}`;
+
     const searchStr = params.toString();
     url += searchStr ? "?" + searchStr : "";
-    
+
     if (push) window.history.pushState(null, "", url);
     else window.history.replaceState(null, "", url);
+  }
+
+  function openCourse(name) {
+    selectedCourse = name;
+    view = "lessons";
+    commitUrl(true);
   }
 
   function openLesson(id) {
@@ -148,6 +228,13 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
     activeTab = "cards";
     cardIndex = 0;
     cardFlipped = false;
+    commitUrl(true);
+  }
+
+  function showCourses() {
+    view = "courses";
+    selectedCourse = null;
+    selectedLessonId = null;
     commitUrl(true);
   }
 
@@ -202,8 +289,32 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
     closeEdit();
   }
 
+  $: courses = (() => {
+    if (!data) return [];
+    const map = new Map();
+    for (const t of data.themes) {
+      const c = t.course ?? "Other";
+      if (!map.has(c)) map.set(c, { name: c, lessons: [] });
+      map.get(c).lessons.push(t);
+    }
+    const order = COURSE_DEFS.map(d => d.name);
+    return [...map.values()].sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name));
+  })();
+
+  $: courseLessons = data?.themes.filter(t => t.course === selectedCourse) ?? [];
   $: selectedLesson = data?.themes.find(t => t.id === selectedLessonId);
-  $: lessonEntries = data?.entries.filter(e => e.theme_id === selectedLessonId) ?? [];
+  $: lessonEntries = (() => {
+    if (!data || !selectedLessonId) return [];
+    const t = data.themes.find(th => th.id === selectedLessonId);
+    if (t?.rankStart != null) {
+      return data.entries.filter(e =>
+        Number(e.theme_id) === TOP_5000_ID &&
+        Number(e.frequency_rank) >= t.rankStart &&
+        Number(e.frequency_rank) <= t.rankEnd
+      );
+    }
+    return data.entries.filter(e => e.theme_id === selectedLessonId);
+  })();
   
   $: filteredEntries = lessonEntries.filter(e => {
     if (translatedOnly && !e.english) return false;
@@ -236,13 +347,22 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
 <div class="app-shell">
   <header class="app-header">
     <div class="nav-left">
-      <button class="brand" on:click={showLessons}>
+      <button class="brand" on:click={showCourses}>
         <img src="/fanari-icon.png" alt="" class="icon" />
         <span>Fanari Go</span>
       </button>
-      
+
+      {#if view === "lessons" && selectedCourse}
+        <div class="lesson-indicator">
+          <span class="sep">/</span>
+          <span class="lesson-title">{selectedCourse}</span>
+        </div>
+      {/if}
+
       {#if view === "study" && selectedLesson}
         <div class="lesson-indicator">
+          <span class="sep">/</span>
+          <button class="crumb-btn" on:click={showLessons}>{selectedLesson.course}</button>
           <span class="sep">/</span>
           <span class="lesson-title">{selectedLesson.title}</span>
         </div>
@@ -262,14 +382,16 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
         <LoaderCircle class="animate-spin" size={48} />
         <p>Illuminating vocabulary...</p>
       </div>
+    {:else if view === "courses"}
+      <CourseList {courses} onOpenCourse={openCourse} />
     {:else if view === "lessons"}
-      <LessonList lessons={data.themes} onOpenLesson={openLesson} />
+      <LessonList lessons={courseLessons} courseName={selectedCourse ?? ""} onOpenLesson={openLesson} onBack={showCourses} />
     {:else}
       <div class="study-layout">
         <aside class="sidebar" class:open={lessonSidebarOpen}>
           <button class="back-btn" on:click={showLessons}>
             <Home size={18} />
-            <span>All Lessons</span>
+            <span>{selectedLesson?.course ?? "Lessons"}</span>
           </button>
 
           <nav class="tabs-nav">
@@ -332,8 +454,8 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
                 onExerciseChange={e => currentExercise = e}
               />
             {:else if activeTab === 'vocab'}
-              <VocabPage 
-                entries={filteredEntries} 
+              <VocabPage
+                entries={filteredEntries}
                 showGroupFilter={selectedLessonId === TOP_5000_ID}
                 {imageMode} {audioLoadingId}
                 onPlayAudio={playAudio}
@@ -407,7 +529,10 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
   .nav-left { display: flex; align-items: center; gap: 12px; }
   .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; color: #17614f; border: none; background: none; cursor: pointer; padding: 0; }
   .brand .icon { height: 28px; width: 28px; }
-  .lesson-indicator { display: flex; align-items: center; gap: 8px; color: #667085; font-size: 14px; font-weight: 600; }
+  .lesson-indicator { display: flex; align-items: center; gap: 6px; color: #667085; font-size: 14px; font-weight: 600; overflow: hidden; }
+  .lesson-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px; }
+  .crumb-btn { background: none; border: none; cursor: pointer; color: #667085; font-size: 14px; font-weight: 600; padding: 0; white-space: nowrap; }
+  .crumb-btn:hover { color: #202124; text-decoration: underline; }
   .nav-right { display: flex; gap: 8px; }
   .icon-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid #d9dee7; background: #fff; color: #667085; cursor: pointer; display: grid; place-items: center; }
   
