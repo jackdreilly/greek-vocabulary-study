@@ -115,14 +115,6 @@
     return `${planId}::${index}`;
   }
 
-  function getWState(key, defaults) {
-    if (!widgetState[key]) {
-      widgetState[key] = { ...defaults };
-      widgetState = { ...widgetState };
-    }
-    return widgetState[key];
-  }
-
   function updateWState(key, patch) {
     widgetState = { ...widgetState, [key]: { ...(widgetState[key] || {}), ...patch } };
   }
@@ -340,7 +332,7 @@
               </section>
 
             {:else if widget.type === 'conjugation_table' || widget.type === 'comparison_table'}
-              {@const cstate = getWState(key, { practiceMode: false, revealed: {} })}
+              {@const cstate = widgetState[key] ?? { practiceMode: false, revealed: {} }}
               <section class="w-table-section">
                 <div class="table-head">
                   <div>
@@ -386,7 +378,7 @@
               </section>
 
             {:else if widget.type === 'reading_passage'}
-              {@const pstate = getWState(key, { showTranslation: false })}
+              {@const pstate = widgetState[key] ?? { showTranslation: false }}
               <section class="w-passage">
                 <div class="passage-head">
                   {#if widget.title}<h3 class="w-heading w-h2 inline">{widget.title}</h3>{/if}
@@ -434,7 +426,7 @@
 
             {:else if widget.type === 'mini_quiz'}
               {@const total = (widget.questions || []).length}
-              {@const qstate = getWState(key, { selected: Array(total).fill(-1), checked: Array(total).fill(false) })}
+              {@const qstate = widgetState[key] ?? { selected: Array(total).fill(-1), checked: Array(total).fill(false) }}
               <section class="w-quiz">
                 <div class="quiz-head">
                   <MessageSquare size={16} />
@@ -489,7 +481,7 @@
 
             {:else if widget.type === 'fill_in_blanks'}
               {@const ftotal = (widget.blankItems || []).length}
-              {@const fstate = getWState(key, { answers: Array(ftotal).fill(""), checked: Array(ftotal).fill(false), correct: Array(ftotal).fill(false) })}
+              {@const fstate = widgetState[key] ?? { answers: Array(ftotal).fill(""), checked: Array(ftotal).fill(false), correct: Array(ftotal).fill(false) }}
               <section class="w-fill">
                 <div class="quiz-head">
                   <Sparkles size={16} />
