@@ -21,6 +21,7 @@
     gameTypes,
     gameTypeLabels,
     generateLessonExercises,
+    wordTranslationExercises,
     loadLessonExercises,
     removeLessonExercise,
     saveLessonExercise,
@@ -51,7 +52,12 @@
   $: localStorage.setItem("greekflash:ai-response-language", responseLanguage);
   $: localStorage.setItem("greekflash:ai-cefr-level", cefrLevel);
 
-  $: typeExercises = exercises.filter((e) => e.type === activeType);
+  $: vocabWordExercises = wordTranslationExercises(lesson?.id, entries);
+  $: allExercises = [
+    ...exercises.filter((e) => e.type !== "word_translation"),
+    ...vocabWordExercises,
+  ];
+  $: typeExercises = allExercises.filter((e) => e.type === activeType);
   $: if (typeExercises.length && !order.length) order = shuffleIds(typeExercises);
   $: if (order.length && cursor >= order.length) cursor = 0;
   $: currentExercise = order.length ? typeExercises.find((e) => e.id === order[cursor]) || typeExercises[0] : null;
@@ -98,7 +104,7 @@
   $: if (lesson?.id) { loadExercises(); }
 
   function resetRound() {
-    order = shuffleIds(exercises.filter((e) => e.type === activeType));
+    order = [];
     cursor = 0;
     answerText = "";
     scoreResult = null;
@@ -164,7 +170,7 @@
     generating = true;
     generateError = "";
     try {
-      const generated = await generateLessonExercises({ lesson, entries, countPerType: 5, previousExercises: exercises, preferences });
+      const generated = await generateLessonExercises({ lesson, entries, countPerType: 5, previousExercises: exercises.filter((e) => e.type !== "word_translation"), preferences });
       for (const exercise of generated) await saveLessonExercise(exercise);
       exercises = [...generated, ...exercises];
       resetRound();
@@ -219,10 +225,12 @@
     <div class="ai-actions">
       <button class="ai-act-btn" type="button" title="Shuffle" on:click={resetRound}><Shuffle size={14} /></button>
       <button class="ai-act-btn" type="button" title="Add" on:click={() => openEditor()}><Plus size={14} /></button>
-      <button class="ai-gen-btn" type="button" disabled={generating} on:click={generateMore}>
-        {#if generating}<LoaderCircle class="animate-spin" size={14} />{:else}<RefreshCw size={14} />{/if}
-        Generate
-      </button>
+      {#if activeType !== "word_translation"}
+        <button class="ai-gen-btn" type="button" disabled={generating} on:click={generateMore}>
+          {#if generating}<LoaderCircle class="animate-spin" size={14} />{:else}<RefreshCw size={14} />{/if}
+          Generate
+        </button>
+      {/if}
     </div>
   </div>
 
@@ -253,9 +261,13 @@
 
           {#if currentExercise.passage}
             <div class="ai-passage">{currentExercise.passage}</div>
+            <p class="ai-prompt">{currentExercise.question}</p>
+          {:else}
+            <p class="ai-prompt {currentExercise.type === 'word_translation' ? 'ai-prompt--word' : ''}">{currentExercise.prompt || currentExercise.question}</p>
+            {#if currentExercise.instructions}
+              <p class="ai-subprompt">{currentExercise.instructions}</p>
+            {/if}
           {/if}
-
-          <p class="ai-prompt">{currentExercise.question || currentExercise.prompt}</p>
 
           {#if exerciseImage && !scoreResult}
             <img
@@ -271,16 +283,26 @@
 
         <!-- Answer section -->
         <div class="ai-answer-area">
-          {#if currentExercise.instructions && !scoreResult}
-            <p class="ai-instruction">{currentExercise.instructions}</p>
+          {#if currentExercise.type === 'word_translation'}
+            <input
+              class="ai-input ai-input--single"
+              bind:value={answerText}
+              placeholder="Your answer..."
+              on:keydown={handleAnswerKeydown}
+              disabled={submitPending}
+              autocomplete="off"
+              autocorrect="off"
+              spellcheck="false"
+            />
+          {:else}
+            <textarea
+              class="ai-input"
+              bind:value={answerText}
+              placeholder="Your answer..."
+              on:keydown={handleAnswerKeydown}
+              disabled={submitPending}
+            ></textarea>
           {/if}
-          <textarea
-            class="ai-input"
-            bind:value={answerText}
-            placeholder="Your answer..."
-            on:keydown={handleAnswerKeydown}
-            disabled={submitPending}
-          ></textarea>
 
           {#if scoreResult}
             <div class="ai-result {scoreResult.verdict}">
@@ -466,23 +488,27 @@
   }
 
   .ai-passage {
-    width: 100%; max-width: 600px; margin-bottom: 16px; padding: 16px;
+    width: 100%; max-width: 600px; margin-bottom: 20px; padding: 16px 18px;
     border-radius: 10px; border: 1px solid #e5e8ef; background: #fafbfd;
-    font-size: 15px; line-height: 1.75; color: #202124; text-align: left;
+    font-size: 15px; line-height: 1.8; color: #202124; text-align: left;
   }
   .ai-prompt {
-    margin: 0 0 8px; max-width: 600px;
-    font-size: clamp(1.25rem, 3vw, 1.75rem); font-weight: 800;
-    line-height: 1.35; color: #202124; white-space: pre-wrap;
+    margin: 0 0 6px; max-width: 600px;
+    font-size: clamp(1.3rem, 3.5vw, 2rem); font-weight: 800;
+    line-height: 1.3; color: #202124; white-space: pre-wrap;
   }
-  .ai-instruction {
-    margin: 0 0 6px; font-size: 11px; font-weight: 700;
-    color: #99a1b3; letter-spacing: 0.03em; text-transform: uppercase;
+  .ai-prompt--word {
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    letter-spacing: -0.01em;
+  }
+  .ai-subprompt {
+    margin: 4px 0 0; font-size: 12px; font-weight: 500;
+    color: #b0b8cc; letter-spacing: 0.01em;
   }
 
   /* Answer area - bottom portion */
   .ai-answer-area {
-    flex-shrink: 0; padding: 0 24px 8px;
+    flex-shrink: 0; padding: 0 24px 10px;
     max-width: 800px; width: 100%; margin: 0 auto;
   }
   .ai-input {
@@ -491,8 +517,12 @@
     background: #fafbfd; font-size: 15px; color: #202124; outline: none;
     resize: none; transition: border-color 0.15s; font-family: inherit;
   }
-  .ai-input:focus { border-color: #087985; }
-  .ai-input::placeholder { color: rgba(102,112,133,0.5); }
+  .ai-input--single {
+    min-height: unset; max-height: unset; height: 46px;
+    font-size: 17px; border-radius: 10px;
+  }
+  .ai-input:focus { border-color: #087985; box-shadow: 0 0 0 3px rgba(8,121,133,0.08); }
+  .ai-input::placeholder { color: rgba(102,112,133,0.4); }
 
   /* Result card */
   .ai-result {

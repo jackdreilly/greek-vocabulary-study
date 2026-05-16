@@ -133,6 +133,36 @@ export async function hardDeleteLessonExercise(exercise) {
   await deleteDoc(doc(db, "lesson_ai_exercises", String(exercise.id)));
 }
 
+export function wordTranslationExercises(lessonId, entries) {
+  const eligible = entries.filter((e) => e.english_senses?.length || e.english);
+  return eligible.flatMap((entry) => {
+    const greek = entry.term || entry.lemma;
+    const english = (entry.english_senses?.[0] || entry.english || "").trim();
+    if (!greek || !english) return [];
+    const base = {
+      lessonId,
+      type: "word_translation",
+      title: greek,
+      passage: "",
+      question: "",
+      requiredWords: [],
+      vocabulary: [],
+      sourceEntryIds: [entry.id],
+      coverage: { summary: greek, words: [greek], themes: ["word_translation"] },
+      rubric: "",
+      status: "active",
+      generatedBy: "vocab",
+      createdAt: 0,
+      updatedAt: 0,
+      acceptableAnswers: entry.english_senses?.slice(1) ?? [],
+    };
+    return [
+      { ...base, id: `l${lessonId}-wt-gr-${entry.id}`, direction: "greek_to_english", prompt: greek, instructions: "Translate to English", expectedAnswer: english },
+      { ...base, id: `l${lessonId}-wt-en-${entry.id}`, direction: "english_to_greek", prompt: english, instructions: "Translate to Greek", expectedAnswer: greek },
+    ];
+  });
+}
+
 export async function generateLessonExercises({ lesson, entries, countPerType = 5, previousExercises = [], preferences }) {
   const callable = httpsCallable(functions, "generateLessonGames");
   const result = await callable({
