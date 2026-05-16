@@ -17,7 +17,7 @@ export async function loadLessonPlans(lessonId) {
   const q = query(collection(db, PLANS_COLLECTION), where("lessonId", "==", Number(lessonId)));
   const snapshot = await Promise.race([
     getDocs(q),
-    new Promise((_, reject) => setTimeout(() => reject(new Error("Firestore timed out")), 5000)),
+    new Promise((_, reject) => setTimeout(() => reject(new Error("Saved plans are still loading. Try again in a moment.")), 15000)),
   ]);
   return snapshot.docs
     .map((item) => item.data())

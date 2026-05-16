@@ -108,7 +108,7 @@ export async function loadLessonExercises(lessonId) {
   const q = query(collection(db, "lesson_ai_exercises"), where("lessonId", "==", Number(lessonId)));
   const snapshot = await Promise.race([
     getDocs(q),
-    new Promise((_, reject) => setTimeout(() => reject(new Error("Firestore timed out")), 3500)),
+    new Promise((_, reject) => setTimeout(() => reject(new Error("Saved games are still loading. Try again in a moment.")), 15000)),
   ]);
   return snapshot.docs
     .map((item) => item.data())
