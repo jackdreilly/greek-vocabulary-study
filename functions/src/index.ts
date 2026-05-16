@@ -763,6 +763,7 @@ const GenerateLessonPlanInputSchema = z.object({
   previousPlans: z.array(PreviousPlanSummarySchema).max(50).default([]),
   entries: z.array(LessonEntrySchema).max(160).default([]),
   preferences: LearningPreferencesSchema.default({ responseLanguage: 'english', cefrLevel: 'A2' }),
+  customFocus: z.string().max(300).default(''),
 });
 
 const GenerateLessonPlanOutputSchema = z.object({
@@ -788,7 +789,11 @@ const generateLessonPlanFlow = getAI().defineFlow(
           .join('\n')
       : '(none yet)';
 
-    const prompt = `Design Plan #${input.planNumber} for lesson ${input.lessonId}: ${input.lessonTitle}.
+    const customFocusLine = input.customFocus?.trim()
+      ? `\nUSER-REQUESTED FOCUS: "${input.customFocus.trim()}" — prioritise this angle when choosing the plan's theme.`
+      : '';
+
+    const prompt = `Design Plan #${input.planNumber} for lesson ${input.lessonId}: ${input.lessonTitle}.${customFocusLine}
 
 A "Plan" is a 1–2 textbook-page pedagogical module woven from lesson vocabulary. It must feel
 like reading a beautifully designed language textbook — engaging, structured, and varied —
@@ -879,6 +884,115 @@ ${entrySummary(input.entries.slice(0, 40)) || '(use the tools)'}`;
     if (!output) throw new Error('Plan generation returned no output.');
     return output;
   },
+);
+
+const VocabSuggestionSchema = z.object({
+  lemma: z.string(),
+  article: z.string().nullable().default(null),
+  english_senses: z.array(z.string()).min(1).max(6),
+  category: z.string().default('Ουσιαστικά'),
+  notes: z.string().default(''),
+});
+
+const GenerateVocabSuggestionsInputSchema = z.object({
+  lessonId: z.number(),
+  lessonTitle: z.string(),
+  prompt: z.string().max(500),
+  existingLemmas: z.array(z.string()).max(300).default([]),
+});
+
+const GenerateVocabSuggestionsOutputSchema = z.object({
+  suggestions: z.array(VocabSuggestionSchema).min(1).max(30),
+});
+
+const generateVocabSuggestionsFlow = getAI().defineFlow(
+  {
+    name: 'generateVocabSuggestions',
+    inputSchema: GenerateVocabSuggestionsInputSchema,
+    outputSchema: GenerateVocabSuggestionsOutputSchema,
+  },
+  async (input) => {
+    const existingList = input.existingLemmas.length
+      ? `\nDo NOT include any of these already-existing words: ${input.existingLemmas.slice(0, 100).join(', ')}`
+      : '';
+
+    const { output } = await getAI().generate({
+      model: GAME_GENERATION_MODEL,
+      output: { schema: GenerateVocabSuggestionsOutputSchema },
+      system: 'You are a Modern Greek vocabulary expert. Generate accurate, learner-friendly Greek vocabulary entries as JSON.',
+      prompt: `Generate Modern Greek vocabulary entries for a lesson called "${input.lessonTitle}" (lesson ${input.lessonId}).
+
+User request: ${input.prompt}${existingList}
+
+Rules:
+- lemma: the dictionary form (nominative singular for nouns, infinitive/1st-person-singular for verbs)
+- article: Greek article (ο, η, το) for nouns, null for verbs/adjectives/other
+- english_senses: 1–4 clear, concise English meanings. Prefer specific definitions over vague ones.
+- category: one of Ουσιαστικά (nouns), Ρήματα (verbs), Επίθετα (adjectives), Εκφράσεις (phrases/expressions)
+- notes: optional short note about usage, register, or form (leave empty string if none)
+
+Return 5–20 vocabulary entries relevant to the request. Include only high-quality, accurate entries.`,
+    });
+
+    if (!output) throw new Error('Vocab generation returned no output.');
+    return output;
+  },
+);
+
+export const generateVocabSuggestions = onCallGenkit(
+  {
+    secrets: [GOOGLE_GENAI_API_KEY],
+    cors: true,
+    timeoutSeconds: 60,
+    memory: '512MiB',
+  },
+  generateVocabSuggestionsFlow,
+);
+
+const AiAssistVocabEntryInputSchema = z.object({
+  lemma: z.string(),
+  article: z.string().nullable().default(null),
+  currentSenses: z.array(z.string()).default([]),
+  prompt: z.string().max(500),
+});
+
+const AiAssistVocabEntryOutputSchema = z.object({
+  english_senses: z.array(z.string()).min(1).max(8),
+});
+
+const aiAssistVocabEntryFlow = getAI().defineFlow(
+  {
+    name: 'aiAssistVocabEntry',
+    inputSchema: AiAssistVocabEntryInputSchema,
+    outputSchema: AiAssistVocabEntryOutputSchema,
+  },
+  async (input) => {
+    const articleDisplay = input.article ? `${input.article} ` : '';
+    const { output } = await getAI().generate({
+      model: GAME_SCORING_MODEL,
+      output: { schema: AiAssistVocabEntryOutputSchema },
+      system: 'You are a Modern Greek vocabulary editor. Update English definitions for Greek words as JSON.',
+      prompt: `Greek word: ${articleDisplay}${input.lemma}
+Current English definitions: ${input.currentSenses.length ? input.currentSenses.map((s, i) => `${i + 1}. ${s}`).join('; ') : '(none)'}
+
+User request: ${input.prompt}
+
+Return an updated list of English definitions (english_senses array). Keep definitions concise and accurate. 1–6 entries.`,
+    });
+
+    if (!output) throw new Error('AI assist returned no output.');
+    return output;
+  },
+);
+
+export const aiAssistVocabEntry = onCallGenkit(
+  {
+    secrets: [GOOGLE_GENAI_API_KEY],
+    cors: true,
+    timeoutSeconds: 30,
+    memory: '256MiB',
+  },
+  aiAssistVocabEntryFlow,
 );
 
 export const generateLessonPlan = onCallGenkit(

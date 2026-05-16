@@ -18,6 +18,7 @@
   } from "lucide-svelte";
   import { db, storage } from "./lib/firebase";
   import { textMatchesSearch } from "./lib/search.js";
+  import { generateVocabSuggestions, aiAssistVocabEntry, saveNewVocabEntry } from "./lib/aiVocab.js";
   import { collection, getDocsFromServer, doc, updateDoc } from "firebase/firestore";
   import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
   
@@ -54,6 +55,20 @@
   let currentExercise = null; // For YiaYia context
   let audioLoadingId = null;
   let currentAudio = null;
+
+  // AI Vocab state
+  let addVocabOpen = false;
+  let addVocabPrompt = '';
+  let addVocabGenerating = false;
+  let addVocabSuggestions = [];
+  let addVocabSelected = new Set();
+  let addVocabSaving = false;
+  let addVocabError = '';
+
+  // AI Edit Assist state (within the edit modal)
+  let aiEditPrompt = '';
+  let aiEditGenerating = false;
+  let aiEditError = '';
 
   // Search/Filters (Shared)
   let globalSearch = "";
@@ -281,7 +296,11 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
     commitUrl();
   }
 
-  function openEdit(entry) { editingEntry = JSON.parse(JSON.stringify(entry)); }
+  function openEdit(entry) {
+    editingEntry = JSON.parse(JSON.stringify(entry));
+    aiEditPrompt = '';
+    aiEditError = '';
+  }
   function closeEdit() { editingEntry = null; }
   async function saveEdit() {
     if (!editingEntry) return;
@@ -289,6 +308,66 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
     data.entries = data.entries.map(e => e.id === editingEntry.id ? { ...editingEntry } : e);
     data = { ...data };
     closeEdit();
+  }
+
+  async function applyAiEditAssist() {
+    if (!editingEntry || !aiEditPrompt.trim() || aiEditGenerating) return;
+    aiEditGenerating = true;
+    aiEditError = '';
+    try {
+      const senses = await aiAssistVocabEntry({ entry: editingEntry, prompt: aiEditPrompt });
+      editingEntry = { ...editingEntry, english_senses: senses };
+      aiEditPrompt = '';
+    } catch (e) {
+      aiEditError = e.message || 'AI assist failed.';
+    } finally {
+      aiEditGenerating = false;
+    }
+  }
+
+  function openAddVocab() {
+    addVocabOpen = true;
+    addVocabPrompt = '';
+    addVocabSuggestions = [];
+    addVocabSelected = new Set();
+    addVocabError = '';
+  }
+  function closeAddVocab() { addVocabOpen = false; }
+
+  async function generateVocabAI() {
+    if (!selectedLesson || !addVocabPrompt.trim() || addVocabGenerating) return;
+    addVocabGenerating = true;
+    addVocabError = '';
+    try {
+      addVocabSuggestions = await generateVocabSuggestions({ lesson: selectedLesson, entries: lessonEntries, prompt: addVocabPrompt });
+      addVocabSelected = new Set(addVocabSuggestions.map((_, i) => i));
+    } catch (e) {
+      addVocabError = e.message || 'Generation failed.';
+    } finally {
+      addVocabGenerating = false;
+    }
+  }
+
+  async function saveSelectedVocab() {
+    if (addVocabSaving) return;
+    addVocabSaving = true;
+    addVocabError = '';
+    try {
+      const toSave = addVocabSuggestions.filter((_, i) => addVocabSelected.has(i));
+      const saved = await Promise.all(toSave.map(s => saveNewVocabEntry({ entry: s, lessonId: selectedLessonId })));
+      data = { ...data, entries: [...data.entries, ...saved] };
+      closeAddVocab();
+    } catch (e) {
+      addVocabError = e.message || 'Save failed.';
+    } finally {
+      addVocabSaving = false;
+    }
+  }
+
+  function toggleSuggestion(i) {
+    const next = new Set(addVocabSelected);
+    if (next.has(i)) next.delete(i); else next.add(i);
+    addVocabSelected = next;
   }
 
   $: courses = (() => {
@@ -438,6 +517,11 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
               <Menu size={20} />
             </button>
             <h1 class="page-title">{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h1>
+            {#if activeTab === 'vocab' && selectedLesson}
+              <button class="add-vocab-btn" type="button" on:click={openAddVocab}>
+                <Sparkles size={14} /> Add Words
+              </button>
+            {/if}
           </header>
 
           <div class="page-container">
@@ -508,7 +592,7 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
   <div class="modal-overlay" on:click={closeEdit}>
     <div class="modal-content" on:click|stopPropagation>
       <div class="modal-header">
-        <h2>Edit Word</h2>
+        <h2>Edit: {editingEntry.article ? editingEntry.article + ' ' : ''}{editingEntry.lemma}</h2>
         <button on:click={closeEdit}><X /></button>
       </div>
       <div class="modal-body">
@@ -523,11 +607,111 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
           {/each}
           <button class="add-btn" on:click={() => editingEntry.english_senses = [...editingEntry.english_senses, ""]}>+ Add Meaning</button>
         </div>
+        <div class="ai-assist-section">
+          <p class="ai-assist-label"><Sparkles size={12} /> AI Assist</p>
+          <div class="ai-assist-row">
+            <input
+              class="ai-assist-input"
+              type="text"
+              placeholder="e.g. 'add formal/informal usage', 'improve these definitions'…"
+              bind:value={aiEditPrompt}
+              on:keydown={(e) => { if (e.key === 'Enter') applyAiEditAssist(); }}
+              disabled={aiEditGenerating}
+            />
+            <button
+              class="ai-assist-btn"
+              type="button"
+              disabled={aiEditGenerating || !aiEditPrompt.trim()}
+              on:click={applyAiEditAssist}
+            >
+              {#if aiEditGenerating}
+                <LoaderCircle class="animate-spin" size={13} /> Working…
+              {:else}
+                Apply
+              {/if}
+            </button>
+          </div>
+          {#if aiEditError}<p class="ai-error">{aiEditError}</p>{/if}
+        </div>
       </div>
       <div class="modal-footer">
         <button class="cancel" on:click={closeEdit}>Cancel</button>
         <button class="save" on:click={saveEdit}>Save</button>
       </div>
+    </div>
+  </div>
+{/if}
+
+{#if addVocabOpen}
+  <div class="modal-overlay" on:click={closeAddVocab}>
+    <div class="modal-content modal-wide" on:click|stopPropagation>
+      <div class="modal-header">
+        <h2>Add Words with AI</h2>
+        <button on:click={closeAddVocab}><X /></button>
+      </div>
+      <div class="modal-body">
+        <div class="add-vocab-prompt-row">
+          <input
+            class="add-vocab-input"
+            type="text"
+            placeholder="Describe words to add, e.g. 'months of the year' or 'ordering food at a restaurant'…"
+            bind:value={addVocabPrompt}
+            on:keydown={(e) => { if (e.key === 'Enter') generateVocabAI(); }}
+            disabled={addVocabGenerating}
+          />
+          <button
+            class="add-vocab-gen-btn"
+            type="button"
+            disabled={addVocabGenerating || !addVocabPrompt.trim()}
+            on:click={generateVocabAI}
+          >
+            {#if addVocabGenerating}
+              <LoaderCircle class="animate-spin" size={13} /> Generating…
+            {:else}
+              <Sparkles size={13} /> Generate
+            {/if}
+          </button>
+        </div>
+        {#if addVocabError}<p class="ai-error">{addVocabError}</p>{/if}
+
+        {#if addVocabSuggestions.length}
+          <div class="suggestions-header">
+            <span>{addVocabSelected.size} of {addVocabSuggestions.length} selected</span>
+            <div class="suggestions-select-btns">
+              <button type="button" on:click={() => addVocabSelected = new Set(addVocabSuggestions.map((_,i)=>i))}>All</button>
+              <button type="button" on:click={() => addVocabSelected = new Set()}>None</button>
+            </div>
+          </div>
+          <div class="suggestions-list">
+            {#each addVocabSuggestions as s, i}
+              <label class="suggestion-row" class:selected={addVocabSelected.has(i)}>
+                <input type="checkbox" checked={addVocabSelected.has(i)} on:change={() => toggleSuggestion(i)} />
+                <div class="suggestion-body">
+                  <div class="suggestion-greek">
+                    {#if s.article}<span class="sug-article">{s.article}</span>{/if}
+                    <span class="sug-lemma">{s.lemma}</span>
+                    <span class="sug-cat">{s.category}</span>
+                  </div>
+                  <div class="suggestion-english">{(s.english_senses || []).join(' · ')}</div>
+                  {#if s.notes}<div class="suggestion-notes">{s.notes}</div>{/if}
+                </div>
+              </label>
+            {/each}
+          </div>
+        {/if}
+      </div>
+      {#if addVocabSuggestions.length}
+        <div class="modal-footer">
+          <button class="cancel" on:click={closeAddVocab}>Cancel</button>
+          <button class="save" disabled={addVocabSelected.size === 0 || addVocabSaving} on:click={saveSelectedVocab}>
+            {#if addVocabSaving}
+              <LoaderCircle class="animate-spin" size={13} /> Saving…
+            {:else}
+              Save {addVocabSelected.size} word{addVocabSelected.size !== 1 ? 's' : ''}
+            {/if}
+          </button>
+        </div>
+      {/if}
     </div>
   </div>
 {/if}
@@ -596,6 +780,86 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
   kbd { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 6px; border: 1px solid #d9dee7; background: #f7f8fb; font-family: inherit; font-size: 12px; font-weight: 700; color: #202124; box-shadow: 0 1px 0 #d9dee7; }
 
   .sidebar-backdrop { display: none; }
+
+  /* Add Words button */
+  .add-vocab-btn {
+    margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 8px; border: none;
+    background: #17614f; color: #fff; font-weight: 700; font-size: 12px; cursor: pointer;
+  }
+  .add-vocab-btn:hover { background: #145644; }
+
+  /* AI Assist in edit modal */
+  .ai-assist-section {
+    border-top: 1px solid #ebeef4; padding-top: 14px; display: flex; flex-direction: column; gap: 8px;
+  }
+  .ai-assist-label {
+    display: flex; align-items: center; gap: 5px;
+    margin: 0; font-size: 11px; font-weight: 800; color: #17614f;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .ai-assist-row { display: flex; gap: 8px; }
+  .ai-assist-input {
+    flex: 1; height: 36px; border-radius: 7px;
+    border: 1px solid #d9dee7; padding: 0 10px;
+    font-size: 13px; outline: none;
+  }
+  .ai-assist-input:focus { border-color: #17614f; }
+  .ai-assist-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 0 12px; height: 36px; border-radius: 7px; border: none;
+    background: #17614f; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer;
+    white-space: nowrap;
+  }
+  .ai-assist-btn:disabled { background: #c1c8d4; cursor: default; }
+  .ai-error { margin: 4px 0 0; font-size: 12px; color: #a24f3f; font-weight: 600; }
+
+  /* Add Vocab modal */
+  .modal-wide { max-width: 640px; }
+  .add-vocab-prompt-row { display: flex; gap: 8px; }
+  .add-vocab-input {
+    flex: 1; height: 40px; border-radius: 8px;
+    border: 1px solid #d9dee7; padding: 0 12px; font-size: 13px; outline: none;
+  }
+  .add-vocab-input:focus { border-color: #17614f; }
+  .add-vocab-gen-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 0 14px; height: 40px; border-radius: 8px; border: none;
+    background: #17614f; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer;
+    white-space: nowrap;
+  }
+  .add-vocab-gen-btn:disabled { background: #c1c8d4; cursor: default; }
+
+  .suggestions-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 8px; font-size: 12px; color: #667085; font-weight: 700;
+  }
+  .suggestions-select-btns { display: flex; gap: 6px; }
+  .suggestions-select-btns button {
+    padding: 3px 8px; border-radius: 5px; border: 1px solid #d9dee7;
+    background: #f7f8fb; font-size: 11px; font-weight: 700; color: #475467; cursor: pointer;
+  }
+  .suggestions-select-btns button:hover { background: #ebeef4; }
+
+  .suggestions-list {
+    display: flex; flex-direction: column; gap: 6px;
+    max-height: 360px; overflow-y: auto; padding: 2px 0;
+  }
+  .suggestion-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 12px; border-radius: 10px;
+    border: 1px solid #ebeef4; background: #fff; cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .suggestion-row.selected { border-color: #17614f; background: #f0f7f4; }
+  .suggestion-row input[type="checkbox"] { margin-top: 3px; flex-shrink: 0; accent-color: #17614f; }
+  .suggestion-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .suggestion-greek { display: flex; align-items: baseline; gap: 6px; }
+  .sug-article { color: #99a1b3; font-family: Georgia, serif; font-size: 14px; }
+  .sug-lemma { font-family: Georgia, serif; font-size: 16px; font-weight: 700; color: #17614f; }
+  .sug-cat { font-size: 10px; font-weight: 800; color: #99a1b3; text-transform: uppercase; letter-spacing: 0.06em; }
+  .suggestion-english { font-size: 13px; color: #344054; }
+  .suggestion-notes { font-size: 11px; color: #99a1b3; font-style: italic; }
 
   @media (max-width: 768px) {
     .sidebar { position: absolute; left: 0; top: 0; bottom: 0; transform: translateX(-100%); }

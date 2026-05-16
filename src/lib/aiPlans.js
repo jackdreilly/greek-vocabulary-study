@@ -42,7 +42,7 @@ export function planSummary(plan) {
   };
 }
 
-export async function generateLessonPlan({ lesson, entries, previousPlans = [], preferences }) {
+export async function generateLessonPlan({ lesson, entries, previousPlans = [], preferences, customFocus = '' }) {
   const callable = httpsCallable(functions, "generateLessonPlan");
   const planNumber = (previousPlans.reduce((max, p) => Math.max(max, p.planNumber || 0), 0) || 0) + 1;
   const result = await callable({
@@ -52,6 +52,7 @@ export async function generateLessonPlan({ lesson, entries, previousPlans = [], 
     previousPlans: previousPlans.map(planSummary),
     entries: entriesForAI(entries).slice(0, 140),
     preferences,
+    customFocus: customFocus || '',
   });
   const plan = result.data?.plan;
   if (!plan) throw new Error("Plan generation returned no plan.");

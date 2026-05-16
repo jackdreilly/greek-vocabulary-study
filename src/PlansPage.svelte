@@ -1,5 +1,6 @@
 <script>
   import {
+    ArrowLeft,
     BookOpen,
     Check,
     ChevronRight,
@@ -31,6 +32,8 @@
 
   let plans = [];
   let selectedPlanId = null;
+  let viewMode = 'home'; // 'home' | 'plan'
+  let customPrompt = '';
   let loading = false;
   let generating = false;
   let errorMessage = "";
@@ -66,21 +69,28 @@
     }
   }
 
-  async function generateNextPlan() {
+  async function generateNextPlan(customFocus = '') {
     if (!lesson?.id || generating) return;
     generating = true;
     errorMessage = "";
     try {
-      const plan = await generateLessonPlan({ lesson, entries, previousPlans: plans, preferences });
+      const plan = await generateLessonPlan({ lesson, entries, previousPlans: plans, preferences, customFocus });
       const saved = await saveLessonPlan(plan);
       plans = [...plans, saved];
       selectedPlanId = saved.id;
+      viewMode = 'plan';
+      customPrompt = '';
     } catch (e) {
       console.error("Could not generate plan", e);
       errorMessage = e.message || "Could not generate plan.";
     } finally {
       generating = false;
     }
+  }
+
+  function gotoPlan(id) {
+    selectedPlanId = id;
+    viewMode = 'plan';
   }
 
   async function deletePlan(plan) {
@@ -99,6 +109,7 @@
 
   $: if (lesson?.id) {
     selectedPlanId = null;
+    viewMode = 'home';
     plans = [];
     loadPlans();
   }
@@ -201,34 +212,17 @@
 
 <div class="plans-page">
   <div class="plans-toolbar">
-    <div class="plan-tabs">
-      {#if plans.length}
-        {#each plans as p}
-          <button
-            type="button"
-            class="plan-tab"
-            class:active={selectedPlan?.id === p.id}
-            on:click={() => (selectedPlanId = p.id)}
-            title={p.title}
-          >
-            <span class="plan-tab-num">#{p.planNumber}</span>
-            <span class="plan-tab-title">{p.title}</span>
-          </button>
-        {/each}
-      {/if}
-    </div>
+    {#if viewMode === 'plan' && selectedPlan}
+      <button class="back-to-home" type="button" on:click={() => viewMode = 'home'}>
+        <ArrowLeft size={14} /> All Plans
+      </button>
+      <span class="current-plan-label">{selectedPlan.title}</span>
+    {:else}
+      <span class="toolbar-heading">Plans</span>
+    {/if}
     <div class="plan-actions">
       <button class="plan-refresh" type="button" title="Reload" on:click={loadPlans} disabled={loading || generating}>
         <RefreshCw size={14} />
-      </button>
-      <button class="plan-gen-btn" type="button" disabled={generating || loading || !lesson} on:click={generateNextPlan}>
-        {#if generating}
-          <LoaderCircle class="animate-spin" size={14} />
-          Generating…
-        {:else}
-          <Plus size={14} />
-          Generate Plan #{nextPlanNumber}
-        {/if}
       </button>
     </div>
   </div>
@@ -237,29 +231,86 @@
     <div class="plan-error">{errorMessage}</div>
   {/if}
 
-  <div class="plans-scroll">
-    {#if loading && !plans.length}
-      <div class="plan-empty">
-        <LoaderCircle class="animate-spin" size={28} />
-        <p>Loading plans…</p>
-      </div>
-    {:else if !plans.length}
-      <div class="plan-empty">
-        <GraduationCap size={36} />
-        <h2>No plans yet</h2>
-        <p>Generate a structured, textbook-style module from this lesson's vocabulary.</p>
-        <p class="muted">Each plan covers one focused angle — a theme, a pattern, a verb family — with reading, tables, quizzes, and more.</p>
-        <button class="plan-gen-btn big" type="button" disabled={generating} on:click={generateNextPlan}>
-          {#if generating}
-            <LoaderCircle class="animate-spin" size={14} />
-            Generating…
+  {#if viewMode === 'home'}
+    <div class="plans-scroll">
+      {#if loading && !plans.length}
+        <div class="plan-empty">
+          <LoaderCircle class="animate-spin" size={28} />
+          <p>Loading plans…</p>
+        </div>
+      {:else}
+        <div class="home-view">
+          {#if plans.length}
+            <div class="plans-grid">
+              {#each plans as p}
+                <div class="plan-card" role="button" tabindex="0" on:click={() => gotoPlan(p.id)} on:keydown={(e) => e.key === 'Enter' && gotoPlan(p.id)}>
+                  <div class="card-eyebrow">
+                    <span>Plan #{p.planNumber}</span>
+                    {#if p.estimatedMinutes}<span class="dot">·</span><span>{p.estimatedMinutes} min</span>{/if}
+                    {#if p.coveredWords?.length}<span class="dot">·</span><span>{p.coveredWords.length} words</span>{/if}
+                  </div>
+                  <div class="card-title">{p.title}</div>
+                  {#if p.subtitle}<div class="card-subtitle">{p.subtitle}</div>{/if}
+                  {#if p.coveredConcepts?.length}
+                    <div class="card-chips">
+                      {#each p.coveredConcepts.slice(0, 4) as concept}
+                        <span class="chip">{concept}</span>
+                      {/each}
+                    </div>
+                  {/if}
+                  <button
+                    type="button"
+                    class="card-delete"
+                    title="Delete plan"
+                    on:click|stopPropagation={() => deletePlan(p)}
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+              {/each}
+            </div>
           {:else}
-            <Wand2 size={16} />
-            Generate first plan
+            <div class="plan-empty inline">
+              <GraduationCap size={36} />
+              <h2>No plans yet</h2>
+              <p>Generate a structured, textbook-style module from this lesson's vocabulary.</p>
+              <p class="muted">Each plan covers a focused angle — a theme, a grammar pattern, a verb family — with reading, tables, quizzes, and more.</p>
+            </div>
           {/if}
-        </button>
-      </div>
-    {:else if selectedPlan}
+
+          <div class="generate-section">
+            <div class="generate-row">
+              <input
+                class="generate-input"
+                type="text"
+                placeholder="Optional: describe a focus area, e.g. 'verb conjugations' or 'food vocabulary'…"
+                bind:value={customPrompt}
+                on:keydown={(e) => { if (e.key === 'Enter' && !generating) generateNextPlan(customPrompt); }}
+                disabled={generating}
+              />
+              <button
+                class="plan-gen-btn"
+                type="button"
+                disabled={generating || loading || !lesson}
+                on:click={() => generateNextPlan(customPrompt)}
+              >
+                {#if generating}
+                  <LoaderCircle class="animate-spin" size={14} />
+                  Generating…
+                {:else}
+                  <Wand2 size={14} />
+                  Generate Plan #{nextPlanNumber}
+                {/if}
+              </button>
+            </div>
+          </div>
+        </div>
+      {/if}
+    </div>
+  {:else}
+    <!-- Plan detail view -->
+    <div class="plans-scroll">
+      {#if selectedPlan}
       <article class="plan-doc">
         <header class="plan-header">
           <div class="plan-eyebrow">
@@ -571,8 +622,9 @@
           </button>
         </footer>
       </article>
-    {/if}
-  </div>
+      {/if}
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -580,23 +632,26 @@
 
   .plans-toolbar {
     display: flex; align-items: center; gap: 12px;
-    padding: 12px 20px; background: #fff;
-    border-bottom: 1px solid #e5e8ef; flex-shrink: 0;
+    padding: 10px 20px; background: #fff;
+    border-bottom: 1px solid #e5e8ef; flex-shrink: 0; min-height: 52px;
   }
-  .plan-tabs { display: flex; gap: 6px; overflow-x: auto; flex: 1; }
-  .plan-tab {
-    display: flex; align-items: center; gap: 6px;
-    padding: 6px 12px; border-radius: 999px;
-    background: #f3f5f9; border: 1px solid transparent;
-    color: #475467; font-size: 12px; font-weight: 700;
-    cursor: pointer; white-space: nowrap; max-width: 240px;
+  .toolbar-heading {
+    font-size: 15px; font-weight: 800; color: #202124; flex: 1;
   }
-  .plan-tab:hover { background: #ebeef4; }
-  .plan-tab.active { background: #17614f; color: #fff; }
-  .plan-tab-num { font-variant-numeric: tabular-nums; opacity: 0.8; }
-  .plan-tab-title { overflow: hidden; text-overflow: ellipsis; }
+  .back-to-home {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 12px; border-radius: 8px;
+    border: 1px solid #d9dee7; background: #f7f8fb;
+    color: #475467; font-size: 12px; font-weight: 700; cursor: pointer;
+    flex-shrink: 0;
+  }
+  .back-to-home:hover { background: #ebeef4; }
+  .current-plan-label {
+    flex: 1; font-size: 13px; font-weight: 700; color: #202124;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
 
-  .plan-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .plan-actions { display: flex; gap: 8px; flex-shrink: 0; margin-left: auto; }
   .plan-refresh {
     width: 32px; height: 32px; border-radius: 8px;
     border: 1px solid #d9dee7; background: #fff;
@@ -624,9 +679,76 @@
     align-items: center; justify-content: center; gap: 12px;
     padding: 40px; text-align: center; color: #667085;
   }
+  .plan-empty.inline { height: auto; padding: 40px 40px 0; }
   .plan-empty h2 { margin: 4px 0 0; color: #202124; font-size: 20px; }
   .plan-empty p { margin: 0; max-width: 460px; }
   .plan-empty p.muted { color: #99a1b3; font-size: 13px; }
+
+  /* Home view */
+  .home-view { display: flex; flex-direction: column; padding: 24px; gap: 24px; max-width: 1000px; margin: 0 auto; }
+
+  .plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+
+  .plan-card {
+    position: relative;
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 18px 18px 14px;
+    background: #fff; border-radius: 14px;
+    border: 1px solid #ebeef4;
+    box-shadow: 0 1px 3px rgba(16,24,40,0.04);
+    cursor: pointer; text-align: left;
+    transition: box-shadow 0.15s, border-color 0.15s;
+    font-family: Inter, sans-serif;
+  }
+  .plan-card:hover { border-color: #17614f; box-shadow: 0 4px 12px rgba(23,97,79,0.1); }
+
+  .card-eyebrow {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 800; color: #99a1b3;
+    text-transform: uppercase; letter-spacing: 0.07em;
+  }
+  .card-eyebrow .dot { opacity: 0.6; }
+  .card-title {
+    font-family: 'Georgia', serif; font-size: 17px; font-weight: 700;
+    color: #17614f; line-height: 1.25; margin: 0;
+  }
+  .card-subtitle {
+    font-size: 13px; color: #667085; font-style: italic;
+    line-height: 1.4; margin: 0;
+  }
+  .card-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+
+  .card-delete {
+    position: absolute; top: 12px; right: 12px;
+    width: 26px; height: 26px; border-radius: 6px;
+    border: 1px solid transparent; background: transparent;
+    color: #c1c8d4; cursor: pointer; display: grid; place-items: center;
+    opacity: 0; transition: opacity 0.15s;
+  }
+  .plan-card:hover .card-delete { opacity: 1; }
+  .card-delete:hover { background: #fde8e6; color: #a24f3f; border-color: #f4c5be; }
+
+  /* Generate section */
+  .generate-section {
+    padding: 20px; background: #fff; border-radius: 14px;
+    border: 1px solid #ebeef4;
+  }
+  .generate-row {
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  }
+  .generate-input {
+    flex: 1; min-width: 200px;
+    height: 40px; border-radius: 8px;
+    border: 1px solid #d9dee7; padding: 0 14px;
+    font-size: 13px; font-family: Inter, sans-serif; color: #202124;
+    background: #f7f8fb; outline: none;
+  }
+  .generate-input:focus { border-color: #17614f; background: #fff; }
+  .generate-input:disabled { opacity: 0.6; }
 
   /* === Plan document === */
   .plan-doc {
