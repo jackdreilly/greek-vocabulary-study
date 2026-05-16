@@ -1,5 +1,16 @@
 # Agent Instructions
 
+## Firestore as the Single Source of Truth
+
+All vocabulary data the app reads at runtime must live in Firestore (`greek-vocab` database, `themes` and `entries` collections). Do **not** add new local JSON/CSV data sources that the frontend fetches directly — the deployed site has no access to files that aren't checked into `public/data/`.
+
+When prototyping a new dataset locally (e.g. a new scraper or course), that's fine — but before considering the feature deployed, run the corresponding import script to push the data into Firestore. Import scripts live in `scripts/` and use `@google-cloud/firestore` with `projectId: "didibros-6d3ed"`, `databaseId: "greek-vocab"`. See `scripts/import_everyday_greek.mjs` as a reference.
+
+**Pre-deploy checklist for new data:**
+- [ ] Data is in Firestore (`themes` + `entries` collections with correct IDs)
+- [ ] Frontend reads it via the existing `fetchFirestore()` path — no new `fetch("/data/...")` calls added
+- [ ] Course ID range is registered in `COURSE_DEFS` in `App.svelte`
+
 ## Firebase Deploys
 
 When deploying Firebase functions, **do NOT delete existing functions** if prompted.

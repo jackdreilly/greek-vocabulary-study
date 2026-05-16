@@ -285,13 +285,14 @@
                 type="text"
                 placeholder="Optional: describe a focus area, e.g. 'verb conjugations' or 'food vocabulary'…"
                 bind:value={customPrompt}
-                on:keydown={(e) => { if (e.key === 'Enter' && !generating) generateNextPlan(customPrompt); }}
+                maxlength={5000}
+                on:keydown={(e) => { if (e.key === 'Enter' && !generating && customPrompt.length <= 5000) generateNextPlan(customPrompt); }}
                 disabled={generating}
               />
               <button
                 class="plan-gen-btn"
                 type="button"
-                disabled={generating || loading || !lesson}
+                disabled={generating || loading || !lesson || customPrompt.length > 5000}
                 on:click={() => generateNextPlan(customPrompt)}
               >
                 {#if generating}

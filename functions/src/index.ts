@@ -46,7 +46,7 @@ function optionalSecret(secret: { value(): string }): string | undefined {
 }
 
 const LessonEntrySchema = z.object({
-  id: z.union([z.string(), z.number()]),
+  id: z.number(),
   lemma: z.string(),
   article: z.string().nullable().optional(),
   english: z.string().nullable().optional(),
@@ -66,14 +66,14 @@ const GameExerciseSchema = z.object({
   id: z.string(),
   type: GameTypeSchema,
   title: z.string(),
-  prompt: z.string().default(''),
-  instructions: z.string().default(''),
-  expectedAnswer: z.string().default(''),
-  acceptableAnswers: z.array(z.string()).default([]),
-  direction: z.enum(['greek_to_english', 'english_to_greek', 'free_response']).default('free_response'),
+  prompt: z.string().catch(''),
+  instructions: z.string().catch(''),
+  expectedAnswer: z.string().catch(''),
+  acceptableAnswers: z.array(z.string()).catch([]),
+  direction: z.enum(['greek_to_english', 'english_to_greek', 'free_response']).catch('free_response'),
   passage: z.string().optional(),
   question: z.string().optional(),
-  requiredWords: z.array(z.string()).default([]),
+  requiredWords: z.array(z.string()).catch([]),
   vocabulary: z
     .array(
       z.object({
@@ -81,15 +81,15 @@ const GameExerciseSchema = z.object({
         english: z.string(),
       }),
     )
-    .default([]),
-  sourceEntryIds: z.array(z.union([z.string(), z.number()])).default([]),
+    .catch([]),
+  sourceEntryIds: z.array(z.number()).catch([]),
   coverage: z
     .object({
       summary: z.string(),
-      words: z.array(z.string()).max(12),
-      themes: z.array(z.string()).max(8),
+      words: z.array(z.string()),
+      themes: z.array(z.string()),
     })
-    .default({
+    .catch({
       summary: '',
       words: [],
       themes: [],
@@ -514,6 +514,7 @@ ${entrySummary(input.entries.slice(0, 30)) || '(use the tools)'}`;
     const { output } = await getAI().generate({
       model: GAME_GENERATION_MODEL,
       output: { schema: GenerateLessonGamesOutputSchema },
+      config: { maxOutputTokens: 8192 },
       system:
         'You generate high-quality Modern Greek lesson exercises as JSON only. Keep Greek natural, age-neutral, and suitable for a learner. Prefer targeted tool calls over asking for or relying on broad lesson dumps.',
       prompt,
@@ -642,13 +643,13 @@ const PlanWidgetTypeSchema = z.enum([
 
 const QuizQuestionSchema = z.object({
   question: z.string(),
-  options: z.array(z.string()).min(2).max(5),
-  answerIndex: z.number().int().min(0).max(4),
-  explanation: z.string().default(''),
+  options: z.array(z.string()),
+  answerIndex: z.number().int(),
+  explanation: z.string().catch(''),
 });
 
 const TableRowSchema = z.object({
-  label: z.string().default(''),
+  label: z.string().catch(''),
   cells: z.array(z.string()),
 });
 
@@ -656,7 +657,7 @@ const PlanWidgetSchema = z.object({
   type: PlanWidgetTypeSchema,
 
   // heading: { level: 1-3, text }
-  level: z.number().int().min(1).max(3).optional(),
+  level: z.number().int().optional(),
   text: z.string().optional(),
 
   // prose: { body } (plain prose or light markdown: **bold**, *italic*, simple lists)
@@ -673,9 +674,9 @@ const PlanWidgetSchema = z.object({
     .array(
       z.object({
         greek: z.string(),
-        article: z.string().optional().default(''),
+        article: z.string().optional(),
         english: z.string(),
-        example: z.string().optional().default(''),
+        example: z.string().optional(),
       }),
     )
     .optional(),
@@ -701,7 +702,7 @@ const PlanWidgetSchema = z.object({
       z.object({
         speaker: z.string(),
         greek: z.string(),
-        english: z.string().default(''),
+        english: z.string().catch(''),
       }),
     )
     .optional(),
@@ -716,7 +717,7 @@ const PlanWidgetSchema = z.object({
       z.object({
         sentence: z.string(),
         answer: z.string(),
-        english: z.string().default(''),
+        english: z.string().catch(''),
       }),
     )
     .optional(),
@@ -730,7 +731,7 @@ const PlanWidgetSchema = z.object({
       z.object({
         greek: z.string(),
         english: z.string(),
-        relation: z.string().default(''),
+        relation: z.string().catch(''),
       }),
     )
     .optional(),
@@ -739,13 +740,13 @@ const PlanWidgetSchema = z.object({
 const LessonPlanSchema = z.object({
   id: z.string(),
   lessonId: z.number(),
-  planNumber: z.number().int().min(1),
+  planNumber: z.number().int(),
   title: z.string(),
-  subtitle: z.string().default(''),
-  estimatedMinutes: z.number().int().min(2).max(30).default(8),
-  coveredWords: z.array(z.string()).max(40).default([]),
-  coveredConcepts: z.array(z.string()).max(12).default([]),
-  widgets: z.array(PlanWidgetSchema).min(4).max(16),
+  subtitle: z.string().catch(''),
+  estimatedMinutes: z.number().int().catch(8),
+  coveredWords: z.array(z.string()).catch([]),
+  coveredConcepts: z.array(z.string()).catch([]),
+  widgets: z.array(PlanWidgetSchema),
 });
 
 const PreviousPlanSummarySchema = z.object({
@@ -763,7 +764,7 @@ const GenerateLessonPlanInputSchema = z.object({
   previousPlans: z.array(PreviousPlanSummarySchema).max(50).default([]),
   entries: z.array(LessonEntrySchema).max(160).default([]),
   preferences: LearningPreferencesSchema.default({ responseLanguage: 'english', cefrLevel: 'A2' }),
-  customFocus: z.string().max(300).default(''),
+  customFocus: z.string().max(5000).default(''),
 });
 
 const GenerateLessonPlanOutputSchema = z.object({
@@ -875,6 +876,7 @@ ${entrySummary(input.entries.slice(0, 40)) || '(use the tools)'}`;
     const { output } = await getAI().generate({
       model: PLAN_GENERATION_MODEL,
       output: { schema: GenerateLessonPlanOutputSchema },
+      config: { maxOutputTokens: 16384 },
       system:
         'You design beautiful, structured Modern Greek lesson plans as JSON only. Each plan is one coherent textbook-style module woven from lesson vocabulary. Be inventive, varied, and pedagogically tight. Prefer targeted tool calls over relying on the small fallback sample.',
       prompt,
@@ -888,10 +890,10 @@ ${entrySummary(input.entries.slice(0, 40)) || '(use the tools)'}`;
 
 const VocabSuggestionSchema = z.object({
   lemma: z.string(),
-  article: z.string().nullable().default(null),
-  english_senses: z.array(z.string()).min(1).max(6),
-  category: z.string().default('Ουσιαστικά'),
-  notes: z.string().default(''),
+  article: z.string().nullable().catch(null),
+  english_senses: z.array(z.string()),
+  category: z.string().catch('Ουσιαστικά'),
+  notes: z.string().catch(''),
 });
 
 const GenerateVocabSuggestionsInputSchema = z.object({
@@ -902,7 +904,7 @@ const GenerateVocabSuggestionsInputSchema = z.object({
 });
 
 const GenerateVocabSuggestionsOutputSchema = z.object({
-  suggestions: z.array(VocabSuggestionSchema).min(1).max(30),
+  suggestions: z.array(VocabSuggestionSchema),
 });
 
 const generateVocabSuggestionsFlow = getAI().defineFlow(
@@ -919,6 +921,7 @@ const generateVocabSuggestionsFlow = getAI().defineFlow(
     const { output } = await getAI().generate({
       model: GAME_GENERATION_MODEL,
       output: { schema: GenerateVocabSuggestionsOutputSchema },
+      config: { maxOutputTokens: 8192 },
       system: 'You are a Modern Greek vocabulary expert. Generate accurate, learner-friendly Greek vocabulary entries as JSON.',
       prompt: `Generate Modern Greek vocabulary entries for a lesson called "${input.lessonTitle}" (lesson ${input.lessonId}).
 
@@ -931,7 +934,11 @@ Rules:
 - category: one of Ουσιαστικά (nouns), Ρήματα (verbs), Επίθετα (adjectives), Εκφράσεις (phrases/expressions)
 - notes: optional short note about usage, register, or form (leave empty string if none)
 
-Return 5–20 vocabulary entries relevant to the request. Include only high-quality, accurate entries.`,
+How many entries to return:
+- If the user asks for a specific word or two, return just those (1–2 entries).
+- If the user asks for a large set or a broad topic, return up to 100 entries.
+- If unclear, return around 20 entries.
+Include only high-quality, accurate entries.`,
     });
 
     if (!output) throw new Error('Vocab generation returned no output.');
@@ -948,8 +955,8 @@ const GenerateLessonContentInputSchema = z.object({
 
 const GenerateLessonContentOutputSchema = z.object({
   lessonTitle: z.string(),
-  courseName: z.string().default(''),
-  entries: z.array(VocabSuggestionSchema).min(5).max(40),
+  courseName: z.string().catch(''),
+  entries: z.array(VocabSuggestionSchema),
 });
 
 const generateLessonContentFlow = getAI().defineFlow(
@@ -972,6 +979,7 @@ const generateLessonContentFlow = getAI().defineFlow(
     const { output } = await getAI().generate({
       model: GAME_GENERATION_MODEL,
       output: { schema: GenerateLessonContentOutputSchema },
+      config: { maxOutputTokens: 8192 },
       system: 'You are a Modern Greek curriculum designer. Create well-structured lesson content with accurate vocabulary as JSON.',
       prompt: `Design a new Modern Greek vocabulary lesson.${courseNameLine}${existingLine}${courseNameRequest}
 
@@ -980,7 +988,7 @@ User request: ${input.prompt}
 Rules:
 - lessonTitle: a clear, descriptive title (4–8 words), e.g. "At the Restaurant: Ordering Food"
 - courseName: ${input.generateCourseName ? 'a short, clear course name describing the overall theme (3–6 words)' : 'leave as empty string ""'}
-- entries: 10–25 vocabulary entries. Each entry:
+- entries: 100–200 words. Each entry:
   - lemma: dictionary form (nominative singular for nouns, 1st-person present for verbs)
   - article: ο / η / το for nouns, null for verbs/adjectives/other
   - english_senses: 1–4 concise English meanings
@@ -1023,7 +1031,7 @@ const AiAssistVocabEntryInputSchema = z.object({
 });
 
 const AiAssistVocabEntryOutputSchema = z.object({
-  english_senses: z.array(z.string()).min(1).max(8),
+  english_senses: z.array(z.string()),
 });
 
 const aiAssistVocabEntryFlow = getAI().defineFlow(
