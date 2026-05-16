@@ -452,3 +452,33 @@ entry_id,theme_id,theme,category,type,subsection,lemma,primary_sense,query,query
 3559,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,φυτεύω,plant,plant action photo,generated
 3560,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,φυτρώνω,grow roots,grow roots action photo,generated
 3561,12,Πανίδα - Χλωρίδα,Ρήματα,verb,Χλωρίδα,ωριμάζω,mature,mature action photo,generated
+8581,14,TetRadio Zografikis,Ρήματα,verb,,γεμίζω,fill up,fill up action photo,generated
+8582,14,TetRadio Zografikis,Ρήματα,verb,,ανακατεύω,blend,blend action photo,generated
+8583,14,TetRadio Zografikis,Ρήματα,verb,,ξανθίζω,make color lighter,make color lighter action photo,generated
+8584,14,TetRadio Zografikis,Ρήματα,verb,,σκουραίνω,make color darker,make color darker action photo,generated
+8585,14,TetRadio Zografikis,Ρήματα,verb,,χύνομαι,spill,spill action photo,generated
+8586,14,TetRadio Zografikis,Ρήματα,verb,,ναυαγώ,am shipwrecked,am shipwrecked action photo,generated
+8599,15,Gatos Zita Oikogeneia,Ρήματα,verb,,τρέφομαι με,eat,,needs_review
+8600,15,Gatos Zita Oikogeneia,Ρήματα,verb,,πειράζω,tease,tease action photo,generated
+8601,15,Gatos Zita Oikogeneia,Ρήματα,verb,,χώνομαι,squeeze in,squeeze in action photo,generated
+8602,15,Gatos Zita Oikogeneia,Ρήματα,verb,,παλεύω,fight,fight action photo,generated
+8604,15,Gatos Zita Oikogeneia,Ρήματα,verb,,σκαρφαλώνω,climb,climbing animal,override
+8608,15,Gatos Zita Oikogeneia,Ρήματα,verb,,αποχωρίζομαι,part from,part from action photo,generated
+8611,16,Xionanthropos,Ρήματα,verb,,διαταράσσω,disrupt,disrupt action photo,generated
+8617,16,Xionanthropos,Ρήματα,verb,,τουρτουρίζω,shiver,shiver action photo,generated
+8619,16,Xionanthropos,Ρήματα,verb,,κοντοστέκομαι,hesitate,hesitate action photo,generated
+8624,16,Xionanthropos,Ρήματα,verb,,χαρίζω,give away,give away action photo,generated
+8632,17,Yi Adoption,Ρήματα,verb,,ανακοινώνω,announce,announce action photo,generated
+8643,17,Yi Adoption,Ρήματα,verb,,κλαδεύω,cut branches,cut branches action photo,generated
+8647,17,Yi Adoption,Ρήματα,verb,,φροντίζω,take care of something,take care of something action photo,generated
+8648,17,Yi Adoption,Ρήματα,verb,,υπόσχομαι,promise,promise action photo,generated
+8649,18,Poli Sto Xioni,Ρήματα,verb,,φτυαρίζω,shovel,shovel action photo,generated
+8656,18,Poli Sto Xioni,Ρήματα,verb,,βυθίζω,sink,sink action photo,generated
+8658,18,Poli Sto Xioni,Ρήματα,verb,,καταψύχω,freeze,freeze action photo,generated
+8660,18,Poli Sto Xioni,Ρήματα,verb,,λιγοψυχώ,lose my courage,lose my courage action photo,generated
+8662,18,Poli Sto Xioni,Ρήματα,verb,,καταβροχθίζω,devour,devour action photo,generated
+8665,18,Poli Sto Xioni,Ρήματα,verb,,κυλάω,flow,flow action photo,generated
+8673,19,Nea Geitonia,Ρήματα,verb,,θεωρούμαι,am considered,am considered action photo,generated
+8678,19,Nea Geitonia,Ρήματα,verb,,δεσπόζω,dominate,dominate action photo,generated
+8690,19,Nea Geitonia,Ρήματα,verb,,μαλώνω,scold,scold action photo,generated
+8691,19,Nea Geitonia,Ρήματα,verb,,συμβουλεύω,advise,advise action photo,generated

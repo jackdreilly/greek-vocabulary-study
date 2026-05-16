@@ -1,6 +1,7 @@
 .DS_Store
 .firebase/
 node_modules/
+functions/lib/
 
 # Generated data and copied media are rebuilt from the raw source archives.
 /data/
@@ -13,4 +14,3 @@ public/audio/
 
 .env
 service-account-key.json
-

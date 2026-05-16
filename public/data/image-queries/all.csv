@@ -8578,3 +8578,117 @@ entry_id,theme_id,theme,category,type,subsection,lemma,primary_sense,query,query
 8577,13,Top 5000,Top 5000,top5000,n.,η σεξουαλικότητα,sexuality,sexuality photo,generated
 8578,13,Top 5000,Top 5000,top5000,v.,φυτρώνω,grow roots,grow roots photo,generated
 8579,13,Top 5000,Top 5000,top5000,n.,το χταπόδι,octopus,octopus photo,generated
+8580,14,TetRadio Zografikis,Ουσιαστικά,noun,,σχέδιο,drawing,drawing photo,generated
+8581,14,TetRadio Zografikis,Ρήματα,verb,,γεμίζω,fill up,fill up action photo,generated
+8582,14,TetRadio Zografikis,Ρήματα,verb,,ανακατεύω,blend,blend action photo,generated
+8583,14,TetRadio Zografikis,Ρήματα,verb,,ξανθίζω,make color lighter,make color lighter action photo,generated
+8584,14,TetRadio Zografikis,Ρήματα,verb,,σκουραίνω,make color darker,make color darker action photo,generated
+8585,14,TetRadio Zografikis,Ρήματα,verb,,χύνομαι,spill,spill action photo,generated
+8586,14,TetRadio Zografikis,Ρήματα,verb,,ναυαγώ,am shipwrecked,am shipwrecked action photo,generated
+8587,14,TetRadio Zografikis,Ουσιαστικά,noun,,περίπατος,stroll,stroll photo,generated
+8588,14,TetRadio Zografikis,Ουσιαστικά,noun,,τόπος,homeland,homeland photo,generated
+8589,14,TetRadio Zografikis,Επίθετα,adjective,,μαζεμένος,curled up,curled up example photo,generated
+8590,15,Gatos Zita Oikogeneia,Επίθετα,adjective,,κατοικίδιος,domestic,domestic example photo,generated
+8591,15,Gatos Zita Oikogeneia,Ουσιαστικά,noun,,ταυτότητα,ID card,ID card photo,generated
+8592,15,Gatos Zita Oikogeneia,Ουσιαστικά,noun,,παρόν,present,present photo,generated
+8593,15,Gatos Zita Oikogeneia,Επίθετα,adjective,,φουντωτός,fluffy,fluffy example photo,generated
+8594,15,Gatos Zita Oikogeneia,Ουσιαστικά,noun,,τρίχωμα,fur,,needs_review
+8595,15,Gatos Zita Oikogeneia,Ουσιαστικά,noun,,ραβδώσεις,stripes,stripes photo,generated
+8596,15,Gatos Zita Oikogeneia,Ουσιαστικά,noun,,ράχη,back,back photo,generated
+8597,15,Gatos Zita Oikogeneia,Επίθετα,adjective,,μυτερός,pointy,pointy example photo,generated
+8598,15,Gatos Zita Oikogeneia,Επίθετα,adjective,,περιποιημένος,well-groomed,well-groomed example photo,generated
+8599,15,Gatos Zita Oikogeneia,Ρήματα,verb,,τρέφομαι με,eat,,needs_review
+8600,15,Gatos Zita Oikogeneia,Ρήματα,verb,,πειράζω,tease,tease action photo,generated
+8601,15,Gatos Zita Oikogeneia,Ρήματα,verb,,χώνομαι,squeeze in,squeeze in action photo,generated
+8602,15,Gatos Zita Oikogeneia,Ρήματα,verb,,παλεύω,fight,fight action photo,generated
+8603,15,Gatos Zita Oikogeneia,Ουσιαστικά,noun,,ευκαιρία,opportunity,opportunity photo,generated
+8604,15,Gatos Zita Oikogeneia,Ρήματα,verb,,σκαρφαλώνω,climb,climbing animal,override
+8605,15,Gatos Zita Oikogeneia,Ουσιαστικά,noun,,χουζούρεμα,sleep-in,sleep-in photo,generated
+8606,15,Gatos Zita Oikogeneia,Ουσιαστικά,noun,,καλάθι,basket,basket photo,generated
+8607,15,Gatos Zita Oikogeneia,Ουσιαστικά,noun,,εμβόλιο,vaccine,vaccine photo,generated
+8608,15,Gatos Zita Oikogeneia,Ρήματα,verb,,αποχωρίζομαι,part from,part from action photo,generated
+8609,15,Gatos Zita Oikogeneia,Επίθετα,adjective,,χαριτωμένος,cute,cute example photo,generated
+8610,16,Xionanthropos,Εκφράσεις,phrase,,σιωπηλά,silently,silently photo,needs_review
+8611,16,Xionanthropos,Ρήματα,verb,,διαταράσσω,disrupt,disrupt action photo,generated
+8612,16,Xionanthropos,Ουσιαστικά,noun,,δίδυμα,twins,twins photo,generated
+8613,16,Xionanthropos,Ουσιαστικά,noun,,ανάσα,breath,breath photo,generated
+8614,16,Xionanthropos,Ουσιαστικά,noun,,αχνός,steam,steam photo,generated
+8615,16,Xionanthropos,Ουσιαστικά,noun,,κούκλος/κούκλα,very handsome/pretty,very handsome/pretty photo,generated
+8616,16,Xionanthropos,Επίθετα,adjective,,απίθανος,incredible,incredible example photo,generated
+8617,16,Xionanthropos,Ρήματα,verb,,τουρτουρίζω,shiver,shiver action photo,generated
+8618,16,Xionanthropos,Ουσιαστικά,noun,,παρασκήνια,backstage,backstage photo,generated
+8619,16,Xionanthropos,Ρήματα,verb,,κοντοστέκομαι,hesitate,hesitate action photo,generated
+8620,16,Xionanthropos,Ουσιαστικά,noun,,ύφος,face expression,face expression photo,generated
+8621,16,Xionanthropos,Επίθετα,adjective,,θλιμμένος,gloomy,gloomy example photo,generated
+8622,16,Xionanthropos,Εκφράσεις,phrase,,καταφατικά,affirmatively,affirmatively photo,needs_review
+8623,16,Xionanthropos,Ουσιαστικά,noun,,χάρη,favor,favor photo,generated
+8624,16,Xionanthropos,Ρήματα,verb,,χαρίζω,give away,give away action photo,generated
+8625,16,Xionanthropos,Εκφράσεις,phrase,,βιαστικά,in hurry,in hurry photo,needs_review
+8626,16,Xionanthropos,Ουσιαστικά,noun,,μυστικό,secret,secret photo,generated
+8627,16,Xionanthropos,Επίθετα,adjective,,απογοητευμένος,disappointed,disappointed example photo,generated
+8628,16,Xionanthropos,Ουσιαστικά,noun,,θεατής,viewer,viewer photo,generated
+8629,17,Yi Adoption,Ουσιαστικά,noun,,οικόπεδο,plot of land,plot of land photo,generated
+8630,17,Yi Adoption,Ουσιαστικά,noun,,σκουπιδότοπος,dump,dump photo,generated
+8631,17,Yi Adoption,Ουσιαστικά,noun,,εφημερίδα,newspaper,newspaper photo,generated
+8632,17,Yi Adoption,Ρήματα,verb,,ανακοινώνω,announce,announce action photo,generated
+8633,17,Yi Adoption,Ουσιαστικά,noun,,υιοθεσία,adoption,adoption photo,generated
+8634,17,Yi Adoption,Ουσιαστικά,noun,,Δήμος,municipality,municipality photo,generated
+8635,17,Yi Adoption,Ουσιαστικά,noun,,κάδος απορριμάτων,trash can,trash can photo,generated
+8636,17,Yi Adoption,Ουσιαστικά,noun,,όψη,appearance,appearance photo,generated
+8637,17,Yi Adoption,Ουσιαστικά,noun,,μηχάνημα,machine,machine photo,generated
+8638,17,Yi Adoption,Ουσιαστικά,noun,,παλιοσίδερα,scrap metal,scrap metal photo,generated
+8639,17,Yi Adoption,Ουσιαστικά,noun,,πινακίδα,sign,sign photo,generated
+8640,17,Yi Adoption,Ουσιαστικά,noun,,ξυλουργός,carpenter,carpenter photo,generated
+8641,17,Yi Adoption,Ουσιαστικά,noun,,στύλος,pole,pole photo,generated
+8642,17,Yi Adoption,Επίθετα,adjective,,ξεραμένος,withered,withered example photo,generated
+8643,17,Yi Adoption,Ρήματα,verb,,κλαδεύω,cut branches,cut branches action photo,generated
+8644,17,Yi Adoption,Εκφράσεις,phrase,,Σύλλογος Γονέων και Κηδεμόνων,Parents' Group,Parents' Group photo,needs_review
+8645,17,Yi Adoption,Ουσιαστικά,noun,,λάστιχο,hose,hose photo,generated
+8646,17,Yi Adoption,Εκφράσεις,phrase,,σχεδόν,almost,almost photo,needs_review
+8647,17,Yi Adoption,Ρήματα,verb,,φροντίζω,take care of something,take care of something action photo,generated
+8648,17,Yi Adoption,Ρήματα,verb,,υπόσχομαι,promise,promise action photo,generated
+8649,18,Poli Sto Xioni,Ρήματα,verb,,φτυαρίζω,shovel,shovel action photo,generated
+8650,18,Poli Sto Xioni,Ουσιαστικά,noun,,ζαρζαβατικά,vegetables,vegetables photo,generated
+8651,18,Poli Sto Xioni,Επίθετα,adjective,,θαμμένος,buried,buried example photo,generated
+8652,18,Poli Sto Xioni,Επίθετα,adjective,,απορροφημένος,absorbed,absorbed example photo,generated
+8653,18,Poli Sto Xioni,Ουσιαστικά,noun,,κεραμίδι,roof tile,roof tile photo,generated
+8654,18,Poli Sto Xioni,Ουσιαστικά,noun,,λάφυρα,stolen goods,stolen goods photo,generated
+8655,18,Poli Sto Xioni,Ουσιαστικά,noun,,ομοίωμα,model,model photo,generated
+8656,18,Poli Sto Xioni,Ρήματα,verb,,βυθίζω,sink,sink action photo,generated
+8657,18,Poli Sto Xioni,Ουσιαστικά,noun,,περίβλημα,protective cover,protective cover photo,generated
+8658,18,Poli Sto Xioni,Ρήματα,verb,,καταψύχω,freeze,freeze action photo,generated
+8659,18,Poli Sto Xioni,Επίθετα,adjective,,τολμηρός,brave,brave example photo,generated
+8660,18,Poli Sto Xioni,Ρήματα,verb,,λιγοψυχώ,lose my courage,lose my courage action photo,generated
+8661,18,Poli Sto Xioni,Επίθετα,adjective,,ανταλλακτικός,spare,spare example photo,generated
+8662,18,Poli Sto Xioni,Ρήματα,verb,,καταβροχθίζω,devour,devour action photo,generated
+8663,18,Poli Sto Xioni,Ουσιαστικά,noun,,κάρβουνο,coal,coal photo,generated
+8664,18,Poli Sto Xioni,Ουσιαστικά,noun,,σχάρα,grill,grill photo,generated
+8665,18,Poli Sto Xioni,Ρήματα,verb,,κυλάω,flow,flow action photo,generated
+8666,18,Poli Sto Xioni,Επίθετα,adjective,,πρησμένος,swollen,swollen example photo,generated
+8667,18,Poli Sto Xioni,Επίθετα,adjective,,βουλωμένος,clogged,clogged example photo,generated
+8668,18,Poli Sto Xioni,Εκφράσεις,phrase,,βάλθηκε να δουλεύει,started working,started working photo,needs_review
+8669,18,Poli Sto Xioni,Επίθετα,adjective,,κουριασμένος,curled up,curled up example photo,generated
+8670,18,Poli Sto Xioni,Ουσιαστικά,noun,,λιποθυμία,fainting,fainting photo,generated
+8671,18,Poli Sto Xioni,Εκφράσεις,phrase,,δίχως,without,without photo,needs_review
+8672,18,Poli Sto Xioni,Ουσιαστικά,noun,,κιβώτιο,container,container photo,generated
+8673,19,Nea Geitonia,Ρήματα,verb,,θεωρούμαι,am considered,am considered action photo,generated
+8674,19,Nea Geitonia,Ουσιαστικά,noun,,κτήμα,land,land photo,generated
+8675,19,Nea Geitonia,Ουσιαστικά,noun,,οπωροφόρο (δέντρο),fruit crops,fruit crops photo,generated
+8676,19,Nea Geitonia,Ουσιαστικά,noun,,κυπαρίσσι,cypress,cypress photo,generated
+8677,19,Nea Geitonia,Ουσιαστικά,noun,,πεύκο,pine tree,pine tree photo,generated
+8678,19,Nea Geitonia,Ρήματα,verb,,δεσπόζω,dominate,dominate action photo,generated
+8679,19,Nea Geitonia,Επίθετα,adjective,,θεόρατος,huge,huge example photo,generated
+8680,19,Nea Geitonia,Ουσιαστικά,noun,,κορμοστασιά,poise,poise photo,generated
+8681,19,Nea Geitonia,Επίθετα,adjective,,απλωμένος,spread out,spread out example photo,generated
+8682,19,Nea Geitonia,Ουσιαστικά,noun,,καμάρι,pride,pride photo,generated
+8683,19,Nea Geitonia,Ουσιαστικά,noun,,κούνια,swing,swing photo,generated
+8684,19,Nea Geitonia,Ουσιαστικά,noun,,ιδιοκτήτης,owner,owner photo,generated
+8685,19,Nea Geitonia,Επίθετα,adjective,,συνομήλικος,of same age,of same age example photo,generated
+8686,19,Nea Geitonia,Εκφράσεις,phrase,,ιδιαίτερα,especially,especially photo,needs_review
+8687,19,Nea Geitonia,Επίθετα,adjective,,σοβαρός,serious,serious example photo,generated
+8688,19,Nea Geitonia,Επίθετα,adjective,,καλόψυχος,kindhearted,kindhearted example photo,generated
+8689,19,Nea Geitonia,Επίθετα,adjective,,υπομονετικός,patient,patient example photo,generated
+8690,19,Nea Geitonia,Ρήματα,verb,,μαλώνω,scold,scold action photo,generated
+8691,19,Nea Geitonia,Ρήματα,verb,,συμβουλεύω,advise,advise action photo,generated
+8692,19,Nea Geitonia,Επίθετα,adjective,,σοφός,wise,wise example photo,generated
+8693,19,Nea Geitonia,Ουσιαστικά,noun,,διαφορά,difference,difference photo,generated

@@ -1,4 +1,4 @@
-# Greek Vocabulary Study
+# Fanari Go
 
 A small static study app for browsing Greek vocabulary, reviewing filtered study cards, and playing pronunciation audio.
 

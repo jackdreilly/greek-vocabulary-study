@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 3000",
     "build": "vite build",
+    "data:import-xlsx": "node scripts/import_xlsx_to_firestore.mjs",
     "images:queries": "node scripts/build_image_queries.mjs",
     "images:sample": "node scripts/fetch_word_images.mjs --lesson=12 --limit-per-type=10",
     "preview": "vite preview --host 0.0.0.0 --port 3000",
@@ -21,6 +22,7 @@
   "dependencies": {
     "@google-cloud/storage": "^7.19.0",
     "firebase": "^12.13.0",
-    "firebase-admin": "^13.10.0"
+    "firebase-admin": "^13.10.0",
+    "marked": "^18.0.3"
   }
 }

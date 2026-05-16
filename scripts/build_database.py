@@ -6,8 +6,10 @@ import json
 import re
 import shutil
 import sqlite3
+import zipfile
 from collections import Counter
 from pathlib import Path
+from xml.etree import ElementTree as ET
 
 from pypdf import PdfReader
 
@@ -25,6 +27,7 @@ SILENTSHUFFLE_DIR = Path(
 SILENTSHUFFLE_CSV = SILENTSHUFFLE_DIR / "top-5000-words-in-greek [426582]_(~5000).csv"
 SILENTSHUFFLE_MEDIA_DIR = SILENTSHUFFLE_DIR / "top-5000-words-in-greek [426582]_media(4985)"
 SITE_AUDIO_DIR = ROOT / "public" / "audio"
+EXCEL_VOCAB_PATH = Path("/Users/jackreilly/Downloads/Greek_Vocabulary_Words.xlsx")
 
 THEMES = {
     1: "Οικογένεια: ο θεσμός - οι δεσμοί",
@@ -40,6 +43,12 @@ THEMES = {
     11: "Το ανθρώπινο σώμα - Η υγεία",
     12: "Πανίδα - Χλωρίδα",
     13: "Top 5000",
+    14: "TetRadio Zografikis",
+    15: "Gatos Zita Oikogeneia",
+    16: "Xionanthropos",
+    17: "Yi Adoption",
+    18: "Poli Sto Xioni",
+    19: "Nea Geitonia",
 }
 
 PAGE_STRUCTURE = {
@@ -120,7 +129,9 @@ PAGE_STRUCTURE = {
 }
 
 ARTICLE_PARTS = {"ο", "η", "το", "οι", "τα", "ο/η", "η/ο"}
+ARTICLE_PATTERN = r"ο/η|η/ο|ο|η|το|οι|τα"
 GREEK_RE = re.compile(r"[Α-Ωα-ωΆ-Ώά-ώΐΰϊϋ]+")
+GREEK_SUFFIX_RE = re.compile(r"(?:^|[\s,])(-[Α-Ωα-ωΆ-Ώά-ώΐΰϊϋ]+)")
 
 
 def clean_text(value: str) -> str:
@@ -176,6 +187,92 @@ def split_short_definition(value: str) -> list[str]:
     else:
         parts = re.split(r"\s*,\s*", value)
     return [part for part in parts if part]
+
+
+def split_english_senses(value: str) -> list[str]:
+    value = clean_text(value)
+    if not value:
+        return []
+    parts = re.split(r"\s*(?:;|,)\s*", value)
+    return [part for part in parts if part]
+
+
+def normalize_article(value: str) -> str:
+    value = clean_text(value).replace(" ", "")
+    if value == "η/ο":
+        return "ο/η"
+    return value
+
+
+def combine_articles(articles: list[str]) -> str | None:
+    seen = []
+    for article in articles:
+        normalized = normalize_article(article)
+        for part in normalized.split("/"):
+            if part and part not in seen:
+                seen.append(part)
+    if not seen:
+        return None
+    return "/".join(seen)
+
+
+def clean_lemma_fragment(value: str) -> str:
+    value = re.sub(r"\(\s*(?:ο/η|η/ο|ο|η|το|οι|τα)\s*\)", " ", value)
+    value = re.sub(r"\s*/\s*", "/", value)
+    return clean_text(value)
+
+
+def parse_spreadsheet_noun(term: str) -> tuple[str, str | None, bool]:
+    articles = re.findall(rf"\(\s*({ARTICLE_PATTERN})\s*\)", term)
+    if articles:
+        lemma = clean_lemma_fragment(term)
+        article = combine_articles(articles)
+        if lemma and article:
+            return lemma, article, True
+
+    match = re.match(rf"^\s*({ARTICLE_PATTERN})\s+(.+)$", term)
+    if match:
+        article, lemma = match.groups()
+        return clean_lemma_fragment(lemma), normalize_article(article), True
+
+    return term, None, False
+
+
+def parse_form_suffixes(term: str) -> tuple[str, list[str]]:
+    suffixes = GREEK_SUFFIX_RE.findall(term)
+    if suffixes:
+        first_suffix = re.search(r"(?:[\s,])-", term)
+        lemma = clean_text(term[: first_suffix.start()] if first_suffix else term)
+        lemma = lemma.rstrip(",")
+        return lemma, suffixes
+
+    slash_suffix = re.match(r"^(.+?)/([Α-Ωα-ωΆ-Ώά-ώΐΰϊϋ]{1,4})$", term)
+    if slash_suffix:
+        lemma, suffix = slash_suffix.groups()
+        return clean_text(lemma), [f"/{suffix}"]
+
+    return term, []
+
+
+def looks_like_verb(lemma: str) -> bool:
+    first_word = lemma.split()[0]
+    return bool(
+        re.search(
+            r"(ω|ώ|ομαι|όμαι|αμαι|άμαι|ιέμαι|ούμαι|εύω|ίζω|άζω|αίνω|ώνω)$",
+            first_word,
+        )
+        or "/ώ" in first_word
+    )
+
+
+def classify_spreadsheet_entry(term: str, lemma: str, article: str | None, suffixes: list[str]) -> str:
+    if article:
+        return "Ουσιαστικά"
+    if looks_like_verb(lemma):
+        return "Ρήματα"
+    if suffixes:
+        return "Επίθετα"
+    return "Εκφράσεις"
 
 
 def extract_audio_filename(value: str) -> str | None:
@@ -339,7 +436,13 @@ def add_translations(entries: list[dict]) -> None:
         match, match_type = find_lookup_match(entry, dictionary)
         top_match, top_match_type = find_lookup_match(entry, top5000)
 
-        if match:
+        if entry.get("english_source") == "xlsx" and entry.get("english"):
+            english = entry["english"]
+            english_senses = entry.get("english_senses") or split_english_senses(english)
+            dictionary_headword = match["dictionary_headword"] if match else None
+            match_type = f"xlsx_{match_type}" if match else "xlsx"
+            english_source = "xlsx"
+        elif match:
             english = match["english"]
             english_senses = match["english_senses"]
             dictionary_headword = match["dictionary_headword"]
@@ -429,6 +532,7 @@ def extract_entries() -> list[dict]:
                     "frequency_rank": None,
                     "page": page_number,
                     "position_in_group": counters[(theme_id, category, subsection)],
+                    "form_suffixes": [],
                 }
             )
 
@@ -452,8 +556,100 @@ def append_silentshuffle_entries(entries: list[dict]) -> None:
                 "frequency_rank": rank,
                 "page": None,
                 "position_in_group": rank,
+                "form_suffixes": [],
             }
         )
+
+
+def read_xlsx_rows(path: Path) -> dict[str, list[tuple[str, str]]]:
+    if not path.exists():
+        return {}
+
+    ns = {
+        "main": "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
+        "rel": "http://schemas.openxmlformats.org/officeDocument/2006/relationships",
+        "pkgrel": "http://schemas.openxmlformats.org/package/2006/relationships",
+    }
+
+    with zipfile.ZipFile(path) as archive:
+        shared_strings = []
+        if "xl/sharedStrings.xml" in archive.namelist():
+            root = ET.fromstring(archive.read("xl/sharedStrings.xml"))
+            for item in root.findall("main:si", ns):
+                shared_strings.append("".join(text.text or "" for text in item.findall(".//main:t", ns)))
+
+        workbook = ET.fromstring(archive.read("xl/workbook.xml"))
+        rels = ET.fromstring(archive.read("xl/_rels/workbook.xml.rels"))
+        rel_targets = {
+            rel.attrib["Id"]: rel.attrib["Target"]
+            for rel in rels.findall("pkgrel:Relationship", ns)
+        }
+
+        rows_by_sheet = {}
+        for sheet in workbook.findall("main:sheets/main:sheet", ns):
+            title = sheet.attrib["name"]
+            rel_id = sheet.attrib[f"{{{ns['rel']}}}id"]
+            target = rel_targets[rel_id]
+            sheet_path = f"xl/{target}" if not target.startswith("/") else target.lstrip("/")
+            root = ET.fromstring(archive.read(sheet_path))
+            rows = []
+            for row in root.findall(".//main:sheetData/main:row", ns):
+                values = []
+                for cell in row.findall("main:c", ns):
+                    cell_type = cell.attrib.get("t")
+                    value_el = cell.find("main:v", ns)
+                    inline_el = cell.find("main:is/main:t", ns)
+                    if cell_type == "s" and value_el is not None:
+                        value = shared_strings[int(value_el.text)]
+                    elif inline_el is not None:
+                        value = inline_el.text or ""
+                    elif value_el is not None:
+                        value = value_el.text or ""
+                    else:
+                        value = ""
+                    values.append(clean_text(str(value)))
+                if len(values) >= 2 and values[0] and values[1]:
+                    rows.append((values[0], values[1]))
+            rows_by_sheet[title] = rows[1:] if rows and rows[0] == ("Greek", "English") else rows
+        return rows_by_sheet
+
+
+def append_spreadsheet_entries(entries: list[dict]) -> None:
+    rows_by_sheet = read_xlsx_rows(EXCEL_VOCAB_PATH)
+    for theme_id in range(14, 20):
+        title = THEMES[theme_id]
+        rows = rows_by_sheet.get(title, [])
+        counters: Counter[tuple[int, str, str | None]] = Counter()
+        for greek, english in rows:
+            term = clean_text(greek)
+            lemma, article, is_noun = parse_spreadsheet_noun(term)
+            if is_noun:
+                term = f"{lemma},{article}"
+                suffixes = []
+            else:
+                lemma, suffixes = parse_form_suffixes(term)
+            category = classify_spreadsheet_entry(term, lemma, article, suffixes)
+            counters[(theme_id, category, None)] += 1
+            entries.append(
+                {
+                    "id": len(entries) + 1,
+                    "theme_id": theme_id,
+                    "theme": title,
+                    "category": category,
+                    "subsection": None,
+                    "term": term,
+                    "lemma": lemma,
+                    "article": article,
+                    "entry_source": "xlsx",
+                    "frequency_rank": None,
+                    "english": clean_text(english),
+                    "english_senses": split_english_senses(english),
+                    "english_source": "xlsx",
+                    "page": None,
+                    "position_in_group": counters[(theme_id, category, None)],
+                    "form_suffixes": suffixes,
+                }
+            )
 
 
 def build_json(entries: list[dict]) -> None:
@@ -496,7 +692,12 @@ def build_json(entries: list[dict]) -> None:
 
 def build_csv(entries: list[dict]) -> None:
     with (DATA_DIR / "lexilogio_entries.csv").open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(entries[0].keys()))
+        fieldnames = list(entries[0].keys())
+        for entry in entries:
+            for key in entry:
+                if key not in fieldnames:
+                    fieldnames.append(key)
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
         for entry in entries:
             row = {
@@ -551,6 +752,7 @@ def build_sqlite(entries: list[dict]) -> None:
                 audio_available INTEGER NOT NULL,
                 page INTEGER,
                 position_in_group INTEGER NOT NULL,
+                form_suffixes TEXT NOT NULL,
                 FOREIGN KEY(theme_id) REFERENCES themes(id)
             )
             """
@@ -575,7 +777,7 @@ def build_sqlite(entries: list[dict]) -> None:
                 top5000_part_of_speech, top5000_notes, top5000_disambiguation,
                 top5000_match,
                 audio_filename, audio_path, audio_available,
-                page, position_in_group
+                page, position_in_group, form_suffixes
             )
             VALUES (
                 :id, :theme_id, :theme, :category, :subsection, :term, :lemma,
@@ -586,7 +788,7 @@ def build_sqlite(entries: list[dict]) -> None:
                 :top5000_part_of_speech, :top5000_notes, :top5000_disambiguation,
                 :top5000_match,
                 :audio_filename, :audio_path, :audio_available,
-                :page, :position_in_group
+                :page, :position_in_group, :form_suffixes
             )
             """,
             [
@@ -595,6 +797,7 @@ def build_sqlite(entries: list[dict]) -> None:
                     "english_senses": json.dumps(entry["english_senses"], ensure_ascii=False),
                     "top5000_senses": json.dumps(entry["top5000_senses"], ensure_ascii=False),
                     "audio_available": int(entry["audio_available"]),
+                    "form_suffixes": json.dumps(entry.get("form_suffixes", []), ensure_ascii=False),
                 }
                 for entry in entries
             ],
@@ -605,6 +808,7 @@ def main() -> None:
     DATA_DIR.mkdir(exist_ok=True)
     entries = extract_entries()
     append_silentshuffle_entries(entries)
+    append_spreadsheet_entries(entries)
     add_translations(entries)
     cleanup_copied_audio(entries)
     build_json(entries)

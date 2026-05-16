@@ -1,0 +1,21 @@
+entry_id,theme_id,theme,category,type,subsection,lemma,primary_sense,query,query_status
+8590,15,Gatos Zita Oikogeneia,Επίθετα,adjective,,κατοικίδιος,domestic,domestic example photo,generated
+8591,15,Gatos Zita Oikogeneia,Ουσιαστικά,noun,,ταυτότητα,ID card,ID card photo,generated
+8592,15,Gatos Zita Oikogeneia,Ουσιαστικά,noun,,παρόν,present,present photo,generated
+8593,15,Gatos Zita Oikogeneia,Επίθετα,adjective,,φουντωτός,fluffy,fluffy example photo,generated
+8594,15,Gatos Zita Oikogeneia,Ουσιαστικά,noun,,τρίχωμα,fur,,needs_review
+8595,15,Gatos Zita Oikogeneia,Ουσιαστικά,noun,,ραβδώσεις,stripes,stripes photo,generated
+8596,15,Gatos Zita Oikogeneia,Ουσιαστικά,noun,,ράχη,back,back photo,generated
+8597,15,Gatos Zita Oikogeneia,Επίθετα,adjective,,μυτερός,pointy,pointy example photo,generated
+8598,15,Gatos Zita Oikogeneia,Επίθετα,adjective,,περιποιημένος,well-groomed,well-groomed example photo,generated
+8599,15,Gatos Zita Oikogeneia,Ρήματα,verb,,τρέφομαι με,eat,,needs_review
+8600,15,Gatos Zita Oikogeneia,Ρήματα,verb,,πειράζω,tease,tease action photo,generated
+8601,15,Gatos Zita Oikogeneia,Ρήματα,verb,,χώνομαι,squeeze in,squeeze in action photo,generated
+8602,15,Gatos Zita Oikogeneia,Ρήματα,verb,,παλεύω,fight,fight action photo,generated
+8603,15,Gatos Zita Oikogeneia,Ουσιαστικά,noun,,ευκαιρία,opportunity,opportunity photo,generated
+8604,15,Gatos Zita Oikogeneia,Ρήματα,verb,,σκαρφαλώνω,climb,climbing animal,override
+8605,15,Gatos Zita Oikogeneia,Ουσιαστικά,noun,,χουζούρεμα,sleep-in,sleep-in photo,generated
+8606,15,Gatos Zita Oikogeneia,Ουσιαστικά,noun,,καλάθι,basket,basket photo,generated
+8607,15,Gatos Zita Oikogeneia,Ουσιαστικά,noun,,εμβόλιο,vaccine,vaccine photo,generated
+8608,15,Gatos Zita Oikogeneia,Ρήματα,verb,,αποχωρίζομαι,part from,part from action photo,generated
+8609,15,Gatos Zita Oikogeneia,Επίθετα,adjective,,χαριτωμένος,cute,cute example photo,generated
