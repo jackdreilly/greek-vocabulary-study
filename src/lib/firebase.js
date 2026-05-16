@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
+import { initializeFirestore, persistentLocalCache, persistentSingleTabManager } from "firebase/firestore";
 import { getFunctions } from "firebase/functions";
 import { getStorage } from "firebase/storage";
 
@@ -14,12 +14,8 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-// Initialize Firestore with the named database and persistent local cache
 export const db = initializeFirestore(app, {
-  experimentalForceLongPolling: true,
-  localCache: persistentLocalCache({
-    tabManager: persistentMultipleTabManager()
-  })
+  localCache: persistentLocalCache({ tabManager: persistentSingleTabManager() })
 }, "greek-vocab");
 
 export const storage = getStorage(app);

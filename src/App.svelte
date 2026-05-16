@@ -125,18 +125,7 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
       data = prepareData({ themes: rawThemes, entries: rawEntries });
       entriesReady = true;
     } catch (e) {
-      if (!data) {
-        // Nothing rendered yet — try local fallback
-        try {
-          const payload = await fetch("/data/lexilogio.json").then(r => r.json());
-          data = prepareData(payload);
-          entriesReady = true;
-          loadStateFromUrl();
-        } catch {
-          loadError = e.message;
-        }
-      }
-      // If themes loaded but entries failed, course/lesson browsing still works
+      loadError = e.message;
     }
   }
 
