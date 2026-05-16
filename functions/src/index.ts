@@ -876,7 +876,10 @@ ${entrySummary(input.entries.slice(0, 40)) || '(use the tools)'}`;
     const { output } = await getAI().generate({
       model: PLAN_GENERATION_MODEL,
       output: { schema: GenerateLessonPlanOutputSchema },
-      config: { maxOutputTokens: 16384 },
+      config: {
+        maxOutputTokens: 16384,
+        tools: [{ urlContext: {} }],
+      },
       system:
         'You design beautiful, structured Modern Greek lesson plans as JSON only. Each plan is one coherent textbook-style module woven from lesson vocabulary. Be inventive, varied, and pedagogically tight. Prefer targeted tool calls over relying on the small fallback sample.',
       prompt,
@@ -979,7 +982,10 @@ const generateLessonContentFlow = getAI().defineFlow(
     const { output } = await getAI().generate({
       model: GAME_GENERATION_MODEL,
       output: { schema: GenerateLessonContentOutputSchema },
-      config: { maxOutputTokens: 8192 },
+      config: {
+        maxOutputTokens: 8192,
+        tools: [{ urlContext: {} }],
+      },
       system: 'You are a Modern Greek curriculum designer. Create well-structured lesson content with accurate vocabulary as JSON.',
       prompt: `Design a new Modern Greek vocabulary lesson.${courseNameLine}${existingLine}${courseNameRequest}
 
