@@ -1035,7 +1035,7 @@ const aiAssistVocabEntryFlow = getAI().defineFlow(
   async (input) => {
     const articleDisplay = input.article ? `${input.article} ` : '';
     const { output } = await getAI().generate({
-      model: GAME_SCORING_MODEL,
+      model: GAME_GENERATION_MODEL,
       output: { schema: AiAssistVocabEntryOutputSchema },
       system: 'You are a Modern Greek vocabulary editor. Update English definitions for Greek words as JSON.',
       prompt: `Greek word: ${articleDisplay}${input.lemma}
