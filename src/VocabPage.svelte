@@ -5,6 +5,7 @@
     Volume2,
     Search,
   } from "lucide-svelte";
+  import { textMatchesSearch } from "./lib/search.js";
 
   export let entries = [];
   export let showGroupFilter = false;
@@ -37,58 +38,6 @@
 
   const displayType = (value) => typeLabels[value] ?? value;
   const displayGroup = (key) => groupLabels[key] ?? key;
-
-  // Greeklish transliteration — identical rules to ~/Documents/fanariotes
-  const DIGRAPHS = [
-    [/μπ/g,'b'],[/ντ/g,'d'],[/γκ/g,'g'],[/γγ/g,'ng'],
-    [/τσ/g,'ts'],[/τζ/g,'tz'],
-    [/ού/g,'ou'],[/ου/g,'ou'],[/αύ/g,'av'],[/αυ/g,'av'],
-    [/εύ/g,'ev'],[/ευ/g,'ev'],[/αί/g,'ai'],[/αι/g,'ai'],
-    [/εί/g,'ei'],[/ει/g,'ei'],[/οί/g,'oi'],[/οι/g,'oi'],[/υι/g,'yi'],
-  ];
-  const SINGLES = {
-    'α':'a','ά':'a','β':'v','γ':'g','δ':'d','ε':'e','έ':'e','ζ':'z',
-    'η':'i','ή':'i','θ':'th','ι':'i','ί':'i','ϊ':'i','ΐ':'i',
-    'κ':'k','λ':'l','μ':'m','ν':'n','ξ':'ks','ο':'o','ό':'o',
-    'π':'p','ρ':'r','σ':'s','ς':'s','τ':'t',
-    'υ':'i','ύ':'i','ϋ':'i','ΰ':'i','φ':'f','χ':'ch','ψ':'ps','ω':'o','ώ':'o',
-  };
-
-  function transliterate(text) {
-    if (!text) return '';
-    let s = text;
-    for (const [pat, repl] of DIGRAPHS) s = s.replace(pat, repl);
-    let out = '';
-    for (const ch of s) out += SINGLES[ch] ?? ch;
-    return out;
-  }
-
-  function stripMarks(text) {
-    return text.normalize('NFKD').replace(/[̀-ͯ]/g, '');
-  }
-
-  function normalizeForSearch(text) {
-    return stripMarks(transliterate(String(text || '')))
-      .toLowerCase()
-      .replace(/['']/g, '')
-      .replace(/ch|kh/g, 'x').replace(/ks/g, 'x')
-      .replace(/ai/g, 'e').replace(/ei|oi|yi/g, 'i').replace(/ou/g, 'u')
-      .replace(/g(?=[ie])/g, 'y')
-      .replace(/[^\p{L}\p{N}]+/gu, ' ').replace(/\s+/g, ' ').trim();
-  }
-
-  function textMatchesSearch(text, query) {
-    const q = query.trim().toLowerCase();
-    if (!q) return true;
-    const raw = String(text || '').toLowerCase();
-    const transText = transliterate(raw).toLowerCase();
-    const transQuery = transliterate(q).toLowerCase();
-    const normText = normalizeForSearch(raw);
-    const normQuery = normalizeForSearch(q);
-    return raw.includes(q) || transText.includes(q) ||
-           raw.includes(transQuery) || transText.includes(transQuery) ||
-           (normQuery.length > 0 && normText.includes(normQuery));
-  }
 
   function getSenses(entry) {
     if (Array.isArray(entry.english_senses) && entry.english_senses.length) {

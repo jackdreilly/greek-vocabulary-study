@@ -1,23 +1,18 @@
 <script>
   import { ChevronRight, Search } from "lucide-svelte";
-  
+  import { textMatchesSearch } from "./lib/search.js";
+
   export let lessons = [];
   export let onOpenLesson = () => {};
-  
+
   let search = "";
-  
-  const normalise = (value) =>
-    String(value ?? "")
-      .toLocaleLowerCase("el")
-      .normalize("NFD")
-      .replace(/\p{Diacritic}/gu, "");
 
   function lessonProgress(lesson) {
     if (!lesson?.entry_count) return 0;
     return Math.round((lesson.translated_count / lesson.entry_count) * 100);
   }
   
-  $: filteredLessons = lessons.filter((l) => normalise(l.title).includes(normalise(search)));
+  $: filteredLessons = lessons.filter(l => textMatchesSearch(l.title, search));
 </script>
 
 <div class="lesson-list-container">

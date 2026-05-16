@@ -16,6 +16,7 @@
     LoaderCircle
   } from "lucide-svelte";
   import { db, storage } from "./lib/firebase";
+  import { textMatchesSearch } from "./lib/search.js";
   import { collection, getDocsFromServer, doc, updateDoc } from "firebase/firestore";
   import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
   
@@ -56,8 +57,7 @@
   const TOP_5000_ID = 13;
 
   // Formatting helpers
-  const normalise = (v) => String(v ?? "").toLocaleLowerCase("el").normalize("NFD").replace(/\p{Diacritic}/gu, "");
-  const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": "Adjectives", "Ρήματα": "Verbs", "Εκφράσεις": "Phrases", "Top 5000": "Top 5000"})[v] ?? v;
+const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": "Adjectives", "Ρήματα": "Verbs", "Εκφράσεις": "Phrases", "Top 5000": "Top 5000"})[v] ?? v;
   const displayGroup = (k) => ({art:"Articles", part:"Particles", v:"Verbs", n:"Nouns", adj:"Adjectives", adv:"Adverbs", prep:"Prepositions", pron:"Pronouns", conj:"Conjunctions", interj:"Interjections", det:"Determiners", num:"Numbers", coll:"Collective"})[k] ?? k;
 
   async function loadData() {
@@ -214,9 +214,8 @@
       if (![cat, ...tags].some(t => t.toLowerCase().includes(filter.toLowerCase()))) return false;
     }
     if (globalSearch) {
-      const s = normalise(globalSearch);
-      const fields = [e.term, e.lemma, e.english, ...e.english_senses].join(" ");
-      if (!normalise(fields).includes(s)) return false;
+      const fields = [e.term, e.lemma, e.english, ...e.english_senses].filter(Boolean).join(" ");
+      if (!textMatchesSearch(fields, globalSearch)) return false;
     }
     return true;
   });
