@@ -11,6 +11,7 @@
     PenLine,
     Send,
     Sparkles,
+    Trash2,
     Type,
     X,
   } from "lucide-svelte";
@@ -154,6 +155,13 @@
     }
   }
 
+  function clearChat() {
+    chatMessages = [];
+    streamingText = "";
+    pendingTemplate = null;
+    wordMode = false;
+  }
+
   function toggle() {
     open = !open;
     if (open) {
@@ -204,6 +212,11 @@
           title={aiModel === 'flash' ? 'Using Flash — click for Lite' : 'Using Lite — click for Flash'}
           on:click={() => aiModel = aiModel === 'lite' ? 'flash' : 'lite'}
         >{aiModel === 'flash' ? '⚡' : '·'}</button>
+        {#if chatMessages.length}
+          <button class="yiayia-icon-btn" type="button" title="Clear chat" on:click={clearChat}>
+            <Trash2 size={14} />
+          </button>
+        {/if}
         <button class="yiayia-icon-btn" type="button" title={expanded ? "Minimize" : "Expand"} on:click={() => expanded = !expanded}>
           {#if expanded}<Minimize2 size={14} />{:else}<Maximize2 size={14} />{/if}
         </button>

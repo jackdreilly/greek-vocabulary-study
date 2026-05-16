@@ -152,7 +152,7 @@ const YiayiaMessageSchema = z.object({
 const YiayiaChatInputSchema = z.object({
   lessonId: z.number(),
   lessonTitle: z.string(),
-  exercise: GameExerciseSchema.optional(),
+  exercise: GameExerciseSchema.nullish(),
   entries: z.array(LessonEntrySchema).max(80).default([]),
   messages: z.array(YiayiaMessageSchema).min(1).max(16),
   preferences: LearningPreferencesSchema.default({ responseLanguage: 'english', cefrLevel: 'A2' }),
@@ -260,7 +260,7 @@ const getLessonOverviewTool = getAI().defineTool(
       'Fetch compact metadata for a GreekFlash lesson: title, counts, categories, and a small representative word sample. Use before generating lesson exercises.',
     inputSchema: z.object({
       lessonId: z.number(),
-      sampleLimit: z.number().min(0).max(20).default(10),
+      sampleLimit: z.number().min(0).max(20).optional().default(10),
     }),
     outputSchema: z.object({
       lessonId: z.number(),
@@ -304,9 +304,9 @@ const searchLessonWordsTool = getAI().defineTool(
       'Search lesson vocabulary by Greek, English, or category. Returns only a small capped list, so call it with targeted terms such as "teacher", "write", "exam", or category names.',
     inputSchema: z.object({
       lessonId: z.number(),
-      query: z.string().default(''),
-      category: z.string().default(''),
-      limit: z.number().min(1).max(50).default(12),
+      query: z.string().optional().default(''),
+      category: z.string().optional().default(''),
+      limit: z.number().min(1).max(50).optional().default(12),
     }),
     outputSchema: z.object({
       lessonId: z.number(),
@@ -338,7 +338,7 @@ const getExerciseCoverageTool = getAI().defineTool(
       'Fetch compact coverage and deduplication data for generated lesson games: counts by game type, recently used prompts, required words, and source entry ids. Use this to avoid repeating game types, words, and prompts.',
     inputSchema: z.object({
       lessonId: z.number(),
-      perTypeLimit: z.number().min(1).max(20).default(8),
+      perTypeLimit: z.number().min(1).max(20).optional().default(8),
     }),
     outputSchema: z.object({
       lessonId: z.number(),
