@@ -357,6 +357,22 @@
   />
 </div>
 
+{#if shortcutsOpen}
+  <div class="modal-overlay" on:click={() => shortcutsOpen = false}>
+    <div class="modal-content" on:click|stopPropagation>
+      <div class="modal-header">
+        <h2>Keyboard Shortcuts</h2>
+        <button on:click={() => shortcutsOpen = false}><X /></button>
+      </div>
+      <div class="modal-body shortcuts-body">
+        <div class="shortcut-row"><kbd>?</kbd> / <kbd>H</kbd><span>Toggle this help</span></div>
+        <div class="shortcut-row"><kbd>←</kbd> <kbd>→</kbd><span>Previous / next card</span></div>
+        <div class="shortcut-row"><kbd>Space</kbd> / <kbd>Enter</kbd><span>Flip card</span></div>
+      </div>
+    </div>
+  </div>
+{/if}
+
 {#if editingEntry}
   <div class="modal-overlay" on:click={closeEdit}>
     <div class="modal-content" on:click|stopPropagation>
@@ -438,6 +454,12 @@
   .modal-footer button { padding: 8px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; }
   .modal-footer .cancel { border: none; background: transparent; color: #667085; }
   .modal-footer .save { border: none; background: #17614f; color: #fff; }
+
+  .shortcuts-body { gap: 8px; }
+  .shortcut-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0f2f7; font-size: 14px; color: #202124; font-weight: 600; }
+  .shortcut-row:last-child { border-bottom: none; }
+  .shortcut-row span { margin-left: auto; color: #667085; font-weight: 500; }
+  kbd { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 6px; border: 1px solid #d9dee7; background: #f7f8fb; font-family: inherit; font-size: 12px; font-weight: 700; color: #202124; box-shadow: 0 1px 0 #d9dee7; }
 
   .sidebar-backdrop { display: none; }
 
