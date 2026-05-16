@@ -4,8 +4,10 @@ import {
   deleteDoc,
   doc,
   getDocs,
+  query,
   setDoc,
   updateDoc,
+  where,
 } from "firebase/firestore";
 import { db, functions } from "./firebase";
 
@@ -103,13 +105,14 @@ function withDefaults(exercise, lessonId, generatedBy = "seed") {
 }
 
 export async function loadLessonExercises(lessonId) {
+  const q = query(collection(db, "lesson_ai_exercises"), where("lessonId", "==", Number(lessonId)));
   const snapshot = await Promise.race([
-    getDocs(collection(db, "lesson_ai_exercises")),
+    getDocs(q),
     new Promise((_, reject) => setTimeout(() => reject(new Error("Firestore timed out")), 3500)),
   ]);
   return snapshot.docs
     .map((item) => item.data())
-    .filter((item) => Number(item.lessonId) === Number(lessonId) && item.status !== "removed")
+    .filter((item) => item.status !== "removed")
     .sort((left, right) => String(left.id).localeCompare(String(right.id)));
 }
 

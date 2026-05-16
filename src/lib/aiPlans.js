@@ -4,7 +4,9 @@ import {
   deleteDoc,
   doc,
   getDocs,
+  query,
   setDoc,
+  where,
 } from "firebase/firestore";
 import { db, functions } from "./firebase";
 import { entriesForAI } from "./aiGames";
@@ -12,13 +14,14 @@ import { entriesForAI } from "./aiGames";
 const PLANS_COLLECTION = "lesson_ai_plans";
 
 export async function loadLessonPlans(lessonId) {
+  const q = query(collection(db, PLANS_COLLECTION), where("lessonId", "==", Number(lessonId)));
   const snapshot = await Promise.race([
-    getDocs(collection(db, PLANS_COLLECTION)),
+    getDocs(q),
     new Promise((_, reject) => setTimeout(() => reject(new Error("Firestore timed out")), 5000)),
   ]);
   return snapshot.docs
     .map((item) => item.data())
-    .filter((item) => Number(item.lessonId) === Number(lessonId) && item.status !== "removed")
+    .filter((item) => item.status !== "removed")
     .sort((a, b) => (Number(a.planNumber) || 0) - (Number(b.planNumber) || 0));
 }
 

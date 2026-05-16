@@ -19,7 +19,7 @@
   import { db, storage } from "./lib/firebase";
   import { textMatchesSearch } from "./lib/search.js";
   import { generateVocabSuggestions, aiAssistVocabEntry, saveNewVocabEntry, generateLessonContent, saveNewLesson } from "./lib/aiVocab.js";
-  import { collection, getDocsFromServer, doc, updateDoc } from "firebase/firestore";
+  import { collection, getDocs, query, where, orderBy, doc, updateDoc } from "firebase/firestore";
   import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
   
   // Components
@@ -32,9 +32,13 @@
   import YiaYiaChat from "./YiaYiaChat.svelte";
 
   // Data State
-  let data = null;       // set once themes are ready; entries may still be loading
-  let entriesReady = false;
+  // Themes are the top of the cascade — small (~40 docs), loaded once on boot.
+  // Entries are loaded on demand per lesson and cached in lessonEntriesCache.
+  let themes = null;
   let loadError = "";
+  let lessonEntriesCache = new Map();   // lessonId (Number) -> Entry[]
+  let lessonEntriesLoading = new Set(); // lessonIds currently being fetched
+  let lessonEntriesError = "";
   let view = "courses"; // "courses" | "lessons" | "study"
   let activeTab = "cards"; // "cards" | "games" | "vocab" | "plans"
 
@@ -111,99 +115,106 @@
 const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": "Adjectives", "Ρήματα": "Verbs", "Εκφράσεις": "Phrases", "Top 5000": "Top 5000"})[v] ?? v;
   const displayGroup = (k) => ({art:"Articles", part:"Particles", v:"Verbs", n:"Nouns", adj:"Adjectives", adv:"Adverbs", prep:"Prepositions", pron:"Pronouns", conj:"Conjunctions", interj:"Interjections", det:"Determiners", num:"Numbers", coll:"Collective"})[k] ?? k;
 
-  async function loadData() {
+  async function loadThemes() {
     try {
-      // Fire both fetches simultaneously — don't wait for entries to show UI
-      const tPromise = getDocsFromServer(collection(db, "themes"));
-      const ePromise = getDocsFromServer(collection(db, "entries"));
-
-      const rawThemes = (await tPromise).docs.map(d => d.data());
-      data = { themes: prepareThemesOnly(rawThemes), entries: [] };
+      const snap = await getDocs(collection(db, "themes"));
+      themes = prepareThemes(snap.docs.map(d => d.data()));
       loadStateFromUrl();
-
-      const rawEntries = (await ePromise).docs.map(d => d.data());
-      data = prepareData({ themes: rawThemes, entries: rawEntries });
-      entriesReady = true;
     } catch (e) {
       loadError = e.message;
     }
   }
 
-  function prepareThemesOnly(rawThemes) {
-    return rawThemes
+  async function loadLessonEntries(lessonId) {
+    const id = Number(lessonId);
+    if (!id || !themes) return;
+    if (lessonEntriesCache.has(id) || lessonEntriesLoading.has(id)) return;
+
+    lessonEntriesLoading.add(id);
+    lessonEntriesLoading = new Set(lessonEntriesLoading);
+    lessonEntriesError = "";
+
+    try {
+      const theme = themes.find(t => Number(t.id) === id);
+      let q;
+      if (theme?.rankStart != null && theme?.rankEnd != null) {
+        // Top 5000 sub-lesson: range query on frequency_rank within theme 13.
+        // Requires composite index (theme_id ASC, frequency_rank ASC).
+        q = query(
+          collection(db, "entries"),
+          where("theme_id", "==", TOP_5000_ID),
+          where("frequency_rank", ">=", theme.rankStart),
+          where("frequency_rank", "<=", theme.rankEnd),
+          orderBy("frequency_rank"),
+        );
+      } else {
+        q = query(collection(db, "entries"), where("theme_id", "==", id));
+      }
+      const snap = await getDocs(q);
+      const rows = snap.docs.map(d => prepareEntry(d.data()));
+      lessonEntriesCache.set(id, rows);
+      lessonEntriesCache = new Map(lessonEntriesCache);
+    } catch (e) {
+      lessonEntriesError = e.message || "Could not load lesson.";
+    } finally {
+      lessonEntriesLoading.delete(id);
+      lessonEntriesLoading = new Set(lessonEntriesLoading);
+    }
+  }
+
+  function prepareEntry(e) {
+    return {
+      ...e,
+      theme: Number(e.theme_id) === TOP_5000_ID ? "Top 5000" : e.theme,
+      category: e.category === "SilentShuffle" ? "Top 5000" : (e.category || "Top 5000"),
+      english_senses: Array.isArray(e.english_senses) && e.english_senses.length
+        ? e.english_senses
+        : (e.english ? e.english.split(/\s*;\s*/).filter(Boolean) : []),
+      groupKeys: e.groupKeys?.length ? e.groupKeys : groupKeysFrom(e.subsection),
+    };
+  }
+
+  function prepareThemes(rawThemes) {
+    // Drop the raw aggregate Top 5000 theme (id=13) from the list view; users
+    // browse it via the 20 sub-themes (1301-1320) instead.
+    const working = rawThemes
       .filter(t => Number(t.id) !== TOP_5000_ID)
       .map(t => ({
         ...t,
         entry_count: t.entry_count ?? 0,
         translated_count: t.translated_count ?? 0,
         audio_count: t.audio_count ?? 0,
-        course: COURSE_DEFS.find(c => c.ids(Number(t.id)))?.name ?? "Other",
-      }))
-      .sort((a, b) => {
-        const courseOrder = COURSE_DEFS.map(c => c.name);
-        const ca = courseOrder.indexOf(a.course);
-        const cb = courseOrder.indexOf(b.course);
-        if (ca !== cb) return ca - cb;
-        return Number(a.id) - Number(b.id);
-      });
-    // Top 5000 sub-themes omitted until entries load (they need rank data)
-  }
+        course: t.course || COURSE_DEFS.find(c => c.ids(Number(t.id)))?.name || "Other",
+      }));
 
-  function prepareData(payload) {
-    const entries = payload.entries.map(e => ({
-      ...e,
-      theme: Number(e.theme_id) === TOP_5000_ID ? "Top 5000" : e.theme,
-      category: e.category === "SilentShuffle" ? "Top 5000" : (e.category || "Top 5000"),
-      english_senses: Array.isArray(e.english_senses) && e.english_senses.length ? e.english_senses : (e.english ? e.english.split(/\s*;\s*/).filter(Boolean) : []),
-      groupKeys: e.groupKeys?.length ? e.groupKeys : groupKeysFrom(e.subsection),
-    }));
-
-    // Build main themes (exclude raw Top 5000 theme from list view)
-    const themes = payload.themes
-      .filter(t => Number(t.id) !== TOP_5000_ID)
-      .map(t => {
-        const tEntries = entries.filter(e => Number(e.theme_id) === Number(t.id));
-        return {
-          ...t,
-          entry_count: tEntries.length,
-          translated_count: tEntries.filter(e => e.english || e.english_senses?.length).length,
-          audio_count: tEntries.filter(e => e.audio_available).length,
-          // Use explicit course field if stored on the doc (AI-generated lessons), else derive from ID range
-          course: t.course || COURSE_DEFS.find(c => c.ids(Number(t.id)))?.name || "Other",
-        };
-      })
-      .sort((a, b) => Number(a.id) - Number(b.id));
-
-    // Build 20 virtual Top 5000 sub-lessons
-    const top5kEntries = entries
-      .filter(e => Number(e.theme_id) === TOP_5000_ID)
-      .sort((a, b) => (Number(a.frequency_rank) || 9999) - (Number(b.frequency_rank) || 9999));
-
+    // If the backfill script has run, the 20 Top 5000 sub-theme docs already
+    // exist in Firestore with accurate stats + rankStart/rankEnd. If it hasn't,
+    // synthesize them here so the courses page still renders.
+    const existingIds = new Set(working.map(t => Number(t.id)));
     for (let i = 0; i < 20; i++) {
-      const chunk = top5kEntries.slice(i * TOP_5000_CHUNK, (i + 1) * TOP_5000_CHUNK);
-      const rankStart = chunk[0]?.frequency_rank ?? i * TOP_5000_CHUNK + 1;
-      const rankEnd = chunk[chunk.length - 1]?.frequency_rank ?? (i + 1) * TOP_5000_CHUNK;
-      themes.push({
-        id: TOP_5000_SUB_BASE + i + 1,
+      const id = TOP_5000_SUB_BASE + i + 1;
+      if (existingIds.has(id)) continue;
+      const rankStart = i * TOP_5000_CHUNK + 1;
+      const rankEnd = (i + 1) * TOP_5000_CHUNK;
+      working.push({
+        id,
         title: `Words ${rankStart}–${rankEnd}`,
-        entry_count: chunk.length,
-        translated_count: chunk.filter(e => e.english).length,
-        audio_count: chunk.filter(e => e.audio_available).length,
         course: "Top 5000",
-        rankStart: Number(rankStart),
-        rankEnd: Number(rankEnd),
+        rankStart,
+        rankEnd,
+        entry_count: TOP_5000_CHUNK,
+        translated_count: TOP_5000_CHUNK,
+        audio_count: 0,
       });
     }
 
-    themes.sort((a, b) => {
+    return working.sort((a, b) => {
       const courseOrder = COURSE_DEFS.map(c => c.name);
       const ca = courseOrder.indexOf(a.course);
       const cb = courseOrder.indexOf(b.course);
       if (ca !== cb) return ca - cb;
       return Number(a.id) - Number(b.id);
     });
-
-    return { themes, entries: entries.sort((a,b) => Number(a.id) - Number(b.id)) };
   }
 
   function groupKeysFrom(v) {
@@ -222,9 +233,8 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
       selectedLessonId = Number(lessonMatch[1]);
       view = "study";
       activeTab = tabMatch?.[1] || "cards";
-      // Restore selectedCourse from the lesson's theme if we have data
-      if (data) {
-        const t = data.themes.find(th => th.id === selectedLessonId);
+      if (themes) {
+        const t = themes.find(th => Number(th.id) === selectedLessonId);
         selectedCourse = t?.course ?? selectedCourse;
       }
     } else if (courseMatch) {
@@ -335,8 +345,14 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
   async function saveEdit() {
     if (!editingEntry) return;
     await updateDoc(doc(db, "entries", String(editingEntry.id)), { english_senses: editingEntry.english_senses || [], image: editingEntry.image || null });
-    data.entries = data.entries.map(e => e.id === editingEntry.id ? { ...editingEntry } : e);
-    data = { ...data };
+    // Patch the entry wherever it currently sits in the per-lesson cache.
+    // An entry can live in two caches at once for Top 5000 (raw theme 13 + sub-theme).
+    for (const [lid, entries] of lessonEntriesCache.entries()) {
+      if (entries.some(e => e.id === editingEntry.id)) {
+        lessonEntriesCache.set(lid, entries.map(e => e.id === editingEntry.id ? { ...e, ...editingEntry } : e));
+      }
+    }
+    lessonEntriesCache = new Map(lessonEntriesCache);
     closeEdit();
   }
 
@@ -385,7 +401,14 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
     try {
       const toSave = addVocabSuggestions.filter((_, i) => addVocabSelected.has(i));
       const saved = await Promise.all(toSave.map(s => saveNewVocabEntry({ entry: s, lessonId: selectedLessonId })));
-      data = { ...data, entries: [...data.entries, ...saved] };
+      const id = Number(selectedLessonId);
+      const cur = lessonEntriesCache.get(id) ?? [];
+      lessonEntriesCache.set(id, [...cur, ...saved.map(prepareEntry)]);
+      lessonEntriesCache = new Map(lessonEntriesCache);
+      // Reflect new entry count in the theme list
+      themes = themes.map(t => Number(t.id) === id
+        ? { ...t, entry_count: (t.entry_count ?? 0) + saved.length, translated_count: (t.translated_count ?? 0) + saved.length }
+        : t);
       closeAddVocab();
     } catch (e) {
       addVocabError = e.message || 'Save failed.';
@@ -434,7 +457,9 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
         courseName: selectedCourse,
         entries: toSave,
       });
-      data = { ...data, themes: [...data.themes, { ...theme, groupKeys: [] }], entries: [...data.entries, ...saved] };
+      themes = [...themes, { ...theme, groupKeys: [] }];
+      lessonEntriesCache.set(Number(theme.id), saved.map(prepareEntry));
+      lessonEntriesCache = new Map(lessonEntriesCache);
       closeGenLesson();
     } catch (e) { genLessonError = e.message || 'Save failed.'; }
     finally { genLessonSaving = false; }
@@ -475,16 +500,18 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
         courseName: genCourseName,
         entries: toSave,
       });
-      data = { ...data, themes: [...data.themes, { ...theme, groupKeys: [] }], entries: [...data.entries, ...saved] };
+      themes = [...themes, { ...theme, groupKeys: [] }];
+      lessonEntriesCache.set(Number(theme.id), saved.map(prepareEntry));
+      lessonEntriesCache = new Map(lessonEntriesCache);
       closeGenCourse();
     } catch (e) { genCourseError = e.message || 'Save failed.'; }
     finally { genCourseSaving = false; }
   }
 
   $: courses = (() => {
-    if (!data) return [];
+    if (!themes) return [];
     const map = new Map();
-    for (const t of data.themes) {
+    for (const t of themes) {
       const c = t.course ?? "Other";
       if (!map.has(c)) map.set(c, { name: c, lessons: [] });
       map.get(c).lessons.push(t);
@@ -499,20 +526,14 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
     });
   })();
 
-  $: courseLessons = data?.themes.filter(t => t.course === selectedCourse) ?? [];
-  $: selectedLesson = data?.themes.find(t => t.id === selectedLessonId);
-  $: lessonEntries = (() => {
-    if (!data || !selectedLessonId) return [];
-    const t = data.themes.find(th => th.id === selectedLessonId);
-    if (t?.rankStart != null) {
-      return data.entries.filter(e =>
-        Number(e.theme_id) === TOP_5000_ID &&
-        Number(e.frequency_rank) >= t.rankStart &&
-        Number(e.frequency_rank) <= t.rankEnd
-      );
-    }
-    return data.entries.filter(e => e.theme_id === selectedLessonId);
-  })();
+  $: courseLessons = themes?.filter(t => t.course === selectedCourse) ?? [];
+  $: selectedLesson = themes?.find(t => Number(t.id) === Number(selectedLessonId));
+  $: lessonEntries = selectedLessonId ? (lessonEntriesCache.get(Number(selectedLessonId)) ?? []) : [];
+  $: lessonEntriesReady = selectedLessonId ? lessonEntriesCache.has(Number(selectedLessonId)) : false;
+
+  // Reactive trigger: when a lesson is selected (or the URL changes to one),
+  // fetch its entries lazily. Cached afterwards for instant back-navigation.
+  $: if (selectedLessonId && themes) loadLessonEntries(selectedLessonId);
   
   $: filteredEntries = lessonEntries.filter(e => {
     if (translatedOnly && !e.english) return false;
@@ -537,7 +558,7 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
     return [...types, ...groups].sort((a,b) => a.label.localeCompare(b.label));
   })();
 
-  onMount(loadData);
+  onMount(loadThemes);
 </script>
 
 <svelte:window on:keydown={handleKeydown} on:popstate={loadStateFromUrl} />
@@ -575,7 +596,7 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
   </header>
 
   <main class="app-main" class:study={view === 'study'}>
-    {#if !data}
+    {#if !themes}
       <div class="loading-state">
         <LoaderCircle class="animate-spin" size={48} />
         <p>Illuminating vocabulary...</p>
@@ -642,7 +663,9 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
           </header>
 
           <div class="page-container">
-            {#if !entriesReady}
+            {#if lessonEntriesError}
+              <div class="loading-state"><p style="color:#a24f3f">Could not load this lesson: {lessonEntriesError}</p></div>
+            {:else if !lessonEntriesReady}
               <div class="loading-state"><LoaderCircle class="animate-spin" size={36} /><p>Loading vocabulary…</p></div>
             {:else if activeTab === 'cards'}
               <FlashcardsPage 

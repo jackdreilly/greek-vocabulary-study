@@ -14,7 +14,11 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+// persistentSingleTabManager: avoids the multi-tab leader-election hang during init.
+// experimentalAutoDetectLongPolling: probes for WebChannel and falls back automatically
+// on networks where it fails (corporate proxies, some mobile carriers).
 export const db = initializeFirestore(app, {
+  experimentalAutoDetectLongPolling: true,
   localCache: persistentLocalCache({ tabManager: persistentSingleTabManager() })
 }, "greek-vocab");
 
