@@ -5,10 +5,11 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 async function loadEnvFile() {
-  const envPath = path.join(process.cwd(), ".env");
-  const envContent = await fs.readFile(envPath, "utf8").catch(() => "");
+  const envPaths = [path.join(process.cwd(), ".env"), path.resolve(process.cwd(), "../.env")];
+  const envContents = await Promise.all(envPaths.map((envPath) => fs.readFile(envPath, "utf8").catch(() => "")));
   return Object.fromEntries(
-    envContent
+    envContents
+      .join("\n")
       .split("\n")
       .map((line) => line.trim())
       .filter((line) => line && !line.startsWith("#"))

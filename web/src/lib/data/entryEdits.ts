@@ -13,6 +13,10 @@ export type PexelsPhoto = {
 
 export type EntryImage = NonNullable<EntryDoc["image"]>;
 
+function compact<T extends Record<string, unknown>>(value: T): T {
+  return Object.fromEntries(Object.entries(value).filter(([, v]) => v !== undefined)) as T;
+}
+
 export async function saveEntryEdit(input: {
   courseId: string;
   lessonId: string;
@@ -38,11 +42,11 @@ export async function searchPexelsImages(query: string) {
 }
 
 export function imageFromPexels(photo: PexelsPhoto): EntryImage {
-  return {
+  return compact({
     url: photo.src.large ?? photo.src.medium ?? photo.src.small ?? "",
     thumbnail: photo.src.medium ?? photo.src.small,
     position: "center",
     photographer: photo.photographer,
     pexelsUrl: photo.pexelsUrl,
-  };
+  });
 }

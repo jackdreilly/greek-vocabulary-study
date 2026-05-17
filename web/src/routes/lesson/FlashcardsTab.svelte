@@ -60,6 +60,14 @@
     return entry.senses?.length ? entry.senses : [entry.english];
   }
 
+  function primarySense(entry: typeof current) {
+    return senses(entry)[0] ?? "";
+  }
+
+  function secondarySenses(entry: typeof current) {
+    return senses(entry).slice(1);
+  }
+
   function directionForCard(entry: NonNullable<typeof current>, cardIndex: number, cardMode: typeof mode) {
     if (cardMode === "mixed") return (shuffleKey(entry.id, cardIndex + 17) % 2 === 0) ? "gr-en" : "en-gr";
     return cardMode;
@@ -211,10 +219,7 @@
             suppressNextClick = false;
           }
         }}
-        class="relative w-full min-h-80 touch-pan-y select-none rounded-lg border bg-(--color-surface) px-6 py-8 text-left shadow-sm focus:outline-none focus:ring-2 focus:ring-(--color-accent)
-          {flipped
-          ? 'border-[#f59e0b] bg-[#fffbeb]'
-          : 'border-(--color-border) hover:border-(--color-border-strong)'}
+        class="relative w-full min-h-[22rem] touch-pan-y select-none rounded-lg border border-(--color-border) bg-(--color-surface) px-8 py-8 text-left shadow-sm hover:border-(--color-border-strong) focus:outline-none focus:ring-2 focus:ring-(--color-accent)
           {dragTransition ? 'transition-transform duration-150 ease-out' : ''}"
         style="transform: {cardTransform}"
       >
@@ -235,22 +240,28 @@
                 <GreekText size="lg">{current.lemma}</GreekText>
               </div>
             {:else}
-              <ol class="text-left text-2xl font-semibold leading-relaxed list-decimal">
-                {#each senses(current) as sense}
-                  <li>{sense}</li>
-                {/each}
-              </ol>
+              <div class="max-w-md text-center">
+                <p class="text-3xl font-semibold tracking-tight leading-tight">{primarySense(current)}</p>
+                {#if secondarySenses(current).length}
+                  <p class="mt-3 text-base text-(--color-muted)">
+                    {secondarySenses(current).join("; ")}
+                  </p>
+                {/if}
+              </div>
             {/if}
             <p class="mt-6 text-sm text-(--color-muted)">Tap, Space, or Enter to flip</p>
           </div>
         {:else}
-          <div class="flex h-full min-h-56 flex-col justify-center">
+          <div class="flex h-full min-h-56 flex-col items-center justify-center text-center">
             {#if direction === "gr-en"}
-              <ol class="text-left text-2xl font-semibold leading-relaxed list-decimal">
-                {#each senses(current) as sense}
-                  <li>{sense}</li>
-                {/each}
-              </ol>
+              <div class="max-w-md">
+                <p class="text-3xl font-semibold tracking-tight leading-tight">{primarySense(current)}</p>
+                {#if secondarySenses(current).length}
+                  <p class="mt-3 text-base text-(--color-muted)">
+                    {secondarySenses(current).join("; ")}
+                  </p>
+                {/if}
+              </div>
             {:else}
               <div class="flex items-baseline gap-2">
                 {#if current.article}
@@ -259,8 +270,8 @@
                 <GreekText size="lg">{current.lemma}</GreekText>
               </div>
             {/if}
-            <div class="mt-6 pt-5 border-t border-(--color-border)">
-              <div class="flex items-baseline gap-2">
+            <div class="mt-8 w-full max-w-md border-t border-(--color-border) pt-5">
+              <div class="flex items-baseline justify-center gap-2">
                 {#if current.article}
                   <span class="text-(--color-muted) text-sm">{current.article}</span>
                 {/if}
