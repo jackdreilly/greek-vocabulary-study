@@ -6,16 +6,18 @@
 <title>Greekflash Rewrite — Design Walkthrough</title>
 <style>
   :root {
-    --bg: #FAFAF7;
-    --surface: #FFFFFF;
-    --text: #1A1A1A;
-    --muted: #6B6B6B;
-    --border: #E5E3DD;
-    --accent: #4A6FA5;
-    --gen: #C49B5C;
-    --danger: #B85450;
-    --teal: #2A5A4E;
-    --code-bg: #F2F0EA;
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface-muted: #f8fafc;
+    --text: #0f172a;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --success: #16a34a;
+    --gen: #f59e0b;
+    --danger: #dc2626;
+    --code-bg: #f1f5f9;
     --max: 760px;
   }
   * { box-sizing: border-box; }
@@ -57,10 +59,10 @@
 
   main { max-width: var(--max); }
 
-  .eyebrow { font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
-  h1 { font-family: "Crimson Pro", "EB Garamond", Georgia, serif; font-size: 44px; line-height: 1.15; margin: 0 0 16px; font-weight: 500; letter-spacing: -0.01em; }
-  h2 { font-family: "Crimson Pro", Georgia, serif; font-size: 30px; line-height: 1.2; margin: 56px 0 12px; font-weight: 500; letter-spacing: -0.005em; }
-  h3 { font-size: 17px; font-weight: 600; margin: 32px 0 10px; letter-spacing: -0.005em; }
+  .eyebrow { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
+  h1 { font-size: 40px; line-height: 1.1; margin: 0 0 16px; font-weight: 700; letter-spacing: -0.02em; }
+  h2 { font-size: 26px; line-height: 1.25; margin: 56px 0 12px; font-weight: 600; letter-spacing: -0.015em; }
+  h3 { font-size: 16px; font-weight: 600; margin: 28px 0 10px; letter-spacing: -0.005em; }
   p { margin: 0 0 14px; }
   p, li { color: var(--text); }
   ul, ol { padding-left: 22px; margin: 0 0 14px; }
@@ -71,8 +73,8 @@
   a:hover { text-decoration: underline; }
   code { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; background: var(--code-bg); padding: 1px 6px; border-radius: 4px; }
 
-  .lede { font-size: 20px; line-height: 1.55; color: var(--text); margin: 0 0 8px; font-family: "Crimson Pro", Georgia, serif; }
-  .sublede { color: var(--muted); font-size: 16px; margin-bottom: 36px; }
+  .lede { font-size: 19px; line-height: 1.55; color: var(--text); margin: 0 0 8px; }
+  .sublede { color: var(--muted); font-size: 15px; margin-bottom: 36px; }
 
   .card {
     background: var(--surface);
@@ -80,6 +82,7 @@
     border-radius: 10px;
     padding: 24px 26px;
     margin: 14px 0;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   }
   .card h3 { margin-top: 0; }
 
@@ -95,19 +98,19 @@
   .pill {
     display: inline-block;
     font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 3px 10px;
+    letter-spacing: 0.04em;
+    padding: 2px 10px;
     border-radius: 999px;
     border: 1px solid var(--border);
     color: var(--muted);
-    background: var(--surface);
+    background: var(--surface-muted);
     margin-right: 6px;
     vertical-align: 2px;
+    font-weight: 500;
   }
-  .pill.gen { color: var(--gen); border-color: #E8D9BD; background: #FDF7EC; }
-  .pill.ok { color: var(--teal); border-color: #C9DCD5; background: #EEF6F3; }
-  .pill.danger { color: var(--danger); border-color: #E5C9C7; background: #FBEFEE; }
+  .pill.gen { color: #b45309; border-color: #fde68a; background: #fffbeb; }
+  .pill.ok { color: #15803d; border-color: #bbf7d0; background: #f0fdf4; }
+  .pill.danger { color: var(--danger); border-color: #fecaca; background: #fef2f2; }
 
   .mockup {
     border: 1px solid var(--border);
@@ -120,8 +123,8 @@
   .mockup .bar .brand { color: var(--text); font-weight: 600; }
   .mockup .bar .sep { color: var(--border); }
   .mockup .body { padding: 28px; }
-  .mockup .body .greek { font-family: "Crimson Pro", "EB Garamond", Georgia, serif; color: var(--teal); font-size: 22px; }
-  .mockup .body .english { font-family: "Crimson Pro", Georgia, serif; color: var(--text); font-size: 18px; }
+  .mockup .body .greek { font-family: "Crimson Pro", "EB Garamond", Georgia, serif; color: var(--text); font-size: 22px; }
+  .mockup .body .english { color: var(--text); font-size: 16px; }
   .mockup .row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
   .mockup .row:last-child { border-bottom: none; }
   .mockup .lesson-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
@@ -301,17 +304,19 @@
         <li><strong>Counts surface only where decisions happen.</strong> No stat stripes. No badge counts on tabs. The status pill on a lesson row tells you what you need to know.</li>
       </ul>
       <p><strong>Container types</strong> — every visible surface is one of: <em>Page</em>, <em>List page</em>, <em>Reader</em> (focus mode), <em>Drawer</em>, <em>Bottom sheet</em>, <em>Modal</em>, or <em>Inline indicator</em>. Anything new requires a doc-level decision.</p>
-      <p>Palette is two or three accent colors over a warm off-white:</p>
+      <p>Clean, near-monochrome base — Tailwind/Bootstrap idiom. White surfaces, slate text, a single blue primary accent. Status colors used semantically only.</p>
       <div class="swatches">
-        <div class="swatch"><div class="chip" style="background:#FAFAF7"></div>Parchment</div>
-        <div class="swatch"><div class="chip" style="background:#FFFFFF"></div>Surface</div>
-        <div class="swatch"><div class="chip" style="background:#1A1A1A"></div>Text</div>
-        <div class="swatch"><div class="chip" style="background:#4A6FA5"></div>Accent</div>
-        <div class="swatch"><div class="chip" style="background:#C49B5C"></div>Generating</div>
-        <div class="swatch"><div class="chip" style="background:#B85450"></div>Danger</div>
-        <div class="swatch"><div class="chip" style="background:#2A5A4E"></div>Greek</div>
+        <div class="swatch"><div class="chip" style="background:#ffffff"></div>Background</div>
+        <div class="swatch"><div class="chip" style="background:#f8fafc"></div>Surface muted</div>
+        <div class="swatch"><div class="chip" style="background:#0f172a"></div>Text</div>
+        <div class="swatch"><div class="chip" style="background:#64748b"></div>Muted</div>
+        <div class="swatch"><div class="chip" style="background:#e2e8f0"></div>Border</div>
+        <div class="swatch"><div class="chip" style="background:#2563eb"></div>Accent</div>
+        <div class="swatch"><div class="chip" style="background:#16a34a"></div>Success</div>
+        <div class="swatch"><div class="chip" style="background:#f59e0b"></div>Generating</div>
+        <div class="swatch"><div class="chip" style="background:#dc2626"></div>Danger</div>
       </div>
-      <p>A serif (Crimson Pro / EB Garamond) for Greek text and headings; a clean sans (Inter or system) for English UI. Greek 1–2pt larger than its English counterpart so accents and breathings have air.</p>
+      <p>A clean sans (Inter or system) carries everything UI. Greek strings use a serif (Crimson Pro / EB Garamond) 1–2pt larger than English so accents and breathings have air — distinguished by font, not by hue.</p>
 
       <h3 style="margin-top: 28px;">A taste of what pages look like</h3>
       <div class="mockup">

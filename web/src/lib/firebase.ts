@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import {
   initializeFirestore,
   connectFirestoreEmulator,
@@ -7,15 +7,20 @@ import {
 } from "firebase/firestore";
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 
-// Public config — these are not secrets. Pulled directly from Firebase Console.
+// Public config — these are not secrets. Pulled directly from
+// Firebase Console > Project Settings > General > Your apps.
 const firebaseConfig = {
-  projectId: "fanari-b6bb4",
-  apiKey: "AIzaSyBfa-nar-i-b6bb4-placeholder-replace-me",
+  apiKey: "AIzaSyAGMVfXYL9UaWTJjXi563Ntr3yA8QZMXrI",
   authDomain: "fanari-b6bb4.firebaseapp.com",
+  projectId: "fanari-b6bb4",
   storageBucket: "fanari-b6bb4.firebasestorage.app",
+  messagingSenderId: "899460998724",
+  appId: "1:899460998724:web:9e9fabe68affee29fa3e11",
+  measurementId: "G-L0YSQ8NVQY",
 };
 
-export const app = initializeApp(firebaseConfig);
+// Idempotent init — Vite HMR may re-execute this module.
+export const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
 export const db = initializeFirestore(app, {
   localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),

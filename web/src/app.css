@@ -1,16 +1,21 @@
 @import "tailwindcss";
 
+/* Design tokens — clean, modern, white-base with blue accenting.
+   See docs/rewrite/06-ui-and-design-system.md. */
 @theme {
-  --color-bg: #fafaf7;
+  --color-bg: #ffffff;
   --color-surface: #ffffff;
-  --color-text: #1a1a1a;
-  --color-muted: #6b6b6b;
-  --color-border: #e5e3dd;
+  --color-surface-muted: #f8fafc;
+  --color-text: #0f172a;
+  --color-muted: #64748b;
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
 
-  --color-accent: #4a6fa5;
-  --color-generating: #c49b5c;
-  --color-danger: #b85450;
-  --color-greek: #2a5a4e;
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-success: #16a34a;
+  --color-generating: #f59e0b;
+  --color-danger: #dc2626;
 
   --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
   --font-serif: "Crimson Pro", "EB Garamond", Georgia, serif;
@@ -24,7 +29,7 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
-  font-size: 16.5px;
+  font-size: 16px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
@@ -33,4 +38,8 @@ body {
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 25%, transparent);
 }

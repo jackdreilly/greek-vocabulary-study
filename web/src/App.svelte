@@ -17,31 +17,46 @@
   });
 </script>
 
-<main class="max-w-2xl mx-auto pt-24 px-8">
-  <p class="text-xs tracking-widest uppercase text-(--color-muted) mb-3">Greekflash</p>
-  <h1 class="font-serif text-5xl leading-tight font-medium tracking-tight m-0">
-    The rewrite is alive.
-  </h1>
-  <p class="text-(--color-muted) mt-3">
-    Scaffolding ready. Backend: <code>fanari-b6bb4</code>.
+<main class="max-w-2xl mx-auto pt-24 px-6">
+  <p class="text-xs tracking-widest uppercase text-(--color-muted) mb-2 font-medium">Greekflash</p>
+
+  <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight m-0">The rewrite is alive.</h1>
+
+  <p class="text-(--color-muted) mt-3 text-base">
+    Scaffolding ready. Backend: <code
+      class="font-mono text-sm px-1.5 py-0.5 rounded bg-(--color-surface-muted) border border-(--color-border)"
+      >fanari-b6bb4</code
+    >.
   </p>
 
-  <div class="mt-10 p-6 border border-(--color-border) rounded-lg bg-(--color-surface)">
-    <div class="flex justify-between items-baseline">
+  <div
+    class="mt-10 p-5 border border-(--color-border) rounded-lg bg-(--color-surface) shadow-xs"
+  >
+    <div class="flex justify-between items-center">
       <span class="text-sm text-(--color-muted)">Environment</span>
-      <span class="font-mono text-sm">{env}</span>
+      <span
+        class="text-xs px-2 py-0.5 rounded-full border border-(--color-border) bg-(--color-surface-muted) font-mono text-(--color-text)"
+        >{env}</span
+      >
     </div>
-    <div class="flex justify-between items-baseline mt-2">
+    <div class="flex justify-between items-center mt-3">
       <span class="text-sm text-(--color-muted)">Firestore</span>
-      <span class="font-mono text-sm">
-        {#if connected === "checking"}
-          <span class="text-(--color-generating)">checking…</span>
-        {:else if connected === "online"}
-          <span class="text-(--color-greek)">online</span>
-        {:else}
-          <span class="text-(--color-danger)">offline</span>
-        {/if}
-      </span>
+      {#if connected === "checking"}
+        <span class="inline-flex items-center gap-1.5 text-sm text-(--color-generating)">
+          <span class="w-1.5 h-1.5 rounded-full bg-(--color-generating) animate-pulse"></span>
+          checking…
+        </span>
+      {:else if connected === "online"}
+        <span class="inline-flex items-center gap-1.5 text-sm text-(--color-success)">
+          <span class="w-1.5 h-1.5 rounded-full bg-(--color-success)"></span>
+          online
+        </span>
+      {:else}
+        <span class="inline-flex items-center gap-1.5 text-sm text-(--color-danger)">
+          <span class="w-1.5 h-1.5 rounded-full bg-(--color-danger)"></span>
+          offline
+        </span>
+      {/if}
     </div>
   </div>
 </main>

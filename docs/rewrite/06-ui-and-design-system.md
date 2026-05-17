@@ -4,7 +4,7 @@
 
 The current UI crams a lot onto each page — totals stripes, lesson lists, generate forms, chat widgets all stacked together. The rewrite goes the opposite way: each page does **one thing well**, with navigation, drawers, and routes carrying the rest. Pages stay focused; secondary actions move to drawers or sub-routes.
 
-**Aesthetic in one line:** quiet, content-first, minimal chrome, generous whitespace, one job per page.
+**Aesthetic in one line:** clean, near-monochrome, Tailwind/Bootstrap-style — white surfaces with a single blue accent, generous whitespace, one job per page.
 
 **Principles:**
 
@@ -14,27 +14,31 @@ The current UI crams a lot onto each page — totals stripes, lesson lists, gene
 4. **De-emphasize totals.** Don't decorate every page with "5 plans · 12 games · 327 entries". Surface a count only where the user is about to make a decision based on it.
 5. **Show state honestly.** When something is generating, show the partial result with a quiet indicator — not a spinner over an empty page. The streaming-AI architecture exists to make this possible.
 6. **One primary action per page.** No competing CTAs in the same band.
-7. **Calm color.** Two or three accent colors, used semantically — one for primary action, one for "in progress / generating", one for destructive. The rest is grayscale and a parchment background.
-8. **Type carries the brand.** A serif (Crimson Pro / EB Garamond) for Greek text and headings; a clean sans (Inter or system) for English UI. Greek text is 1–2pt larger than its English counterpart so accents and breathings are readable.
+7. **Near-monochrome base, single accent.** White surfaces, slate text, one blue primary accent (Tailwind / Bootstrap idiom). Green/amber/red used semantically for status only.
+8. **Type does the work.** A clean sans (Inter or system) for everything UI. Greek strings use a serif (Crimson Pro / EB Garamond) 1–2pt larger than English so accents and breathings have air. Headings are sans-serif and bold; no display serif.
 9. **Touch-first spacing.** Tap targets ≥ 44px. Generous line-height for Greek (1.6+) to give diacritics room.
 
 ## Color Palette
 
-Single-palette system, semantic tokens — no per-page color theming.
+Clean, near-monochrome base in the Tailwind/Bootstrap idiom — white surfaces, slate text, a single blue primary accent. No warm/parchment tones, no boutique theming. The aim is "Tailwind UI" / "Linear" calm, not a brand-saturated look.
 
 ```
-Background:   #FAFAF7  (warm off-white, "parchment")
-Surface:      #FFFFFF
-Text primary: #1A1A1A
-Text muted:   #6B6B6B
-Border:       #E5E3DD
+Background:        #FFFFFF
+Surface:           #FFFFFF
+Surface (muted):   #F8FAFC  (slate-50 — subtle backdrop for chips, code, callouts)
+Text primary:      #0F172A  (slate-900)
+Text muted:        #64748B  (slate-500)
+Border:            #E2E8F0  (slate-200)
+Border (strong):   #CBD5E1  (slate-300)
 
-Accent:       #4A6FA5  (cool blue — primary action, link, focus ring)
-Generating:   #C49B5C  (warm amber — anything mid-AI-stream)
-Danger:       #B85450  (muted red — destructive actions, errors)
-
-Greek accent: #2A5A4E  (deep teal — used for the Greek lemma itself in vocab tables)
+Accent (primary):  #2563EB  (blue-600 — links, primary buttons, focus rings)
+Accent (hover):    #1D4ED8  (blue-700)
+Success / ready:   #16A34A  (green-600)
+Generating:        #F59E0B  (amber-500)
+Danger:            #DC2626  (red-600)
 ```
+
+Greek text is not coloured. It's distinguished by **font** (a serif — Crimson Pro / EB Garamond) and **size** (1–2pt larger than its English counterpart in the same row), not by hue. This keeps the palette quiet and lets Greek read as native content, not as decoration.
 
 Dark mode is a future enhancement; design tokens are arranged so a dark palette swap is a CSS variable change, not a code change. Don't ship dark mode until light mode is right.
 
