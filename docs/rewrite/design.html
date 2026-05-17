@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Greekflash Rewrite — Design Walkthrough</title>
+<style>
+  :root {
+    --bg: #FAFAF7;
+    --surface: #FFFFFF;
+    --text: #1A1A1A;
+    --muted: #6B6B6B;
+    --border: #E5E3DD;
+    --accent: #4A6FA5;
+    --gen: #C49B5C;
+    --danger: #B85450;
+    --teal: #2A5A4E;
+    --code-bg: #F2F0EA;
+    --max: 760px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 48px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 56px 32px 96px;
+  }
+  @media (max-width: 800px) {
+    .layout { grid-template-columns: 1fr; gap: 16px; padding: 24px 16px 64px; }
+    nav.toc { position: static; border-right: none; padding-right: 0; }
+  }
+  nav.toc {
+    position: sticky;
+    top: 32px;
+    align-self: start;
+    border-right: 1px solid var(--border);
+    padding-right: 24px;
+    font-size: 14px;
+    line-height: 2.1;
+  }
+  nav.toc h2 { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; font-weight: 600; }
+  nav.toc a { display: block; color: var(--text); text-decoration: none; padding: 2px 0; }
+  nav.toc a:hover { color: var(--accent); }
+  nav.toc .group { margin-bottom: 18px; }
+
+  main { max-width: var(--max); }
+
+  .eyebrow { font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  h1 { font-family: "Crimson Pro", "EB Garamond", Georgia, serif; font-size: 44px; line-height: 1.15; margin: 0 0 16px; font-weight: 500; letter-spacing: -0.01em; }
+  h2 { font-family: "Crimson Pro", Georgia, serif; font-size: 30px; line-height: 1.2; margin: 56px 0 12px; font-weight: 500; letter-spacing: -0.005em; }
+  h3 { font-size: 17px; font-weight: 600; margin: 32px 0 10px; letter-spacing: -0.005em; }
+  p { margin: 0 0 14px; }
+  p, li { color: var(--text); }
+  ul, ol { padding-left: 22px; margin: 0 0 14px; }
+  li { margin-bottom: 6px; }
+  em { color: var(--muted); font-style: italic; }
+  strong { font-weight: 600; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; background: var(--code-bg); padding: 1px 6px; border-radius: 4px; }
+
+  .lede { font-size: 20px; line-height: 1.55; color: var(--text); margin: 0 0 8px; font-family: "Crimson Pro", Georgia, serif; }
+  .sublede { color: var(--muted); font-size: 16px; margin-bottom: 36px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px 26px;
+    margin: 14px 0;
+  }
+  .card h3 { margin-top: 0; }
+
+  .why, .tradeoff {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--border);
+    font-size: 14.5px;
+  }
+  .why::before { content: "WHY"; display: inline-block; font-size: 10px; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; margin-right: 8px; vertical-align: 2px; }
+  .tradeoff::before { content: "TRADE-OFF"; display: inline-block; font-size: 10px; letter-spacing: 0.15em; color: var(--gen); font-weight: 700; margin-right: 8px; vertical-align: 2px; }
+
+  .pill {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: var(--surface);
+    margin-right: 6px;
+    vertical-align: 2px;
+  }
+  .pill.gen { color: var(--gen); border-color: #E8D9BD; background: #FDF7EC; }
+  .pill.ok { color: var(--teal); border-color: #C9DCD5; background: #EEF6F3; }
+  .pill.danger { color: var(--danger); border-color: #E5C9C7; background: #FBEFEE; }
+
+  .mockup {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 16px 0 4px;
+    background: var(--surface);
+  }
+  .mockup .bar { background: var(--bg); border-bottom: 1px solid var(--border); padding: 10px 14px; font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 10px; }
+  .mockup .bar .brand { color: var(--text); font-weight: 600; }
+  .mockup .bar .sep { color: var(--border); }
+  .mockup .body { padding: 28px; }
+  .mockup .body .greek { font-family: "Crimson Pro", "EB Garamond", Georgia, serif; color: var(--teal); font-size: 22px; }
+  .mockup .body .english { font-family: "Crimson Pro", Georgia, serif; color: var(--text); font-size: 18px; }
+  .mockup .row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .mockup .row:last-child { border-bottom: none; }
+  .mockup .lesson-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .mockup .lesson-row:last-child { border-bottom: none; }
+  .mockup .lesson-row .left { display: flex; gap: 14px; align-items: center; }
+  .mockup .lesson-row .num { color: var(--muted); font-size: 13px; min-width: 18px; }
+  .mockup .tabs { display: flex; gap: 28px; padding: 14px 28px 0; border-bottom: 1px solid var(--border); }
+  .mockup .tabs span { padding: 8px 0; color: var(--muted); font-size: 14px; }
+  .mockup .tabs span.active { color: var(--text); border-bottom: 2px solid var(--accent); }
+
+  .flow { display: grid; grid-template-columns: 1fr; gap: 8px; margin: 16px 0; }
+  .step { display: grid; grid-template-columns: 28px 1fr; gap: 14px; align-items: start; padding: 10px 0; border-bottom: 1px dashed var(--border); }
+  .step:last-child { border-bottom: none; }
+  .step .n { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12px; color: var(--muted); padding-top: 2px; }
+  .step .what { font-size: 15px; }
+  .step .what em { display: block; color: var(--muted); font-size: 13.5px; margin-top: 2px; font-style: normal; }
+
+  .roles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0; }
+  @media (max-width: 700px) { .roles { grid-template-columns: 1fr; } }
+  .role { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; font-size: 14px; }
+  .role h4 { margin: 0 0 6px; font-size: 14px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent); }
+
+  .swatches { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0 4px; }
+  .swatch { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .swatch .chip { width: 22px; height: 22px; border-radius: 5px; border: 1px solid var(--border); }
+
+  hr.section { border: none; border-top: 1px solid var(--border); margin: 56px 0 0; }
+
+  .note { font-size: 14px; color: var(--muted); border-left: 3px solid var(--border); padding: 4px 0 4px 14px; margin: 14px 0; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <nav class="toc">
+    <h2>On this page</h2>
+    <div class="group">
+      <a href="#vision">Vision</a>
+      <a href="#scope">In / Out of scope</a>
+    </div>
+    <div class="group">
+      <a href="#d1">1 · Firestore as the bus</a>
+      <a href="#d2">2 · Subcollections</a>
+      <a href="#d3">3 · Streaming AI</a>
+      <a href="#d4">4 · Config, not code</a>
+      <a href="#d5">5 · Generation lineage</a>
+      <a href="#d6">6 · Isolated backend</a>
+      <a href="#d7">7 · UI redesign</a>
+    </div>
+    <div class="group">
+      <a href="#flow">Walkthrough: course gen</a>
+      <a href="#future">Future trajectory</a>
+      <a href="#next">What I do next</a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="eyebrow">Greekflash · Rewrite Design</div>
+    <h1>A from-scratch rewrite, in seven decisions.</h1>
+    <p class="lede">A reactive, streaming, Firestore-native rebuild — designed so that every AI generation feels immediate and confident, and nothing the AI does is irreversible.</p>
+    <p class="sublede">Read time: about 8 minutes. The technical detail lives in <code>docs/rewrite/*.md</code>; this is the human-readable tour.</p>
+
+    <hr class="section" />
+
+    <h2 id="vision">Vision</h2>
+    <p>The current app works, but it has accumulated friction: hardcoded AI models, modal-driven generation flows, one-shot Firestore reads, a split database, and a deploy process you have to do half-by-hand. The rewrite addresses all of that at once.</p>
+    <p>Three feelings we're after:</p>
+    <ul>
+      <li><strong>Magical immediacy.</strong> You click "Generate a course," and you're <em>already on the course page</em> watching it build itself — no spinner, no modal, no waiting screen.</li>
+      <li><strong>Confidence to experiment.</strong> Every AI-generated thing carries a lineage tag. If you don't like what the AI did, "revert generation X" wipes exactly those changes and nothing else.</li>
+      <li><strong>Calm.</strong> A quieter UI. Fewer counts. One primary action per page. Greek text gets room to breathe.</li>
+    </ul>
+
+    <h2 id="scope">In and out of scope</h2>
+    <p><strong>In:</strong> a hard cutover to a new isolated Firebase project (<code>fanari-b6bb4</code>), new schema, new triggers, new AI orchestration, new admin tooling, new deploy pipeline, new visual design. Content (courses, lessons, vocab, plans, games) is migrated from the old project.</p>
+    <p><strong>Out:</strong> user progress (flashcard SRS, scores, streaks) — explicitly <em>not</em> reimplemented in this phase. Auth and multi-user are deferred but architecturally planned for.</p>
+
+    <hr class="section" />
+
+    <div class="eyebrow">Decision 1</div>
+    <h2 id="d1">Firestore is the bus.</h2>
+    <div class="card">
+      <h3>The client writes a stub. Triggers do the work. The frontend listens.</h3>
+      <p>Today's app has a callable Cloud Function for every AI action — you call it, you wait for it, you get the result back. The new app inverts that:</p>
+      <ol>
+        <li>Frontend writes a placeholder doc directly into Firestore: <code>{ status: 'initializing', sourcePrompt }</code>.</li>
+        <li>Frontend immediately navigates to the page for that doc.</li>
+        <li>A Firestore trigger picks the doc up, marks it <code>streaming</code>, does the work, writes results back to the same doc (and its children) piece by piece.</li>
+        <li>The frontend's <code>onSnapshot</code> subscription was already live the whole time. It sees each piece appear.</li>
+      </ol>
+      <div class="why">No more "loading" states. The page is the result, even when the result is half-built. Status indicators are inline and quiet.</div>
+      <div class="tradeoff">More moving parts than a single callable. Triggers need careful locking so two retries don't double-generate. We use Firestore transactions to claim a doc before working on it (lifted directly from fanariotes' proven pattern).</div>
+    </div>
+
+    <div class="eyebrow">Decision 2</div>
+    <h2 id="d2">Subcollections match the hierarchy.</h2>
+    <div class="card">
+      <h3>Courses → lessons → (entries, plans, games)</h3>
+      <p>Today, everything is flat: <code>courses</code>, <code>themes</code>, <code>entries</code>, <code>lesson_ai_plans</code>, <code>lesson_ai_exercises</code> — all top-level collections linked by foreign-key fields. The new schema mirrors the natural tree:</p>
+<pre style="background:var(--code-bg); padding:14px 16px; border-radius:6px; font-size:13px; line-height:1.55; overflow-x:auto;"><code>courses/{courseId}
+  lessons/{lessonId}
+    entries/{entryId}
+    plans/{planId}
+    games/{gameId}</code></pre>
+      <p>Plus a small denormalization: each course doc carries a <code>lessonSummaries</code> map keyed by lesson ID, so the course page renders the lesson list from a single doc read. Triggers keep it in sync.</p>
+      <div class="why">Listing lessons in a course is now "list a subcollection" or "read one doc with summaries" — no <code>where(courseId == …)</code>. Reads are cheaper and reactivity is one subscription per visible tree.</div>
+      <div class="tradeoff">Cross-cutting queries (e.g. "all entries across all lessons matching a search") need <code>collectionGroup</code> indexes. We add those explicitly where needed.</div>
+    </div>
+
+    <div class="eyebrow">Decision 3</div>
+    <h2 id="d3">Streaming AI, using Genkit's own primitives.</h2>
+    <div class="card">
+      <h3>Small calls, written immediately — orchestrated via Flows, Sessions, Tools, and streaming.</h3>
+      <p>A single 60-second Gemini call that returns a whole lesson worth of content has been the reliability problem with the current app. The new orchestration breaks every generation into a sequence of small, focused calls — and uses Genkit's <strong>built-in primitives</strong> rather than inventing our own. The four patterns:</p>
+      <ul>
+        <li><strong>Flows</strong> (<code>ai.defineFlow</code>) — typed orchestration with Zod input/output schemas, automatic tracing in the Genkit Dev UI, and a <code>streamingCallback</code> that lets each intermediate step push progress events.</li>
+        <li><strong>Chat sessions</strong> (<code>ai.createSession</code> + <code>chat.send</code>) — for iterative refinement (course title → subtitle → description → lesson outline) where each turn benefits from the prior conversation. Genkit threads message history automatically; we persist it to Firestore so a function cold-start mid-flow can resume.</li>
+        <li><strong>Tools</strong> (<code>ai.defineTool</code>) — when the model needs context (existing entries, prior plans, semantically-similar vocab), it calls a tool we've defined. Genkit handles the tool-call loop; the model decides what to look up.</li>
+        <li><strong>Structured streaming</strong> (<code>ai.generateStream</code>) — for outputs we want to render as they arrive, like plan widgets.</li>
+      </ul>
+      <p>A plan, for example, becomes a flow that:</p>
+      <div class="flow">
+        <div class="step"><div class="n">01</div><div class="what">Opens a chat session, asks for plan metadata and a widget outline. <em>Written to the plan doc immediately.</em></div></div>
+        <div class="step"><div class="n">02</div><div class="what">For each widget in the outline, calls <code>generateStream</code> for just that widget. <em>Appended to <code>widgets[]</code> as the schema fills in.</em></div></div>
+        <div class="step"><div class="n">03</div><div class="what">Marks the plan <span class="pill ok">ready</span> when the outline is exhausted.</div></div>
+      </div>
+      <div class="why">A failed widget retries in isolation. Genkit's tracing lets us debug multi-step flows in a dev UI. We don't reinvent retry/streaming/tool-calling — we use the same idioms Firebase ships in its AI samples.</div>
+      <div class="tradeoff">More API calls per generation, slightly more total latency. The reliability gain, the UX win, and the maintainability win (less custom code) are worth it. Calls are also cheaper per token at the Flash Lite tier.</div>
+    </div>
+
+    <div class="eyebrow">Decision 4</div>
+    <h2 id="d4">AI configuration is data, not code.</h2>
+    <div class="card">
+      <h3>One Firestore doc, one admin page, no redeploys.</h3>
+      <p>Today, the AI model names are four constants at the top of <code>functions/src/index.ts</code>. Changing one means a function redeploy. The new design:</p>
+      <ul>
+        <li>A single doc <code>ai_config/main</code> holds the model choice for each AI "surface" (course gen, lesson gen, plan gen, game scoring, Yiayia chat, Yiayia admin, embeddings).</li>
+        <li>Every Cloud Function reads it before each call, with a 60-second in-memory cache.</li>
+        <li>An <code>/admin/ai</code> page lets you flip a dropdown, save, and within a minute the next call uses the new model.</li>
+        <li>Defaults: every surface starts on <code>gemini-3.1-flash-lite-preview</code> per your rework notes.</li>
+      </ul>
+      <div class="why">Experiments stop costing a deploy each. Production model upgrades become a config change.</div>
+    </div>
+
+    <div class="eyebrow">Decision 5</div>
+    <h2 id="d5">Every AI write is traceable. Reverts are atomic.</h2>
+    <div class="card">
+      <h3>Generation lineage, end to end.</h3>
+      <p>Every AI generation gets a <code>generationId</code>. Every doc the generation creates carries that ID as a top-level field. A separate <code>generations/{id}</code> doc holds a manifest of <em>every</em> doc the generation touched (creates, updates, array-unions, with enough state to undo each).</p>
+      <p>Two consequences:</p>
+      <ul>
+        <li><strong>Yiayia can revert.</strong> A new admin tool, <code>revertGeneration</code>, deletes everything in a generation's manifest in reverse order. The legacy data migration itself is one giant "generation" — if the migration goes wrong, one click rolls back the whole import.</li>
+        <li><strong>"Who made this?"</strong> Click any widget or entry, see which generation created it, see the source prompt, see the model used. Forensics built in from day one.</li>
+      </ul>
+      <div class="why">It makes "create immediately, undo if you don't like it" actually safe. Without lineage, "create immediately" is reckless.</div>
+    </div>
+
+    <div class="eyebrow">Decision 6</div>
+    <h2 id="d6">A clean backend, a real deploy.</h2>
+    <div class="card">
+      <h3>Move to <code>fanari-b6bb4</code>; full GitHub Actions deploys.</h3>
+      <p>The current app shares <code>didibros-6d3ed</code> with the fanariotes lyrics site, which is why the deploy command has to allowlist specific function names — otherwise Firebase CLI offers to delete the "other app's" functions. The new project is isolated to greekflash. No more dual deploy.</p>
+      <p>The new GitHub Actions workflow runs on every push to main and deploys hosting, functions, Firestore rules, indexes, and storage rules in one go. You will need to do a small one-time setup (service account JSON + a few IAM roles + setting the Gemini API key as a Firebase secret); I'll walk you through it.</p>
+    </div>
+
+    <div class="eyebrow">Decision 7</div>
+    <h2 id="d7">A quieter UI — one job per page.</h2>
+    <div class="card">
+      <h3>Navigation, drawers, and focused routes carry the load — not crammed pages.</h3>
+      <p>The current UI puts everything on one page: totals stripes, course grid, generate form, chat widget, all stacked. The rewrite goes the opposite way — each page does <strong>one thing well</strong>, with navigation and drawers carrying secondary concerns.</p>
+      <p><strong>The patterns:</strong></p>
+      <ul>
+        <li><strong>Routes for sections.</strong> The four lesson tabs (vocab / cards / games / plans) become four real routes, not query params or in-page tabs that hide content. Same for plans — clicking a plan navigates to <code>/plans/{pid}</code>, a dedicated focus-mode reader.</li>
+        <li><strong>Drawers for secondary actions.</strong> "Create a course" and "Add a lesson" forms live in a right-side drawer (bottom sheet on mobile), addressable as <code>/new</code> for deep links. Yiayia is always a drawer, never inline. Streaming status detail is a drawer triggered from the inline indicator.</li>
+        <li><strong>Focus mode.</strong> When you're reading a plan or studying flashcards, the top chrome fades to a thin breadcrumb. The content is the page.</li>
+        <li><strong>Modals only for destructive confirms.</strong> "Revert this generation" gets a modal. Nothing else does.</li>
+        <li><strong>Counts surface only where decisions happen.</strong> No stat stripes. No badge counts on tabs. The status pill on a lesson row tells you what you need to know.</li>
+      </ul>
+      <p><strong>Container types</strong> — every visible surface is one of: <em>Page</em>, <em>List page</em>, <em>Reader</em> (focus mode), <em>Drawer</em>, <em>Bottom sheet</em>, <em>Modal</em>, or <em>Inline indicator</em>. Anything new requires a doc-level decision.</p>
+      <p>Palette is two or three accent colors over a warm off-white:</p>
+      <div class="swatches">
+        <div class="swatch"><div class="chip" style="background:#FAFAF7"></div>Parchment</div>
+        <div class="swatch"><div class="chip" style="background:#FFFFFF"></div>Surface</div>
+        <div class="swatch"><div class="chip" style="background:#1A1A1A"></div>Text</div>
+        <div class="swatch"><div class="chip" style="background:#4A6FA5"></div>Accent</div>
+        <div class="swatch"><div class="chip" style="background:#C49B5C"></div>Generating</div>
+        <div class="swatch"><div class="chip" style="background:#B85450"></div>Danger</div>
+        <div class="swatch"><div class="chip" style="background:#2A5A4E"></div>Greek</div>
+      </div>
+      <p>A serif (Crimson Pro / EB Garamond) for Greek text and headings; a clean sans (Inter or system) for English UI. Greek 1–2pt larger than its English counterpart so accents and breathings have air.</p>
+
+      <h3 style="margin-top: 28px;">A taste of what pages look like</h3>
+      <div class="mockup">
+        <div class="bar">
+          <span class="brand">Greekflash</span>
+          <span class="sep">·</span>
+          <span>Courses › Everyday Greek › Lesson 3</span>
+          <span style="margin-left:auto; color: var(--muted);">⌕  Yiayia</span>
+        </div>
+        <div class="tabs">
+          <span>Vocabulary</span>
+          <span class="active">Flashcards</span>
+          <span>Games</span>
+          <span>Plans</span>
+        </div>
+        <div class="body">
+          <div class="row"><span class="greek">η εξέταση</span><span class="english">the exam</span></div>
+          <div class="row"><span class="greek">το βιβλίο</span><span class="english">the book</span></div>
+          <div class="row"><span class="greek">διαβάζω</span><span class="english">to read</span></div>
+          <div class="row"><span class="greek">μαθαίνω</span><span class="english">to learn</span></div>
+        </div>
+      </div>
+      <p class="note">Status indicators live inline. A small amber dot + label ("Composing the lesson overview…") sits next to the title while content streams. No overlays, no spinners.</p>
+
+      <h3 style="margin-top: 28px;">The lesson list, with a lesson generating</h3>
+      <div class="mockup">
+        <div class="bar"><span class="brand">Greekflash</span><span class="sep">·</span><span>Courses › Everyday Greek</span></div>
+        <div class="body">
+          <div class="lesson-row"><div class="left"><span class="num">1</span><span>Greetings &amp; introductions</span></div><span class="pill ok">ready</span></div>
+          <div class="lesson-row"><div class="left"><span class="num">2</span><span>Ordering at a taverna</span></div><span class="pill ok">ready</span></div>
+          <div class="lesson-row"><div class="left"><span class="num">3</span><span>At the doctor's office</span></div><span class="pill gen">generating</span></div>
+          <div class="lesson-row"><div class="left"><span class="num">4</span><span>Asking for directions</span></div><span class="pill">initializing</span></div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section" />
+
+    <h2 id="flow">Walkthrough: generating a new course</h2>
+    <p>End-to-end, what the rewrite makes possible:</p>
+    <div class="flow">
+      <div class="step"><div class="n">01</div><div class="what">You type "Greek for ordering food in a taverna" into the home page field and hit Generate. <em>The frontend writes <code>courses/taverna-greek</code> with <code>status: 'initializing'</code>, then immediately navigates to <code>/course/taverna-greek</code>.</em></div></div>
+      <div class="step"><div class="n">02</div><div class="what">The course page is already subscribed via <code>onSnapshot</code>. It renders the page shell with a streaming indicator: "Drafting course title…"</div></div>
+      <div class="step"><div class="n">03</div><div class="what">The <code>onCourseWritten</code> trigger has fired. It claims the doc via a transaction, makes a small Gemini call for course meta, writes title + subtitle + description back. <em>You see the page populate.</em></div></div>
+      <div class="step"><div class="n">04</div><div class="what">A second call asks for a lesson outline. The trigger writes 10 lesson stubs as <code>status: 'initializing'</code> docs in the lessons subcollection. <em>You see 10 lesson rows appear, each with an "initializing" pill.</em></div></div>
+      <div class="step"><div class="n">05</div><div class="what">Each lesson stub triggers <code>onLessonWritten</code> independently. They generate vocab, an overview, and games in parallel. <em>You see lesson rows flip to "generating," then "ready," over the next few minutes.</em></div></div>
+      <div class="step"><div class="n">06</div><div class="what">You click a lesson that's still streaming. The lesson page subscribes; you watch entries appear one by one in the vocab tab.</div></div>
+      <div class="step"><div class="n">07</div><div class="what">You don't love the overall course. You open Yiayia and say "revert that course generation." Yiayia previews the manifest (1 course + 10 lessons + ~1500 entries + ~250 games + 10 plans) and asks you to confirm. You confirm. <em>Everything is gone — atomically, traceably, with no orphans.</em></div></div>
+    </div>
+
+    <hr class="section" />
+
+    <h2 id="future">Future trajectory (designed for, not yet built)</h2>
+    <p>You mentioned the app will eventually launch to ~100 users and scale to multi-school. The current decisions don't preclude any of that:</p>
+    <ul>
+      <li><strong>100 users at launch:</strong> the schema and triggers as designed handle this without changes. Firestore at this scale is essentially free.</li>
+      <li><strong>Multi-school:</strong> school-private content can live under <code>schools/{schoolId}/courses/...</code> with identical document shapes. Global/curated content stays at the top-level <code>courses/</code> and is visible to all schools. Code that reads a course works for both via a <code>coursePath()</code> helper from day one.</li>
+      <li><strong>Roles:</strong></li>
+    </ul>
+    <div class="roles">
+      <div class="role"><h4>Admin</h4>Full control. AI config. Generation lineage management. CRUD across all schools. Yiayia admin tools.</div>
+      <div class="role"><h4>Teacher</h4>Within their school: create/edit courses, trigger AI generation, view their students' progress, manage class roster. No AI config control.</div>
+      <div class="role"><h4>Student</h4>Within their school: read content, do exercises, accumulate progress. Can ask Yiayia tutor questions, no admin tools.</div>
+    </div>
+    <p>None of this is implemented in this phase. But the schema, the <code>generations</code> tracking, and the Yiayia admin gate are all written with a "this becomes a role check later" comment in the right places.</p>
+
+    <hr class="section" />
+
+    <h2 id="next">What I do next, in order</h2>
+    <div class="flow">
+      <div class="step"><div class="n">A</div><div class="what">Walk you through the one-time Firebase setup for <code>fanari-b6bb4</code>: service account JSON, IAM roles, GitHub secret, Gemini API key as a Firebase secret. <em>About 10 minutes of console clicks; I'll prompt you as we go.</em></div></div>
+      <div class="step"><div class="n">B</div><div class="what">Repo restructure: pnpm workspace with <code>web/</code> and <code>functions/</code>, emulator dev script, hello-world Svelte 5 app running against the emulator. Nothing user-visible yet — just the bones.</div></div>
+      <div class="step"><div class="n">C</div><div class="what">Schema + migration script, run once locally against the emulator to validate the new shape against real data.</div></div>
+      <div class="step"><div class="n">D</div><div class="what">First vertical slice: course-create stub + <code>onCourseWritten</code> trigger + a Svelte course page that subscribes and shows the generation stream. This is the moment the architecture proves itself.</div></div>
+      <div class="step"><div class="n">E</div><div class="what">Fill out the rest: lesson trigger, plan trigger (widget-by-widget), games, the design system, admin pages, the GitHub Actions workflow.</div></div>
+    </div>
+
+    <p style="margin-top: 36px; color: var(--muted); font-size: 14px;">If anything in this walkthrough doesn't match what you wanted, push back before I start. Once I'm coding, course-correction costs more.</p>
+
+  </main>
+</div>
+</body>
+</html>

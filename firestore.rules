@@ -1,8 +1,56 @@
 rules_version = '2';
+
+// Greekflash rules — see docs/rewrite/01-schema-and-migration.md
+// Triggers run as admin and bypass these rules; the rules below only
+// constrain direct client writes.
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true;
+
+    function isStatusOnlyTransition() {
+      return request.resource.data.diff(resource.data).changedKeys().hasOnly(
+        ['status', 'statusLog', 'error', 'updatedAt']
+      );
+    }
+
+    match /courses/{courseId} {
+      allow read: if true;
+      allow create: if request.resource.data.status == 'initializing';
+      allow update: if isStatusOnlyTransition();
+      allow delete: if false;
+
+      match /lessons/{lessonId} {
+        allow read: if true;
+        allow create: if request.resource.data.status == 'initializing';
+        allow update: if isStatusOnlyTransition();
+        allow delete: if false;
+
+        match /entries/{entryId} {
+          allow read: if true;
+          allow write: if false;
+        }
+        match /plans/{planId} {
+          allow read: if true;
+          allow create: if request.resource.data.status == 'initializing';
+          allow update: if isStatusOnlyTransition();
+          allow delete: if false;
+        }
+        match /games/{gameId} {
+          allow read: if true;
+          allow write: if false;
+        }
+      }
+    }
+
+    // AI config — world-writable until auth lands. Tighten to admin role.
+    match /ai_config/{docId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Generation lineage — trigger-only writes.
+    match /generations/{generationId} {
+      allow read: if true;
+      allow write: if false;
     }
   }
 }

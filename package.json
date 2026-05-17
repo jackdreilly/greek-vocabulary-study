@@ -1,28 +1,21 @@
 {
-  "name": "greek-vocabulary-study",
-  "version": "1.0.0",
-  "description": "Greek vocabulary study application",
+  "name": "greekflash",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": "24"
+  },
   "scripts": {
-    "dev": "vite --host 0.0.0.0 --port 3000",
-    "build": "vite build",
-    "data:import-xlsx": "node scripts/import_xlsx_to_firestore.mjs",
-    "images:queries": "node scripts/build_image_queries.mjs",
-    "images:sample": "node scripts/fetch_word_images.mjs --lesson=12 --limit-per-type=10",
-    "preview": "vite preview --host 0.0.0.0 --port 3000",
-    "deploy": "npx firebase-tools deploy --only hosting,storage --project didibros-6d3ed --non-interactive"
+    "dev": "mkdir -p .emulator-data && pnpm --filter ./web build && pnpm --filter ./functions build && (pnpm --filter ./web build:watch & pnpm --filter ./functions build:watch & npx firebase-tools emulators:start --only hosting,functions,firestore,storage --import=.emulator-data --export-on-exit=.emulator-data)",
+    "dev:emulators": "mkdir -p .emulator-data && (pnpm --filter ./web build:watch & pnpm --filter ./functions build:watch & npx firebase-tools emulators:start --only hosting,functions,firestore,storage --import=.emulator-data --export-on-exit=.emulator-data)",
+    "dev:web": "pnpm --filter ./web dev",
+    "build": "pnpm --filter ./web build && pnpm --filter ./functions build",
+    "check": "pnpm --filter ./web check && pnpm --filter ./functions build",
+    "deploy": "pnpm build && npx firebase-tools deploy --only hosting,functions,firestore:rules,firestore:indexes,storage --project fanari-b6bb4 --non-interactive --force",
+    "clean": "rm -rf web/dist functions/lib node_modules web/node_modules functions/node_modules .emulator-data"
   },
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^7.1.2",
-    "@tailwindcss/vite": "^4.3.0",
-    "lucide-svelte": "^1.0.1",
-    "svelte": "^5.55.7",
-    "tailwindcss": "^4.3.0",
-    "vite": "^8.0.13"
-  },
-  "dependencies": {
-    "@google-cloud/storage": "^7.19.0",
-    "firebase": "^12.13.0",
-    "firebase-admin": "^13.10.0",
-    "marked": "^18.0.3"
+    "firebase-tools": "^15.15.0"
   }
 }

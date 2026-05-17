@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "greekflash-dev",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "port": 3000
+      "name": "greekflash-web",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "./web", "dev"],
+      "port": 5173
     }
   ]
 }

@@ -2,73 +2,66 @@
   "indexes": [
     {
       "collectionGroup": "entries",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "courseId", "order": "ASCENDING" },
+        { "fieldPath": "lemma", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "entries",
+      "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "order", "order": "ASCENDING" }]
+    },
+    {
+      "collectionGroup": "entries",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [{ "fieldPath": "generationId", "order": "ASCENDING" }]
+    },
+    {
+      "collectionGroup": "plans",
+      "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "planNumber", "order": "ASCENDING" }]
+    },
+    {
+      "collectionGroup": "plans",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [{ "fieldPath": "generationId", "order": "ASCENDING" }]
+    },
+    {
+      "collectionGroup": "games",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "theme_id", "order": "ASCENDING" },
-        { "fieldPath": "frequency_rank", "order": "ASCENDING" }
+        { "fieldPath": "type", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "games",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [{ "fieldPath": "generationId", "order": "ASCENDING" }]
+    },
+    {
+      "collectionGroup": "lessons",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [{ "fieldPath": "generationId", "order": "ASCENDING" }]
+    },
+    {
+      "collectionGroup": "generations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "generations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "kind", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     }
   ],
-  "fieldOverrides": [
-    { "collectionGroup": "entries", "fieldPath": "english_senses",        "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "top5000_senses",        "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "form_suffixes",         "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "groupKeys",             "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "english",               "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "term",                  "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "lemma",                 "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "subsection",            "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "audio_filename",        "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "audio_path",            "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "dictionary_headword",   "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "top5000_definition",    "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "top5000_notes",         "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "top5000_disambiguation","indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "top5000_headword",      "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "top5000_match",         "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "top5000_part_of_speech","indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "translation_match",     "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "english_source",        "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "entry_source",          "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "page",                  "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "position_in_group",     "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "top5000_rank",          "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "image",                 "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "article",               "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "createdAt",             "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "source",                "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "theme",                 "indexes": [] },
-    { "collectionGroup": "entries", "fieldPath": "category",              "indexes": [] },
-
-    { "collectionGroup": "themes", "fieldPath": "title",            "indexes": [] },
-    { "collectionGroup": "themes", "fieldPath": "categories",       "indexes": [] },
-    { "collectionGroup": "themes", "fieldPath": "entry_count",      "indexes": [] },
-    { "collectionGroup": "themes", "fieldPath": "translated_count", "indexes": [] },
-    { "collectionGroup": "themes", "fieldPath": "audio_count",      "indexes": [] },
-    { "collectionGroup": "themes", "fieldPath": "rankStart",        "indexes": [] },
-    { "collectionGroup": "themes", "fieldPath": "rankEnd",          "indexes": [] },
-
-    { "collectionGroup": "lesson_ai_plans", "fieldPath": "widgets",         "indexes": [] },
-    { "collectionGroup": "lesson_ai_plans", "fieldPath": "coveredWords",    "indexes": [] },
-    { "collectionGroup": "lesson_ai_plans", "fieldPath": "coveredConcepts", "indexes": [] },
-    { "collectionGroup": "lesson_ai_plans", "fieldPath": "title",           "indexes": [] },
-    { "collectionGroup": "lesson_ai_plans", "fieldPath": "subtitle",        "indexes": [] },
-    { "collectionGroup": "lesson_ai_plans", "fieldPath": "createdAt",       "indexes": [] },
-    { "collectionGroup": "lesson_ai_plans", "fieldPath": "updatedAt",       "indexes": [] },
-
-    { "collectionGroup": "lesson_ai_exercises", "fieldPath": "passage",            "indexes": [] },
-    { "collectionGroup": "lesson_ai_exercises", "fieldPath": "prompt",             "indexes": [] },
-    { "collectionGroup": "lesson_ai_exercises", "fieldPath": "question",           "indexes": [] },
-    { "collectionGroup": "lesson_ai_exercises", "fieldPath": "expectedAnswer",     "indexes": [] },
-    { "collectionGroup": "lesson_ai_exercises", "fieldPath": "acceptableAnswers",  "indexes": [] },
-    { "collectionGroup": "lesson_ai_exercises", "fieldPath": "requiredWords",      "indexes": [] },
-    { "collectionGroup": "lesson_ai_exercises", "fieldPath": "vocabulary",         "indexes": [] },
-    { "collectionGroup": "lesson_ai_exercises", "fieldPath": "sourceEntryIds",     "indexes": [] },
-    { "collectionGroup": "lesson_ai_exercises", "fieldPath": "coverage",           "indexes": [] },
-    { "collectionGroup": "lesson_ai_exercises", "fieldPath": "rubric",             "indexes": [] },
-    { "collectionGroup": "lesson_ai_exercises", "fieldPath": "instructions",       "indexes": [] },
-    { "collectionGroup": "lesson_ai_exercises", "fieldPath": "title",              "indexes": [] },
-    { "collectionGroup": "lesson_ai_exercises", "fieldPath": "createdAt",          "indexes": [] },
-    { "collectionGroup": "lesson_ai_exercises", "fieldPath": "updatedAt",          "indexes": [] }
-  ]
+  "fieldOverrides": []
 }

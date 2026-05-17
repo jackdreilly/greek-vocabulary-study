@@ -2,16 +2,30 @@
 .firebase/
 .claude/
 node_modules/
+
+# Build outputs
+web/dist/
 functions/lib/
+**/.svelte-kit/
+**/tsconfig.tsbuildinfo
 
-# Generated data and copied media are rebuilt from the raw source archives.
+# Emulator state
+.emulator-data/
+
+# Legacy build artifacts
+_legacy/site/
+_legacy/public/audio/
+_legacy/functions/lib/
+
+# Local source data (large, rebuilt from archives)
 /data/
-site/
-public/audio/
 
-# Local packaging scratch.
+# Local packaging scratch
 .artifacts/
 *.zip
 
+# Secrets
 .env
+.env.local
 service-account-key.json
+*-service-account*.json
