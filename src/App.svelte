@@ -91,9 +91,8 @@
     imagePickerError = '';
     imagePickerResults = [];
     try {
-      const key = import.meta.env.VITE_PEXELS_API_KEY;
-      const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(imagePickerQuery.trim())}&per_page=6&orientation=landscape`;
-      const res = await fetch(url, { headers: { Authorization: key } });
+      const url = `/api/pexels-search?query=${encodeURIComponent(imagePickerQuery.trim())}&per_page=6&orientation=landscape`;
+      const res = await fetch(url);
       if (!res.ok) throw new Error(`Pexels error ${res.status}`);
       const data = await res.json();
       imagePickerResults = data.photos ?? [];

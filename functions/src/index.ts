@@ -5,6 +5,7 @@ import { googleAI } from '@genkit-ai/google-genai';
 import { genkit, z } from 'genkit';
 import { defineSecret } from 'firebase-functions/params';
 import { onCallGenkit } from 'firebase-functions/v2/https';
+import { onRequest } from 'firebase-functions/v2/https';
 import { setGlobalOptions } from 'firebase-functions/v2/options';
 
 if (!admin.apps.length) {
@@ -19,6 +20,7 @@ setGlobalOptions({
 });
 
 const GOOGLE_GENAI_API_KEY = defineSecret('GOOGLE_GENAI_API_KEY');
+const PEXELS_API_KEY = defineSecret('PEXELS_API_KEY');
 const GAME_GENERATION_MODEL = 'googleai/gemini-3-flash-preview';
 const GAME_SCORING_MODEL = 'googleai/gemini-3.1-flash-lite-preview';
 const YIAYIA_CHAT_MODEL = 'googleai/gemini-3.1-flash-lite-preview';
@@ -63,38 +65,60 @@ const GameTypeSchema = z.enum([
 ]);
 
 const GameExerciseSchema = z.object({
-  id: z.string(),
-  type: GameTypeSchema,
-  title: z.string(),
-  prompt: z.string().catch(''),
-  instructions: z.string().catch(''),
-  expectedAnswer: z.string().catch(''),
-  acceptableAnswers: z.array(z.string()).catch([]),
-  direction: z.enum(['greek_to_english', 'english_to_greek', 'free_response']).catch('free_response'),
-  passage: z.string().optional(),
-  question: z.string().optional(),
-  requiredWords: z.array(z.string()).catch([]),
+  id: z.string().optional().default('').catch(''),
+  type: GameTypeSchema.optional().default('missing_word').catch('missing_word'),
+  title: z.string().optional().default('Practice').catch('Practice'),
+  prompt: z.string().optional().default('').catch(''),
+  instructions: z.string().optional().default('').catch(''),
+  expectedAnswer: z.string().optional().default('').catch(''),
+  acceptableAnswers: z.array(z.string()).optional().default([]).catch([]),
+  direction: z
+    .enum(['greek_to_english', 'english_to_greek', 'free_response'])
+    .optional()
+    .default('free_response')
+    .catch('free_response'),
+  passage: z.string().optional().default('').catch(''),
+  question: z.string().optional().default('').catch(''),
+  requiredWords: z.array(z.string()).optional().default([]).catch([]),
   vocabulary: z
     .array(
       z.object({
-        greek: z.string(),
-        english: z.string(),
+        greek: z.string().optional().default('').catch(''),
+        english: z.string().optional().default('').catch(''),
       }),
     )
+    .optional()
+    .default([])
     .catch([]),
-  sourceEntryIds: z.array(z.number()).catch([]),
+  sourceEntryIds: z
+    .array(z.union([z.number(), z.string()]))
+    .optional()
+    .default([])
+    .catch([])
+    .transform((ids) =>
+      ids
+        .map((id) => Number(id))
+        .filter((id) => Number.isFinite(id))
+        .slice(0, 12),
+    ),
   coverage: z
     .object({
-      summary: z.string(),
-      words: z.array(z.string()),
-      themes: z.array(z.string()),
+      summary: z.string().optional().default('').catch(''),
+      words: z.array(z.string()).optional().default([]).catch([]),
+      themes: z.array(z.string()).optional().default([]).catch([]),
+    })
+    .optional()
+    .default({
+      summary: '',
+      words: [],
+      themes: [],
     })
     .catch({
       summary: '',
       words: [],
       themes: [],
     }),
-  rubric: z.string(),
+  rubric: z.string().optional().default('').catch(''),
 });
 
 const LearningPreferencesSchema = z.object({
@@ -851,6 +875,60 @@ function entrySummary(entries: Array<z.infer<typeof LessonEntrySchema>>): string
     .join('\n');
 }
 
+function normalizeGeneratedGameExercises(
+  exercises: Array<z.infer<typeof GameExerciseSchema>>,
+  lessonId: number,
+): Array<z.infer<typeof GameExerciseSchema>> {
+  const seenIds = new Set<string>();
+  return exercises.map((exercise, index) => {
+    const type = GameTypeSchema.safeParse(exercise.type).success ? exercise.type : 'missing_word';
+    const rawId = compactText(exercise.id).toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/-+/g, '-');
+    let id = rawId || `l${lessonId}-${type}-${index + 1}`;
+    if (!id.startsWith(`l${lessonId}-`)) id = `l${lessonId}-${id}`;
+    while (seenIds.has(id)) id = `${id}-${index + 1}`;
+    seenIds.add(id);
+
+    const requiredWords = (exercise.requiredWords || []).map((word) => compactText(word)).filter(Boolean).slice(0, 12);
+    const coverageWords = (exercise.coverage?.words || []).map((word) => compactText(word)).filter(Boolean).slice(0, 12);
+    const coverageThemes = (exercise.coverage?.themes || []).map((theme) => compactText(theme)).filter(Boolean).slice(0, 8);
+    const vocabulary = (exercise.vocabulary || [])
+      .map((item) => ({
+        greek: compactText(item.greek),
+        english: compactText(item.english),
+      }))
+      .filter((item) => item.greek || item.english)
+      .slice(0, 8);
+    const title = compactText(exercise.title) || type.replace(/_/g, ' ');
+    const prompt = compactText(exercise.prompt || exercise.question || exercise.passage);
+    const expectedAnswer = compactText(exercise.expectedAnswer);
+    const coverageSummary = compactText(exercise.coverage?.summary || title || prompt).slice(0, 160);
+    const rubric =
+      compactText(exercise.rubric) ||
+      (type === 'story_prompt'
+        ? `Use the required words naturally and answer the prompt at the selected level.`
+        : `Answer should match: ${expectedAnswer || coverageSummary || title}.`);
+
+    return {
+      ...exercise,
+      id,
+      type,
+      title,
+      prompt,
+      expectedAnswer,
+      acceptableAnswers: (exercise.acceptableAnswers || []).map((answer) => compactText(answer)).filter(Boolean).slice(0, 8),
+      requiredWords,
+      vocabulary,
+      sourceEntryIds: (exercise.sourceEntryIds || []).filter((id) => Number.isFinite(id)).slice(0, 12),
+      coverage: {
+        summary: coverageSummary,
+        words: coverageWords.length ? coverageWords : requiredWords,
+        themes: coverageThemes.length ? coverageThemes : [type],
+      },
+      rubric,
+    };
+  });
+}
+
 function sourcePromptContextBlock(args: {
   courseSourcePrompt?: string;
   lessonSourcePrompt?: string;
@@ -926,9 +1004,10 @@ Return stable lowercase ids prefixed with "l${input.lessonId}-". Include sourceE
 Every exercise must include coverage:
 - summary: one short phrase naming what the question covers.
 - words: the main Greek words practiced, max 12.
-- themes: broad micro-themes like classroom objects, study habits, exams, reading, teachers.
+- themes: broad micro-themes drawn from this lesson, like ordering, drinks, paying, socializing, atmosphere.
 For answer keys, include concise expectedAnswer plus acceptableAnswers. For open-ended tasks, expectedAnswer should be the target criteria.
 Rubrics should be short and concrete.
+Keep each exercise compact: one short prompt, at most 3 acceptableAnswers, and at most 4 vocabulary helper items.
 Write exercise instructions/prompts at the selected learner level. If responseLanguage is greek, write learner-facing instructions in Greek; otherwise write instructions in English. Greek target sentences/passages should always remain Greek.
 
 Small fallback vocabulary sample from the client, if tools are unavailable:
@@ -937,7 +1016,7 @@ ${entrySummary(input.entries.slice(0, 30)) || '(use the tools)'}`;
     const { output } = await getAI().generate({
       model: GAME_GENERATION_MODEL,
       output: { schema: GenerateLessonGamesOutputSchema },
-      config: { maxOutputTokens: 8192 },
+      config: { maxOutputTokens: 24576 },
       system:
         'You generate high-quality Modern Greek lesson exercises as JSON only. Keep Greek natural, age-neutral, and suitable for a learner. Prefer targeted tool calls over asking for or relying on broad lesson dumps.',
       prompt,
@@ -945,7 +1024,9 @@ ${entrySummary(input.entries.slice(0, 30)) || '(use the tools)'}`;
     });
 
     if (!output) throw new Error('Game generation returned no output.');
-    return output;
+    return {
+      exercises: normalizeGeneratedGameExercises(output.exercises, input.lessonId),
+    };
   },
 );
 
@@ -1754,4 +1835,40 @@ export const yiayiaChat = onCallGenkit(
     memory: '512MiB',
   },
   yiayiaChatFlow,
+);
+
+export const searchPexelsImages = onRequest(
+  {
+    secrets: [PEXELS_API_KEY],
+    cors: true,
+    timeoutSeconds: 30,
+    memory: '256MiB',
+  },
+  async (req, res) => {
+    if (req.method !== 'GET') {
+      res.status(405).json({ error: 'Method not allowed.' });
+      return;
+    }
+
+    const query = typeof req.query.query === 'string' ? req.query.query.trim() : '';
+    if (!query) {
+      res.status(400).json({ error: 'Missing query.' });
+      return;
+    }
+
+    const perPage = typeof req.query.per_page === 'string' ? req.query.per_page : '6';
+    const orientation = typeof req.query.orientation === 'string' ? req.query.orientation : 'landscape';
+    const url = new URL('https://api.pexels.com/v1/search');
+    url.searchParams.set('query', query);
+    url.searchParams.set('per_page', perPage);
+    url.searchParams.set('orientation', orientation);
+
+    const upstream = await fetch(url, {
+      headers: { Authorization: PEXELS_API_KEY.value() },
+    });
+    const body = await upstream.text();
+    res.status(upstream.status);
+    res.set('Content-Type', upstream.headers.get('content-type') || 'application/json');
+    res.send(body);
+  },
 );
