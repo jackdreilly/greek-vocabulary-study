@@ -22,16 +22,16 @@
     m = p.match(/^\/c\/([^/]+)\/l\/([^/]+)$/);
     if (m) return { kind: "lesson-redirect" as const, courseId: m[1], lessonId: m[2] };
 
-    m = p.match(/^\/c\/([^/]+)\/l\/([^/]+)\/(vocab|cards|games|plans)$/);
+    m = p.match(/^\/c\/([^/]+)\/l\/([^/]+)\/(overview|vocab|cards|games|plans)$/);
     if (m) return { kind: "lesson" as const, courseId: m[1], lessonId: m[2], tab: m[3] };
 
     return { kind: "notfound" as const };
   });
 
-  // If we land on /c/X/l/Y with no tab segment, jump to /vocab.
+  // If we land on /c/X/l/Y with no tab segment, default to /overview.
   $effect(() => {
     if (match.kind === "lesson-redirect") {
-      navigate(`/c/${match.courseId}/l/${match.lessonId}/vocab`, { replace: true });
+      navigate(`/c/${match.courseId}/l/${match.lessonId}/overview`, { replace: true });
     }
   });
 

@@ -3,6 +3,7 @@
   import { subscribeLesson } from "../lib/data/lessons.svelte";
   import { linkClick, route } from "../lib/router.svelte";
   import VocabTab from "./lesson/VocabTab.svelte";
+  import OverviewTab from "./lesson/OverviewTab.svelte";
   import ComingSoon from "./lesson/ComingSoon.svelte";
 
   let { courseId, lessonId, tab }: { courseId: string; lessonId: string; tab: string } = $props();
@@ -18,6 +19,7 @@
   onDestroy(() => sub.stop());
 
   const tabs = [
+    { key: "overview", label: "Overview" },
     { key: "vocab", label: "Vocabulary" },
     { key: "cards", label: "Flashcards" },
     { key: "games", label: "Games" },
@@ -58,7 +60,9 @@
       {/each}
     </nav>
 
-    {#if tab === "vocab"}
+    {#if tab === "overview"}
+      <OverviewTab markdown={sub.lesson.description} />
+    {:else if tab === "vocab"}
       <VocabTab {courseId} {lessonId} />
     {:else if tab === "cards"}
       <ComingSoon name="Flashcards" />

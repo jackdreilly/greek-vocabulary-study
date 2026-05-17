@@ -2,7 +2,9 @@
   import { onDestroy } from "svelte";
   import { subscribeCourse } from "../lib/data/courses.svelte";
   import { linkClick } from "../lib/router.svelte";
+  import { extractLead, hasMoreThanLead } from "../lib/markdown";
   import StatusPill from "../lib/ui/StatusPill.svelte";
+  import MarkdownBody from "../lib/ui/MarkdownBody.svelte";
 
   let { courseId }: { courseId: string } = $props();
 
@@ -21,6 +23,17 @@
       .map(([id, s]) => ({ id, ...s }))
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
   );
+
+  const description = $derived(sub.course?.description ?? "");
+  const lead = $derived(extractLead(description));
+  const hasMore = $derived(hasMoreThanLead(description));
+
+  let expanded = $state(false);
+  // Reset expander whenever we change courses
+  $effect(() => {
+    courseId;
+    expanded = false;
+  });
 </script>
 
 <div class="max-w-3xl mx-auto pt-12 pb-24 px-6">
@@ -36,6 +49,21 @@
       {/if}
     </header>
 
+    {#if lead}
+      <section class="mb-12">
+        <MarkdownBody markdown={expanded ? description : lead} />
+        {#if hasMore}
+          <button
+            type="button"
+            onclick={() => (expanded = !expanded)}
+            class="mt-4 text-sm font-medium text-(--color-accent) hover:text-(--color-accent-hover)"
+          >
+            {expanded ? "Show less" : "Read full overview →"}
+          </button>
+        {/if}
+      </section>
+    {/if}
+
     <section>
       <h2 class="text-xs tracking-widest uppercase text-(--color-muted) mb-3 font-semibold">
         Lessons
@@ -44,9 +72,9 @@
         {#each lessons as lesson, i (lesson.id)}
           <li>
             <a
-              href="/c/{courseId}/l/{lesson.id}/vocab"
-              onclick={linkClick(`/c/${courseId}/l/${lesson.id}/vocab`)}
-              class="flex items-center justify-between gap-4 py-3.5 px-1 hover:bg-(--color-surface-muted) transition-colors -mx-1 px-2 rounded"
+              href="/c/{courseId}/l/{lesson.id}/overview"
+              onclick={linkClick(`/c/${courseId}/l/${lesson.id}/overview`)}
+              class="flex items-center justify-between gap-4 py-3.5 -mx-2 px-2 hover:bg-(--color-surface-muted) transition-colors rounded"
             >
               <div class="flex items-center gap-4 min-w-0">
                 <span class="text-sm text-(--color-muted) tabular-nums w-6 text-right shrink-0">
