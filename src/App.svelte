@@ -459,6 +459,7 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
       const result = await generateLessonContent({
         prompt: genLessonPrompt,
         courseName: selectedCourseName || '',
+        courseSourcePrompt: selectedCourseRecord?.sourcePrompt || '',
         lessonTitles: courseLessons.map(l => l.title),
         generateCourseName: false,
       });
@@ -480,6 +481,7 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
         courseId: selectedCourse,
         entries: toSave,
         lessonDescription: genLessonResult.lessonDescription || '',
+        lessonSourcePrompt: genLessonResult.sourcePrompt || genLessonPrompt,
       });
       themes = [...themes, { ...theme, groupKeys: [] }];
       lessonEntriesCache.set(Number(theme.id), saved.map(prepareEntry));
@@ -525,6 +527,8 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
         entries: toSave,
         lessonDescription: genCourseResult.lessonDescription || '',
         courseDescription: genCourseResult.courseDescription || '',
+        lessonSourcePrompt: genCourseResult.sourcePrompt || genCoursePrompt,
+        courseSourcePrompt: genCourseResult.sourcePrompt || genCoursePrompt,
       });
       themes = [...themes, { ...theme, groupKeys: [] }];
       lessonEntriesCache.set(Number(theme.id), saved.map(prepareEntry));
@@ -545,6 +549,7 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
           id,
           name,
           description: t.courseRecord?.description || "",
+          sourcePrompt: t.courseRecord?.sourcePrompt || "",
           lessons: [],
           order: t.courseRecord?.order ?? t.courseOrder ?? t.course_sort ?? name,
         });
@@ -637,7 +642,7 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
     {:else if view === "courses"}
       <CourseList {courses} onOpenCourse={openCourse} onGenerateCourse={openGenCourse} />
     {:else if view === "lessons"}
-      <LessonList lessons={courseLessons} courseName={selectedCourseName} courseDescription={selectedCourseRecord?.description ?? ''} onOpenLesson={openLesson} onBack={showCourses} onGenerateLesson={openGenLesson} />
+      <LessonList lessons={courseLessons} courseName={selectedCourseName} courseDescription={selectedCourseRecord?.description ?? ''} courseSourcePrompt={selectedCourseRecord?.sourcePrompt ?? ''} onOpenLesson={openLesson} onBack={showCourses} onGenerateLesson={openGenLesson} />
     {:else}
       <div class="study-layout">
         <aside class="sidebar" class:open={lessonSidebarOpen}>
@@ -706,6 +711,12 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
             {:else if activeTab === 'home' && selectedLesson?.description}
               <article class="lesson-overview markdown-body">
                 {@html renderMarkdown(selectedLesson.description)}
+                {#if selectedLesson.sourcePrompt}
+                  <details class="source-prompt-nugget">
+                    <summary>Original prompt</summary>
+                    <p>{selectedLesson.sourcePrompt}</p>
+                  </details>
+                {/if}
               </article>
             {:else if !lessonEntriesReady}
               <div class="loading-state"><LoaderCircle class="animate-spin" size={36} /><p>Loading vocabulary…</p></div>
@@ -1187,6 +1198,23 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
     border: 1px solid #e5e8ef; padding: 8px 12px; text-align: left;
   }
   .lesson-overview :global(th) { background: #f7f8fb; font-weight: 700; }
+  .source-prompt-nugget {
+    margin-top: 28px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e8ef;
+    color: #667085;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .source-prompt-nugget summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: #667085;
+  }
+  .source-prompt-nugget p {
+    margin: 8px 0 0;
+    white-space: pre-wrap;
+  }
   
   .modal-overlay { position: fixed; inset: 0; background: rgba(32,33,36,0.4); backdrop-filter: blur(4px); z-index: 1000; display: grid; place-items: center; padding: 16px; }
   .modal-content { width: 100%; max-width: 500px; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }

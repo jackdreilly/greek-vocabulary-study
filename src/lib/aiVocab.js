@@ -21,7 +21,9 @@ export async function generateVocabSuggestions({ lesson, entries, prompt }) {
     lessonTitle: lesson.title,
     courseTitle: lesson.course || lesson.courseRecord?.title || "",
     courseDescription: (lesson.courseRecord?.description || "").slice(0, 5000),
+    courseSourcePrompt: (lesson.courseRecord?.sourcePrompt || "").slice(0, 1200),
     lessonDescription: (lesson.description || "").slice(0, 8000),
+    lessonSourcePrompt: (lesson.sourcePrompt || "").slice(0, 1200),
     prompt,
     existingLemmas,
   });
@@ -43,15 +45,24 @@ export async function aiAssistVocabEntry({ entry, prompt }) {
   return senses;
 }
 
-export async function generateLessonContent({ prompt, courseName = '', lessonTitles = [], generateCourseName = false }) {
+export async function generateLessonContent({ prompt, courseName = '', courseSourcePrompt = '', lessonTitles = [], generateCourseName = false }) {
   const callable = httpsCallable(functions, "generateLessonContent");
-  const result = await callable({ prompt, courseName, existingLessonTitles: lessonTitles, generateCourseName });
+  const result = await callable({ prompt, courseName, courseSourcePrompt, existingLessonTitles: lessonTitles, generateCourseName });
   const data = result.data;
   if (!data?.lessonTitle || !Array.isArray(data?.entries)) throw new Error("Lesson generation returned no content.");
   return data;
 }
 
-export async function saveNewLesson({ lessonTitle, courseName, courseId = '', entries, lessonDescription = '', courseDescription = '' }) {
+export async function saveNewLesson({
+  lessonTitle,
+  courseName,
+  courseId = '',
+  entries,
+  lessonDescription = '',
+  courseDescription = '',
+  lessonSourcePrompt = '',
+  courseSourcePrompt = '',
+}) {
   const themeId = Date.now() * 1000 + Math.floor(Math.random() * 1000);
   const resolvedCourseId = courseId || courseIdFromName(courseName);
   const coursePayload = {
@@ -60,13 +71,24 @@ export async function saveNewLesson({ lessonTitle, courseName, courseId = '', en
     updatedAt: Date.now(),
   };
   if (courseDescription) coursePayload.description = courseDescription;
+  if (courseSourcePrompt) coursePayload.sourcePrompt = courseSourcePrompt;
   await setDoc(doc(db, "courses", resolvedCourseId), coursePayload, { merge: true });
 
   const theme = { id: themeId, title: lessonTitle, courseId: resolvedCourseId, course: courseName };
   if (lessonDescription) theme.description = lessonDescription;
+  if (lessonSourcePrompt) theme.sourcePrompt = lessonSourcePrompt;
   await setDoc(doc(db, "themes", String(themeId)), theme);
   const savedEntries = await Promise.all(entries.map(e => saveNewVocabEntry({ entry: e, lessonId: themeId })));
-  return { theme: { ...theme, entry_count: savedEntries.length, translated_count: savedEntries.length, audio_count: 0 }, entries: savedEntries };
+  return {
+    theme: {
+      ...theme,
+      courseRecord: { id: resolvedCourseId, ...coursePayload },
+      entry_count: savedEntries.length,
+      translated_count: savedEntries.length,
+      audio_count: 0,
+    },
+    entries: savedEntries,
+  };
 }
 
 export async function saveNewVocabEntry({ entry, lessonId }) {

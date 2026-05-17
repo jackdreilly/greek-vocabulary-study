@@ -6,6 +6,7 @@
   export let lessons = [];
   export let courseName = "";
   export let courseDescription = "";
+  export let courseSourcePrompt = "";
   export let onOpenLesson = () => {};
   export let onBack = () => {};
   export let onGenerateLesson = null;
@@ -36,6 +37,8 @@
   $: totalMeanings = lessons.reduce((s, l) => s + (l.translated_count ?? 0), 0);
   $: totalAudio = lessons.reduce((s, l) => s + (l.audio_count ?? 0), 0);
   $: hasDescription = (courseDescription || "").trim().length > 0;
+  $: hasSourcePrompt = (courseSourcePrompt || "").trim().length > 0;
+  $: hasAbout = hasDescription || hasSourcePrompt;
 </script>
 
 <div class="lesson-list">
@@ -85,7 +88,7 @@
         {/if}
       </div>
 
-      {#if hasDescription}
+      {#if hasAbout}
         <button class="about-toggle mobile-only" type="button" on:click={() => (aboutOpen = !aboutOpen)}>
           <Info size={14} /> About this course
         </button>
@@ -94,7 +97,7 @@
   </header>
 
   <!-- Two-column main area: Lessons (primary) + About (sidebar) -->
-  <div class="main-grid" class:has-aside={hasDescription}>
+  <div class="main-grid" class:has-aside={hasAbout}>
     <section class="panel lessons-panel" style="--accent:{colors.accent}; --pill:{colors.pill}; --bg:{colors.bg}">
       <div class="panel-header">
         <div class="panel-title-row">
@@ -156,13 +159,21 @@
       {/if}
     </section>
 
-    {#if hasDescription}
+    {#if hasAbout}
       <aside class="panel about-panel desktop-only" style="--accent:{colors.accent}; --pill:{colors.pill}">
         <div class="panel-header about-header">
           <h2 class="panel-title"><Info size={16} /> About this course</h2>
         </div>
         <div class="about-scroll markdown-body">
-          {@html renderMarkdown(courseDescription)}
+          {#if hasDescription}
+            {@html renderMarkdown(courseDescription)}
+          {/if}
+          {#if hasSourcePrompt}
+            <details class="source-prompt-nugget">
+              <summary>Original prompt</summary>
+              <p>{courseSourcePrompt}</p>
+            </details>
+          {/if}
         </div>
       </aside>
     {/if}
@@ -170,7 +181,7 @@
 </div>
 
 <!-- Mobile-only About drawer -->
-{#if hasDescription && aboutOpen}
+{#if hasAbout && aboutOpen}
   <div class="drawer-scrim" on:click={() => (aboutOpen = false)} role="presentation"></div>
   <aside
     class="drawer mobile-only"
@@ -185,7 +196,15 @@
       </button>
     </div>
     <div class="drawer-body markdown-body">
-      {@html renderMarkdown(courseDescription)}
+      {#if hasDescription}
+        {@html renderMarkdown(courseDescription)}
+      {/if}
+      {#if hasSourcePrompt}
+        <details class="source-prompt-nugget">
+          <summary>Original prompt</summary>
+          <p>{courseSourcePrompt}</p>
+        </details>
+      {/if}
     </div>
   </aside>
 {/if}
@@ -578,6 +597,23 @@
     border: none; border-top: 1px solid #e5e8f0; margin: 14px 0;
   }
   .markdown-body :global(a) { color: var(--accent); text-decoration: underline; }
+  .source-prompt-nugget {
+    margin-top: 16px;
+    padding-top: 10px;
+    border-top: 1px solid #e5e8f0;
+    color: #667085;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .source-prompt-nugget summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: #667085;
+  }
+  .source-prompt-nugget p {
+    margin: 8px 0 0;
+    white-space: pre-wrap;
+  }
 
   /* ===== Mobile drawer ===== */
   .drawer-scrim {

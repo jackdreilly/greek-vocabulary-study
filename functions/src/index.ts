@@ -107,7 +107,9 @@ const GenerateLessonGamesInputSchema = z.object({
   lessonTitle: z.string(),
   courseTitle: z.string().max(200).default(''),
   courseDescription: z.string().max(5000).default(''),
+  courseSourcePrompt: z.string().max(1200).default(''),
   lessonDescription: z.string().max(8000).default(''),
+  lessonSourcePrompt: z.string().max(1200).default(''),
   countPerType: z.number().min(1).max(10).default(5),
   previousExerciseDigests: z.array(z.string()).default([]),
   entries: z.array(LessonEntrySchema).min(0).max(120).default([]),
@@ -158,7 +160,9 @@ const YiayiaChatInputSchema = z.object({
   lessonTitle: z.string(),
   courseTitle: z.string().max(200).default(''),
   courseDescription: z.string().max(5000).default(''),
+  courseSourcePrompt: z.string().max(1200).default(''),
   lessonDescription: z.string().max(8000).default(''),
+  lessonSourcePrompt: z.string().max(1200).default(''),
   exercise: GameExerciseSchema.nullish(),
   entries: z.array(LessonEntrySchema).max(80).default([]),
   messages: z.array(YiayiaMessageSchema).min(1).max(16),
@@ -476,6 +480,22 @@ function entrySummary(entries: Array<z.infer<typeof LessonEntrySchema>>): string
     .join('\n');
 }
 
+function sourcePromptContextBlock(args: {
+  courseSourcePrompt?: string;
+  lessonSourcePrompt?: string;
+  prefix?: string;
+}): string {
+  const coursePrompt = args.courseSourcePrompt?.trim();
+  const lessonPrompt = args.lessonSourcePrompt?.trim();
+  if (!coursePrompt && !lessonPrompt) return '';
+  const prefix = args.prefix ?? '\n';
+  return `${prefix}ORIGINAL GENERATION BRIEF
+These are raw user prompts that created this course/lesson. Treat them as intent/context,
+secondary to verified vocabulary and descriptions, but useful for choosing themes and tone.
+${coursePrompt ? `Course prompt: "${coursePrompt}"` : ''}
+${lessonPrompt ? `Lesson prompt: "${lessonPrompt}"` : ''}`;
+}
+
 const generateLessonGamesFlow = getAI().defineFlow(
   {
     name: 'generateLessonGames',
@@ -502,8 +522,12 @@ generic classroom situations.
 ${input.lessonDescription.trim()}
 LESSON_DESCRIPTION>>>`
       : '';
+    const sourcePromptBlock = sourcePromptContextBlock({
+      courseSourcePrompt: input.courseSourcePrompt,
+      lessonSourcePrompt: input.lessonSourcePrompt,
+    });
 
-    const prompt = `Generate Greek practice questions for lesson ${input.lessonId}: ${input.lessonTitle}.${courseContextBlock}${lessonContextBlock}
+    const prompt = `Generate Greek practice questions for lesson ${input.lessonId}: ${input.lessonTitle}.${courseContextBlock}${lessonContextBlock}${sourcePromptBlock}
 
 Learner preferences:
 ${preferenceContext(preferences)}
@@ -647,6 +671,11 @@ about words, themes, or scenes from this lesson, refer back to this text — quo
 ${input.lessonDescription.trim()}
 LESSON_DESCRIPTION>>>`
       : '';
+    const sourcePromptBlock = sourcePromptContextBlock({
+      courseSourcePrompt: input.courseSourcePrompt,
+      lessonSourcePrompt: input.lessonSourcePrompt,
+      prefix: '',
+    });
 
     const model = input.aiModel === 'flash' ? GAME_GENERATION_MODEL : YIAYIA_CHAT_MODEL;
     const { stream } = await getAI().generateStream({
@@ -657,6 +686,7 @@ LESSON_DESCRIPTION>>>`
         `Lesson: ${input.lessonId} ${input.lessonTitle}`,
         courseContextBlock,
         lessonContextBlock,
+        sourcePromptBlock,
         exerciseContext,
       ].filter(Boolean).join('\n\n'),
       messages,
@@ -810,7 +840,9 @@ const GenerateLessonPlanInputSchema = z.object({
   lessonTitle: z.string(),
   courseTitle: z.string().max(200).default(''),
   courseDescription: z.string().max(5000).default(''),
+  courseSourcePrompt: z.string().max(1200).default(''),
   lessonDescription: z.string().max(8000).default(''),
+  lessonSourcePrompt: z.string().max(1200).default(''),
   planNumber: z.number().int().min(1).default(1),
   previousPlans: z.array(PreviousPlanSummarySchema).max(50).default([]),
   entries: z.array(LessonEntrySchema).max(160).default([]),
@@ -864,8 +896,12 @@ learner is studying — your plan should illuminate THAT text via its vocabulary
 ${input.lessonDescription.trim()}
 LESSON_DESCRIPTION>>>`
       : '';
+    const sourcePromptBlock = sourcePromptContextBlock({
+      courseSourcePrompt: input.courseSourcePrompt,
+      lessonSourcePrompt: input.lessonSourcePrompt,
+    });
 
-    const prompt = `Design Plan #${input.planNumber} for lesson ${input.lessonId}: ${input.lessonTitle}.${customFocusLine}${courseContextBlock}${lessonContextBlock}
+    const prompt = `Design Plan #${input.planNumber} for lesson ${input.lessonId}: ${input.lessonTitle}.${customFocusLine}${courseContextBlock}${lessonContextBlock}${sourcePromptBlock}
 
 A "Plan" is a 1–2 textbook-page pedagogical module woven from lesson vocabulary. It must feel
 like reading a beautifully designed language textbook — engaging, structured, and varied —
@@ -978,7 +1014,9 @@ const GenerateVocabSuggestionsInputSchema = z.object({
   lessonTitle: z.string(),
   courseTitle: z.string().max(200).default(''),
   courseDescription: z.string().max(5000).default(''),
+  courseSourcePrompt: z.string().max(1200).default(''),
   lessonDescription: z.string().max(8000).default(''),
+  lessonSourcePrompt: z.string().max(1200).default(''),
   prompt: z.string().max(500),
   existingLemmas: z.array(z.string()).max(300).default([]),
 });
@@ -1004,13 +1042,18 @@ const generateVocabSuggestionsFlow = getAI().defineFlow(
     const lessonBlock = input.lessonDescription.trim()
       ? `\n\nLESSON_CONTEXT (markdown overview of THIS lesson; new vocabulary should fit this angle, register, and themes):\n${input.lessonDescription.trim()}`
       : '';
+    const sourcePromptBlock = sourcePromptContextBlock({
+      courseSourcePrompt: input.courseSourcePrompt,
+      lessonSourcePrompt: input.lessonSourcePrompt,
+      prefix: '\n\n',
+    });
 
     const { output } = await getAI().generate({
       model: GAME_GENERATION_MODEL,
       output: { schema: GenerateVocabSuggestionsOutputSchema },
       config: { maxOutputTokens: 8192 },
       system: 'You are a Modern Greek vocabulary expert. Generate accurate, learner-friendly Greek vocabulary entries as JSON.',
-      prompt: `Generate Modern Greek vocabulary entries for a lesson called "${input.lessonTitle}" (lesson ${input.lessonId}).${courseBlock}${lessonBlock}
+      prompt: `Generate Modern Greek vocabulary entries for a lesson called "${input.lessonTitle}" (lesson ${input.lessonId}).${courseBlock}${lessonBlock}${sourcePromptBlock}
 
 User request: ${input.prompt}${existingList}
 
@@ -1037,6 +1080,7 @@ Include only high-quality, accurate entries.`,
 const GenerateLessonContentInputSchema = z.object({
   prompt: z.string().max(600),
   courseName: z.string().max(200).default(''),
+  courseSourcePrompt: z.string().max(1200).default(''),
   existingLessonTitles: z.array(z.string()).max(60).default([]),
   generateCourseName: z.boolean().default(false),
 });
@@ -1046,6 +1090,7 @@ const GenerateLessonContentOutputSchema = z.object({
   courseName: z.string().catch(''),
   lessonDescription: z.string().default(''),
   courseDescription: z.string().default(''),
+  sourcePrompt: z.string().default(''),
   entries: z.array(VocabSuggestionSchema),
 });
 
@@ -1139,6 +1184,9 @@ const generateLessonContentFlow = getAI().defineFlow(
     const courseNameRequest = input.generateCourseName
       ? '\nAlso generate a concise course name (3–6 words) that describes this collection of lessons.'
       : '';
+    const courseSourcePromptLine = input.courseSourcePrompt.trim()
+      ? `\nOriginal prompt that created the parent course: "${input.courseSourcePrompt.trim()}". Keep the new lesson aligned with that intent.`
+      : '';
 
     const { output: entriesOutput } = await getAI().generate({
       model: GAME_GENERATION_MODEL,
@@ -1148,7 +1196,7 @@ const generateLessonContentFlow = getAI().defineFlow(
         tools: [{ urlContext: {} }],
       },
       system: 'You are a Modern Greek curriculum designer. Create well-structured lesson content with accurate vocabulary as JSON.',
-      prompt: `Design a new Modern Greek vocabulary lesson.${courseNameLine}${existingLine}${courseNameRequest}
+      prompt: `Design a new Modern Greek vocabulary lesson.${courseNameLine}${existingLine}${courseNameRequest}${courseSourcePromptLine}
 
 User request: ${input.prompt}
 
@@ -1200,6 +1248,7 @@ Return only vocabulary genuinely relevant to the request. Prioritise frequent, l
       courseName: entriesOutput.courseName,
       lessonDescription,
       courseDescription,
+      sourcePrompt: input.prompt,
       entries: entriesOutput.entries,
     };
   },
