@@ -7,6 +7,13 @@
   let sub = $state<ReturnType<typeof subscribeEntries>>();
   let index = $state(0);
   let flipped = $state(false);
+  let mode = $state<"gr-en" | "en-gr" | "mixed">("gr-en");
+  let deckSeed = $state(0);
+  let dragStart = $state<{ pointerId: number; x: number; y: number } | null>(null);
+  let dragX = $state(0);
+  let dragY = $state(0);
+  let dragTransition = $state(false);
+  let suppressNextClick = $state(false);
 
   $effect(() => {
     const next = subscribeEntries(courseId, lessonId);
@@ -16,15 +23,133 @@
     return () => next.stop();
   });
 
-  const entries = $derived(sub?.entries ?? []);
+  const entries = $derived.by(() => {
+    const source = sub?.entries ?? [];
+    if (deckSeed === 0) return source;
+    return [...source].sort((a, b) => {
+      const ak = shuffleKey(a.id, deckSeed);
+      const bk = shuffleKey(b.id, deckSeed);
+      return ak - bk;
+    });
+  });
   const current = $derived(entries[index]);
+  const direction = $derived(current ? directionForCard(current, index, mode) : "gr-en");
+  const progress = $derived(entries.length ? ((index + 1) / entries.length) * 100 : 0);
+  const cardTransform = $derived(`translate(${dragX}px, ${dragY}px) rotate(${dragX / 28}deg)`);
 
   function go(delta: number) {
     if (entries.length === 0) return;
     index = (index + delta + entries.length) % entries.length;
     flipped = false;
   }
+
+  function shuffleKey(id: string, seed: number) {
+    let hash = seed || 1;
+    for (const ch of id) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+    return hash;
+  }
+
+  function shuffleDeck() {
+    deckSeed = Date.now();
+    index = 0;
+    flipped = false;
+  }
+
+  function senses(entry: typeof current) {
+    if (!entry) return [];
+    return entry.senses?.length ? entry.senses : [entry.english];
+  }
+
+  function directionForCard(entry: NonNullable<typeof current>, cardIndex: number, cardMode: typeof mode) {
+    if (cardMode === "mixed") return (shuffleKey(entry.id, cardIndex + 17) % 2 === 0) ? "gr-en" : "en-gr";
+    return cardMode;
+  }
+
+  function handleKeydown(event: KeyboardEvent) {
+    const target = event.target as HTMLElement | null;
+    if (target?.tagName === "INPUT" || target?.tagName === "TEXTAREA" || target?.isContentEditable) return;
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      go(1);
+    } else if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      go(-1);
+    } else if (event.key === " " || event.key === "Enter" || event.key === "ArrowUp") {
+      event.preventDefault();
+      flipped = !flipped;
+    } else if (event.key.toLowerCase() === "s") {
+      event.preventDefault();
+      shuffleDeck();
+    } else if (event.key === "1") {
+      mode = "gr-en";
+      flipped = false;
+    } else if (event.key === "2") {
+      mode = "en-gr";
+      flipped = false;
+    } else if (event.key === "3") {
+      mode = "mixed";
+      flipped = false;
+    }
+  }
+
+  function resetDrag() {
+    dragStart = null;
+    dragX = 0;
+    dragY = 0;
+    dragTransition = false;
+  }
+
+  function handlePointerDown(event: PointerEvent) {
+    if (!current || event.button !== 0 || (event.target as HTMLElement).closest("button")) return;
+    dragTransition = false;
+    dragStart = { pointerId: event.pointerId, x: event.clientX, y: event.clientY };
+    dragX = 0;
+    dragY = 0;
+    (event.currentTarget as HTMLElement).setPointerCapture?.(event.pointerId);
+  }
+
+  function handlePointerMove(event: PointerEvent) {
+    if (!dragStart || dragStart.pointerId !== event.pointerId) return;
+    dragX = event.clientX - dragStart.x;
+    dragY = event.clientY - dragStart.y;
+  }
+
+  function handlePointerUp(event: PointerEvent) {
+    if (!dragStart || dragStart.pointerId !== event.pointerId) return;
+    const absX = Math.abs(dragX);
+    const absY = Math.abs(dragY);
+    const swiped = absX > 90 && absX > absY * 1.15;
+    (event.currentTarget as HTMLElement).releasePointerCapture?.(event.pointerId);
+
+    if (swiped) {
+      const delta = dragX < 0 ? 1 : -1;
+      suppressNextClick = true;
+      dragTransition = true;
+      dragX = dragX > 0 ? 360 : -360;
+      dragY = Math.max(-80, Math.min(80, dragY));
+      setTimeout(() => {
+        go(delta);
+        resetDrag();
+      }, 120);
+      return;
+    }
+
+    resetDrag();
+    flipped = !flipped;
+  }
+
+  function handlePointerCancel() {
+    dragTransition = true;
+    dragX = 0;
+    dragY = 0;
+    dragStart = null;
+    setTimeout(() => {
+      dragTransition = false;
+    }, 140);
+  }
 </script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 <div>
   {#if !sub || sub.loading}
@@ -37,35 +162,102 @@
     </div>
   {:else}
     <section class="max-w-xl mx-auto">
-      <div class="mb-3 flex items-center justify-between text-sm text-(--color-muted)">
-        <span>{index + 1} / {entries.length}</span>
-        {#if current?.category}
-          <span>{current.category}</span>
-        {/if}
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-3 text-sm text-(--color-muted)">
+        <div>
+          <span class="font-medium text-(--color-text)">{index + 1}</span>
+          <span> / {entries.length}</span>
+          {#if current?.category}
+            <span class="ml-2">{current.category}</span>
+          {/if}
+        </div>
+        <div class="flex items-center gap-1 rounded-md border border-(--color-border) bg-(--color-surface-muted) p-1">
+          {#each [
+            { value: "gr-en", label: "GR -> EN" },
+            { value: "en-gr", label: "EN -> GR" },
+            { value: "mixed", label: "Mixed" },
+          ] as option}
+            <button
+              type="button"
+              onclick={() => {
+                mode = option.value as typeof mode;
+                flipped = false;
+              }}
+              class="rounded px-2.5 py-1 text-xs font-medium {mode === option.value
+                ? 'bg-(--color-accent) text-white'
+                : 'text-(--color-muted) hover:text-(--color-text)'}"
+            >
+              {option.label}
+            </button>
+          {/each}
+        </div>
+      </div>
+
+      <div class="mb-5 h-1 rounded-full bg-(--color-border) overflow-hidden">
+        <div
+          class="h-full rounded-full bg-(--color-accent) transition-[width]"
+          style="width: {progress}%"
+        ></div>
       </div>
 
       <button
         type="button"
-        onclick={() => (flipped = !flipped)}
-        class="w-full min-h-72 rounded-lg border border-(--color-border) bg-(--color-surface) px-6 py-8 text-left shadow-sm hover:border-(--color-border-strong) focus:outline-none focus:ring-2 focus:ring-(--color-accent)"
+        onpointerdown={handlePointerDown}
+        onpointermove={handlePointerMove}
+        onpointerup={handlePointerUp}
+        onpointercancel={handlePointerCancel}
+        onclick={(event) => {
+          if (suppressNextClick) {
+            event.preventDefault();
+            suppressNextClick = false;
+          }
+        }}
+        class="relative w-full min-h-80 touch-pan-y select-none rounded-lg border bg-(--color-surface) px-6 py-8 text-left shadow-sm focus:outline-none focus:ring-2 focus:ring-(--color-accent)
+          {flipped
+          ? 'border-[#f59e0b] bg-[#fffbeb]'
+          : 'border-(--color-border) hover:border-(--color-border-strong)'}
+          {dragTransition ? 'transition-transform duration-150 ease-out' : ''}"
+        style="transform: {cardTransform}"
       >
+        {#if Math.abs(dragX) > 35}
+          <span
+            class="absolute top-5 {dragX > 0 ? 'left-5 text-[#15803d] border-[#bbf7d0]' : 'right-5 text-(--color-danger) border-[#fecaca]'} rounded border px-3 py-1 text-xs font-semibold uppercase tracking-widest bg-white/85"
+          >
+            {dragX > 0 ? "Back" : "Next"}
+          </span>
+        {/if}
         {#if !flipped}
           <div class="flex h-full min-h-56 flex-col items-center justify-center text-center">
-            <div class="flex items-baseline justify-center gap-2">
-              {#if current.article}
-                <span class="text-(--color-muted)">{current.article}</span>
-              {/if}
-              <GreekText size="lg">{current.lemma}</GreekText>
-            </div>
-            <p class="mt-6 text-sm text-(--color-muted)">Click to reveal</p>
+            {#if direction === "gr-en"}
+              <div class="flex items-baseline justify-center gap-2">
+                {#if current.article}
+                  <span class="text-(--color-muted)">{current.article}</span>
+                {/if}
+                <GreekText size="lg">{current.lemma}</GreekText>
+              </div>
+            {:else}
+              <ol class="text-left text-2xl font-semibold leading-relaxed list-decimal">
+                {#each senses(current) as sense}
+                  <li>{sense}</li>
+                {/each}
+              </ol>
+            {/if}
+            <p class="mt-6 text-sm text-(--color-muted)">Tap, Space, or Enter to flip</p>
           </div>
         {:else}
           <div class="flex h-full min-h-56 flex-col justify-center">
-            <p class="text-2xl font-semibold tracking-tight">{current.english}</p>
-            {#if current.senses && current.senses.length > 1}
-              <p class="mt-3 text-sm text-(--color-muted)">
-                {current.senses.slice(1).join("; ")}
-              </p>
+            {#if direction === "gr-en"}
+              <ol class="text-left text-2xl font-semibold leading-relaxed list-decimal">
+                {#each senses(current) as sense}
+                  <li>{sense}</li>
+                {/each}
+              </ol>
+            {:else}
+              <div class="flex items-baseline gap-2">
+                {#if current.article}
+                  <span class="text-(--color-muted) text-sm">{current.article}</span>
+                {/if}
+                <GreekText size="lg">{current.lemma}</GreekText>
+              </div>
             {/if}
             <div class="mt-6 pt-5 border-t border-(--color-border)">
               <div class="flex items-baseline gap-2">
@@ -89,10 +281,10 @@
         </button>
         <button
           type="button"
-          onclick={() => (flipped = !flipped)}
+          onclick={shuffleDeck}
           class="rounded-md border border-(--color-border) px-3 py-2 text-sm hover:bg-(--color-surface-muted)"
         >
-          {flipped ? "Hide" : "Reveal"}
+          Shuffle
         </button>
         <button
           type="button"
@@ -102,6 +294,9 @@
           Next
         </button>
       </div>
+      <p class="mt-3 text-center text-xs text-(--color-muted)">
+        Hotkeys: Left/Right move, Space/Enter flip, S shuffle, 1/2/3 change mode.
+      </p>
     </section>
   {/if}
 </div>
