@@ -7,6 +7,7 @@
   import Course from "./routes/Course.svelte";
   import Lesson from "./routes/Lesson.svelte";
   import Plan from "./routes/Plan.svelte";
+  import AdminAI from "./routes/AdminAI.svelte";
   import Breadcrumb from "./lib/ui/Breadcrumb.svelte";
   import type { Crumb } from "./lib/ui/Breadcrumb.svelte";
 
@@ -16,6 +17,7 @@
     let m: RegExpMatchArray | null;
 
     if (p === "/" || p === "") return { kind: "home" as const };
+    if (p === "/admin/ai") return { kind: "admin-ai" as const };
 
     m = p.match(/^\/c\/([^/]+)$/);
     if (m) return { kind: "course" as const, courseId: m[1] };
@@ -93,6 +95,9 @@
   const crumbs = $derived.by<Crumb[]>(() => {
     const m = match;
     const list: Crumb[] = [{ label: "Courses", href: "/" }];
+    if (m.kind === "admin-ai") {
+      return [{ label: "Admin" }, { label: "AI" }];
+    }
     if (
       m.kind === "course" ||
       m.kind === "lesson" ||
@@ -141,6 +146,17 @@
         </div>
       {/if}
       <span class="grow"></span>
+      <a
+        href="/admin/ai"
+        onclick={(e) => {
+          if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+          e.preventDefault();
+          navigate("/admin/ai");
+        }}
+        class="text-sm text-(--color-muted) hover:text-(--color-text)"
+      >
+        Admin
+      </a>
       <button
         type="button"
         class="text-sm text-(--color-muted) hover:text-(--color-text)"
@@ -161,6 +177,8 @@
       <Lesson courseId={match.courseId} lessonId={match.lessonId} tab={match.tab} />
     {:else if match.kind === "plan"}
       <Plan courseId={match.courseId} lessonId={match.lessonId} planId={match.planId} />
+    {:else if match.kind === "admin-ai"}
+      <AdminAI />
     {:else if match.kind === "notfound"}
       <div class="max-w-3xl mx-auto pt-24 px-6">
         <h1 class="text-2xl font-semibold">Not found</h1>

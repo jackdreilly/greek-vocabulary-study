@@ -28,3 +28,5 @@ setGlobalOptions({
 export const ping = onRequest({ cors: true }, (_req, res) => {
   res.json({ ok: true, project: "fanari-b6bb4", at: new Date().toISOString() });
 });
+
+export { onAIConfigWritten } from "./triggers/onAIConfigWritten.js";
