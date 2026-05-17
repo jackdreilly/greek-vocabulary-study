@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
   import { subscribeCourse } from "../lib/data/courses.svelte";
   import { linkClick } from "../lib/router.svelte";
   import { extractLead, hasMoreThanLead } from "../lib/markdown";
@@ -8,7 +7,7 @@
 
   let { courseId }: { courseId: string } = $props();
 
-  let sub = $state<ReturnType<typeof subscribeCourse>>(subscribeCourse(courseId));
+  let sub = $state<ReturnType<typeof subscribeCourse>>();
 
   $effect(() => {
     const next = subscribeCourse(courseId);
@@ -16,15 +15,13 @@
     return () => next.stop();
   });
 
-  onDestroy(() => sub.stop());
-
   const lessons = $derived(
-    Object.entries(sub.course?.lessonSummaries ?? {})
+    Object.entries(sub?.course?.lessonSummaries ?? {})
       .map(([id, s]) => ({ id, ...s }))
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
   );
 
-  const description = $derived(sub.course?.description ?? "");
+  const description = $derived(sub?.course?.description ?? "");
   const lead = $derived(extractLead(description));
   const hasMore = $derived(hasMoreThanLead(description));
 
@@ -37,7 +34,7 @@
 </script>
 
 <div class="max-w-3xl mx-auto pt-12 pb-24 px-6">
-  {#if sub.loading}
+  {#if !sub || sub.loading}
     <p class="text-(--color-muted)">Loading…</p>
   {:else if sub.error || !sub.course}
     <p class="text-(--color-danger)">Course not found.</p>

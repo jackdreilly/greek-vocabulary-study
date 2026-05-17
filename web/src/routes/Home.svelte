@@ -10,7 +10,7 @@
 <div class="max-w-3xl mx-auto pt-16 pb-24 px-6">
   <header class="mb-12">
     <p class="text-xs tracking-widest uppercase text-(--color-muted) mb-2 font-semibold">
-      Greekflash
+      Fanari Go
     </p>
     <h1 class="text-4xl font-semibold tracking-tight">Greek vocabulary, with help.</h1>
   </header>

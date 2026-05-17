@@ -6,6 +6,7 @@
   import Home from "./routes/Home.svelte";
   import Course from "./routes/Course.svelte";
   import Lesson from "./routes/Lesson.svelte";
+  import Plan from "./routes/Plan.svelte";
   import Breadcrumb from "./lib/ui/Breadcrumb.svelte";
   import type { Crumb } from "./lib/ui/Breadcrumb.svelte";
 
@@ -21,6 +22,15 @@
 
     m = p.match(/^\/c\/([^/]+)\/l\/([^/]+)$/);
     if (m) return { kind: "lesson-redirect" as const, courseId: m[1], lessonId: m[2] };
+
+    m = p.match(/^\/c\/([^/]+)\/l\/([^/]+)\/plans\/([^/]+)$/);
+    if (m)
+      return {
+        kind: "plan" as const,
+        courseId: m[1],
+        lessonId: m[2],
+        planId: m[3],
+      };
 
     m = p.match(/^\/c\/([^/]+)\/l\/([^/]+)\/(overview|vocab|cards|games|plans)$/);
     if (m) return { kind: "lesson" as const, courseId: m[1], lessonId: m[2], tab: m[3] };
@@ -42,12 +52,17 @@
   let lessonSub = $state<ReturnType<typeof subscribeLesson> | null>(null);
 
   const courseIdForCrumb = $derived(
-    match.kind === "course" || match.kind === "lesson" || match.kind === "lesson-redirect"
+    match.kind === "course" ||
+      match.kind === "lesson" ||
+      match.kind === "lesson-redirect" ||
+      match.kind === "plan"
       ? match.courseId
       : null
   );
   const lessonIdForCrumb = $derived(
-    match.kind === "lesson" || match.kind === "lesson-redirect" ? match.lessonId : null
+    match.kind === "lesson" || match.kind === "lesson-redirect" || match.kind === "plan"
+      ? match.lessonId
+      : null
   );
 
   $effect(() => {
@@ -78,7 +93,12 @@
   const crumbs = $derived.by<Crumb[]>(() => {
     const m = match;
     const list: Crumb[] = [{ label: "Courses", href: "/" }];
-    if (m.kind === "course" || m.kind === "lesson" || m.kind === "lesson-redirect") {
+    if (
+      m.kind === "course" ||
+      m.kind === "lesson" ||
+      m.kind === "lesson-redirect" ||
+      m.kind === "plan"
+    ) {
       list.push({
         label: courseSub?.course?.title ?? m.courseId,
         href: m.kind === "course" ? undefined : `/c/${m.courseId}`,
@@ -86,6 +106,13 @@
     }
     if (m.kind === "lesson") {
       list.push({ label: lessonSub?.lesson?.title ?? m.lessonId });
+    }
+    if (m.kind === "plan") {
+      list.push({
+        label: lessonSub?.lesson?.title ?? m.lessonId,
+        href: `/c/${m.courseId}/l/${m.lessonId}/plans`,
+      });
+      list.push({ label: "Plan" });
     }
     return list;
   });
@@ -105,7 +132,7 @@
         }}
         class="font-semibold tracking-tight text-(--color-text) shrink-0"
       >
-        Greekflash
+        Fanari Go
       </a>
       {#if crumbs.length > 1}
         <span class="text-(--color-border) hidden sm:inline">·</span>
@@ -132,6 +159,8 @@
       <Course courseId={match.courseId} />
     {:else if match.kind === "lesson"}
       <Lesson courseId={match.courseId} lessonId={match.lessonId} tab={match.tab} />
+    {:else if match.kind === "plan"}
+      <Plan courseId={match.courseId} lessonId={match.lessonId} planId={match.planId} />
     {:else if match.kind === "notfound"}
       <div class="max-w-3xl mx-auto pt-24 px-6">
         <h1 class="text-2xl font-semibold">Not found</h1>

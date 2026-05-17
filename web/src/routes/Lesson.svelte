@@ -1,22 +1,20 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
   import { subscribeLesson } from "../lib/data/lessons.svelte";
   import { linkClick, route } from "../lib/router.svelte";
   import VocabTab from "./lesson/VocabTab.svelte";
   import OverviewTab from "./lesson/OverviewTab.svelte";
+  import PlansTab from "./lesson/PlansTab.svelte";
   import ComingSoon from "./lesson/ComingSoon.svelte";
 
   let { courseId, lessonId, tab }: { courseId: string; lessonId: string; tab: string } = $props();
 
-  let sub = $state<ReturnType<typeof subscribeLesson>>(subscribeLesson(courseId, lessonId));
+  let sub = $state<ReturnType<typeof subscribeLesson>>();
 
   $effect(() => {
     const next = subscribeLesson(courseId, lessonId);
     sub = next;
     return () => next.stop();
   });
-
-  onDestroy(() => sub.stop());
 
   const tabs = [
     { key: "overview", label: "Overview" },
@@ -32,7 +30,7 @@
 </script>
 
 <div class="max-w-3xl mx-auto pt-12 pb-24 px-6">
-  {#if sub.loading}
+  {#if !sub || sub.loading}
     <p class="text-(--color-muted)">Loading lesson…</p>
   {:else if sub.error || !sub.lesson}
     <p class="text-(--color-danger)">Lesson not found.</p>
@@ -69,7 +67,7 @@
     {:else if tab === "games"}
       <ComingSoon name="Games" />
     {:else if tab === "plans"}
-      <ComingSoon name="Plans" />
+      <PlansTab {courseId} {lessonId} />
     {/if}
   {/if}
 </div>
