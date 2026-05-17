@@ -23,8 +23,7 @@
 
   function totalWords(c) { return c.lessons.reduce((s, l) => s + (l.entry_count ?? 0), 0); }
   function totalAudio(c) { return c.lessons.reduce((s, l) => s + (l.audio_count ?? 0), 0); }
-  function courseDescription(c) {
-    if (c.description) return c.description;
+  function courseBlurb(c) {
     const lessonText = `${c.lessons.length} lesson${c.lessons.length !== 1 ? "s" : ""}`;
     return `${lessonText} ready to study.`;
   }
@@ -59,7 +58,7 @@
 
         <div class="card-body">
           <h2 class="card-title">{course.name}</h2>
-          <p class="card-desc">{courseDescription(course)}</p>
+          <p class="card-desc">{courseBlurb(course)}</p>
 
           <div class="stats">
             <span class="stat">

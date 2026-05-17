@@ -6,6 +6,7 @@
     Sparkles,
     BookOpen,
     GraduationCap,
+    BookMarked,
     Menu,
     X,
     Keyboard,
@@ -18,6 +19,7 @@
   } from "lucide-svelte";
   import { db, storage } from "./lib/firebase";
   import { textMatchesSearch } from "./lib/search.js";
+  import { renderMarkdown } from "./lib/markdown.js";
   import { generateVocabSuggestions, aiAssistVocabEntry, saveNewVocabEntry, generateLessonContent, saveNewLesson } from "./lib/aiVocab.js";
   import { collection, getDocs, query, where, doc, updateDoc } from "firebase/firestore";
   import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -301,7 +303,8 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
   function openLesson(id) {
     selectedLessonId = id;
     view = "study";
-    activeTab = "cards";
+    const lesson = themes?.find(t => Number(t.id) === Number(id));
+    activeTab = lesson?.description ? "home" : "cards";
     cardIndex = 0;
     cardFlipped = false;
     commitUrl(true);
@@ -476,6 +479,7 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
         courseName: selectedCourseName,
         courseId: selectedCourse,
         entries: toSave,
+        lessonDescription: genLessonResult.lessonDescription || '',
       });
       themes = [...themes, { ...theme, groupKeys: [] }];
       lessonEntriesCache.set(Number(theme.id), saved.map(prepareEntry));
@@ -519,6 +523,8 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
         lessonTitle: genCourseLessonTitle,
         courseName: genCourseName,
         entries: toSave,
+        lessonDescription: genCourseResult.lessonDescription || '',
+        courseDescription: genCourseResult.courseDescription || '',
       });
       themes = [...themes, { ...theme, groupKeys: [] }];
       lessonEntriesCache.set(Number(theme.id), saved.map(prepareEntry));
@@ -631,7 +637,7 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
     {:else if view === "courses"}
       <CourseList {courses} onOpenCourse={openCourse} onGenerateCourse={openGenCourse} />
     {:else if view === "lessons"}
-      <LessonList lessons={courseLessons} courseName={selectedCourseName} onOpenLesson={openLesson} onBack={showCourses} onGenerateLesson={openGenLesson} />
+      <LessonList lessons={courseLessons} courseName={selectedCourseName} courseDescription={selectedCourseRecord?.description ?? ''} onOpenLesson={openLesson} onBack={showCourses} onGenerateLesson={openGenLesson} />
     {:else}
       <div class="study-layout">
         <aside class="sidebar" class:open={lessonSidebarOpen}>
@@ -641,6 +647,11 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
           </button>
 
           <nav class="tabs-nav">
+            {#if selectedLesson?.description}
+              <button class:active={activeTab === 'home'} on:click={() => setTab('home')}>
+                <BookMarked size={18} /> <span>Overview</span>
+              </button>
+            {/if}
             <button class:active={activeTab === 'vocab'} on:click={() => setTab('vocab')}>
               <Layers3 size={18} /> <span>Vocabulary</span>
             </button>
@@ -692,6 +703,10 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
           <div class="page-container">
             {#if lessonEntriesError}
               <div class="loading-state"><p style="color:#a24f3f">Could not load this lesson: {lessonEntriesError}</p></div>
+            {:else if activeTab === 'home' && selectedLesson?.description}
+              <article class="lesson-overview markdown-body">
+                {@html renderMarkdown(selectedLesson.description)}
+              </article>
             {:else if !lessonEntriesReady}
               <div class="loading-state"><LoaderCircle class="animate-spin" size={36} /><p>Loading vocabulary…</p></div>
             {:else if activeTab === 'cards'}
@@ -1113,6 +1128,65 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
   .toggle-sidebar { border: none; background: none; color: #667085; cursor: pointer; display: grid; place-items: center; }
   .page-title { font-size: 16px; font-weight: 800; color: #202124; margin: 0; }
   .page-container { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+
+  .lesson-overview {
+    overflow-y: auto;
+    padding: 32px clamp(20px, 5vw, 56px) 64px;
+    max-width: 820px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+    color: #202124;
+    line-height: 1.7;
+    font-size: 15.5px;
+  }
+  .lesson-overview :global(h1) {
+    font-size: 30px; font-weight: 900; margin: 0 0 6px;
+    color: #17614f; letter-spacing: -0.03em; line-height: 1.2;
+  }
+  .lesson-overview :global(h2) {
+    font-size: 22px; font-weight: 800; margin: 30px 0 10px;
+    color: #202124; letter-spacing: -0.02em;
+    border-bottom: 1px solid #e5e8ef; padding-bottom: 6px;
+  }
+  .lesson-overview :global(h3) {
+    font-size: 17px; font-weight: 700; margin: 22px 0 8px; color: #202124;
+  }
+  .lesson-overview :global(p) { margin: 10px 0; }
+  .lesson-overview :global(ul),
+  .lesson-overview :global(ol) { margin: 10px 0; padding-left: 1.4rem; }
+  .lesson-overview :global(li + li) { margin-top: 4px; }
+  .lesson-overview :global(strong) { color: #202124; }
+  .lesson-overview :global(em) { color: #a65318; font-style: italic; }
+  .lesson-overview :global(blockquote) {
+    border-left: 4px solid #c9a76c;
+    background: #fff8ec;
+    margin: 18px 0;
+    padding: 12px 18px;
+    border-radius: 0 10px 10px 0;
+    font-style: italic;
+    color: #5b4636;
+    white-space: pre-wrap;
+  }
+  .lesson-overview :global(blockquote p) { margin: 4px 0; }
+  .lesson-overview :global(code) {
+    background: #f0f2f7; padding: 1px 6px; border-radius: 4px; font-size: 0.92em;
+  }
+  .lesson-overview :global(pre) {
+    background: #f0f2f7; padding: 12px 16px; border-radius: 8px; overflow-x: auto;
+  }
+  .lesson-overview :global(hr) {
+    border: none; border-top: 1px solid #e5e8ef; margin: 24px 0;
+  }
+  .lesson-overview :global(a) { color: #17614f; text-decoration: underline; }
+  .lesson-overview :global(table) {
+    width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14px;
+  }
+  .lesson-overview :global(th),
+  .lesson-overview :global(td) {
+    border: 1px solid #e5e8ef; padding: 8px 12px; text-align: left;
+  }
+  .lesson-overview :global(th) { background: #f7f8fb; font-weight: 700; }
   
   .modal-overlay { position: fixed; inset: 0; background: rgba(32,33,36,0.4); backdrop-filter: blur(4px); z-index: 1000; display: grid; place-items: center; padding: 16px; }
   .modal-content { width: 100%; max-width: 500px; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }

@@ -171,6 +171,9 @@ export async function generateLessonExercises({ lesson, entries, countPerType = 
   const result = await callable({
     lessonId: lesson.id,
     lessonTitle: lesson.title,
+    courseTitle: lesson.course || lesson.courseRecord?.title || '',
+    courseDescription: (lesson.courseRecord?.description || '').slice(0, 5000),
+    lessonDescription: (lesson.description || '').slice(0, 8000),
     countPerType,
     previousExerciseDigests: previousExercises.map(sourceDigest),
     entries: entriesForAI(entries).slice(0, 100),
@@ -212,6 +215,9 @@ export async function sendYiayiaMessage({ lesson, exercise, entries, messages, p
   const result = await callable({
     lessonId: lesson.id,
     lessonTitle: lesson.title,
+    courseTitle: lesson.course || lesson.courseRecord?.title || '',
+    courseDescription: (lesson.courseRecord?.description || '').slice(0, 5000),
+    lessonDescription: (lesson.description || '').slice(0, 8000),
     exercise,
     entries: entriesForAI(entries).slice(0, 80),
     messages: messages.map((message) => ({
@@ -231,6 +237,9 @@ export async function streamYiayiaMessage({ lesson, exercise, entries, messages,
   const result = await callable.stream({
     lessonId: lesson.id,
     lessonTitle: lesson.title,
+    courseTitle: lesson.course || lesson.courseRecord?.title || '',
+    courseDescription: (lesson.courseRecord?.description || '').slice(0, 5000),
+    lessonDescription: (lesson.description || '').slice(0, 8000),
     exercise,
     entries: entriesForAI(entries).slice(0, 80),
     messages: messages.map((message) => ({

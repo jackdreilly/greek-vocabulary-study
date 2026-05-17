@@ -19,6 +19,9 @@ export async function generateVocabSuggestions({ lesson, entries, prompt }) {
   const result = await callable({
     lessonId: lesson.id,
     lessonTitle: lesson.title,
+    courseTitle: lesson.course || lesson.courseRecord?.title || "",
+    courseDescription: (lesson.courseRecord?.description || "").slice(0, 5000),
+    lessonDescription: (lesson.description || "").slice(0, 8000),
     prompt,
     existingLemmas,
   });
@@ -48,16 +51,19 @@ export async function generateLessonContent({ prompt, courseName = '', lessonTit
   return data;
 }
 
-export async function saveNewLesson({ lessonTitle, courseName, courseId = '', entries }) {
+export async function saveNewLesson({ lessonTitle, courseName, courseId = '', entries, lessonDescription = '', courseDescription = '' }) {
   const themeId = Date.now() * 1000 + Math.floor(Math.random() * 1000);
   const resolvedCourseId = courseId || courseIdFromName(courseName);
-  await setDoc(doc(db, "courses", resolvedCourseId), {
+  const coursePayload = {
     id: resolvedCourseId,
     title: courseName,
     updatedAt: Date.now(),
-  }, { merge: true });
+  };
+  if (courseDescription) coursePayload.description = courseDescription;
+  await setDoc(doc(db, "courses", resolvedCourseId), coursePayload, { merge: true });
 
   const theme = { id: themeId, title: lessonTitle, courseId: resolvedCourseId, course: courseName };
+  if (lessonDescription) theme.description = lessonDescription;
   await setDoc(doc(db, "themes", String(themeId)), theme);
   const savedEntries = await Promise.all(entries.map(e => saveNewVocabEntry({ entry: e, lessonId: themeId })));
   return { theme: { ...theme, entry_count: savedEntries.length, translated_count: savedEntries.length, audio_count: 0 }, entries: savedEntries };

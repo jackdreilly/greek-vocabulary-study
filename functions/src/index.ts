@@ -105,6 +105,9 @@ const LearningPreferencesSchema = z.object({
 const GenerateLessonGamesInputSchema = z.object({
   lessonId: z.number(),
   lessonTitle: z.string(),
+  courseTitle: z.string().max(200).default(''),
+  courseDescription: z.string().max(5000).default(''),
+  lessonDescription: z.string().max(8000).default(''),
   countPerType: z.number().min(1).max(10).default(5),
   previousExerciseDigests: z.array(z.string()).default([]),
   entries: z.array(LessonEntrySchema).min(0).max(120).default([]),
@@ -153,6 +156,9 @@ const YiayiaMessageSchema = z.object({
 const YiayiaChatInputSchema = z.object({
   lessonId: z.number(),
   lessonTitle: z.string(),
+  courseTitle: z.string().max(200).default(''),
+  courseDescription: z.string().max(5000).default(''),
+  lessonDescription: z.string().max(8000).default(''),
   exercise: GameExerciseSchema.nullish(),
   entries: z.array(LessonEntrySchema).max(80).default([]),
   messages: z.array(YiayiaMessageSchema).min(1).max(16),
@@ -478,7 +484,26 @@ const generateLessonGamesFlow = getAI().defineFlow(
   },
   async (input) => {
     const preferences = normalizePreferences(input.preferences);
-    const prompt = `Generate Greek practice questions for lesson ${input.lessonId}: ${input.lessonTitle}.
+
+    const courseContextBlock = input.courseDescription?.trim()
+      ? `\nCOURSE CONTEXT — "${input.courseTitle || '(untitled course)'}"
+Authoritative overview of the whole course. Anchor tone, register, era, and cultural setting.
+<<<COURSE_DESCRIPTION
+${input.courseDescription.trim()}
+COURSE_DESCRIPTION>>>`
+      : '';
+
+    const lessonContextBlock = input.lessonDescription?.trim()
+      ? `\nLESSON CONTEXT — "${input.lessonTitle}"
+Authoritative source material for this lesson (lyrics, passage, brief). When this contains a
+text, build the practice questions around scenes, phrases, or themes from THAT text — not
+generic classroom situations.
+<<<LESSON_DESCRIPTION
+${input.lessonDescription.trim()}
+LESSON_DESCRIPTION>>>`
+      : '';
+
+    const prompt = `Generate Greek practice questions for lesson ${input.lessonId}: ${input.lessonTitle}.${courseContextBlock}${lessonContextBlock}
 
 Learner preferences:
 ${preferenceContext(preferences)}
@@ -495,7 +520,10 @@ Create exactly ${input.countPerType} exercises for each type:
 - sentence_translation: translate one sentence, mixing Greek-to-English and English-to-Greek.
 - word_translation: translate an individual lesson word, mixing both directions.
 
-Use only lesson vocabulary as the main target language. Prefer natural classroom/school situations.
+Use only lesson vocabulary as the main target language. Prefer settings drawn from the lesson
+description above when one is provided (e.g. taverna scenes, port neighbourhoods, song lyrics);
+otherwise use natural everyday situations. Avoid defaulting to classroom/school scenes unless the
+lesson description is explicitly about school.
 Avoid duplicates and avoid these already generated digests:
 ${input.previousExerciseDigests.join('\n') || '(none)'}
 
@@ -602,6 +630,24 @@ Required words: ${input.exercise.requiredWords.join(', ')}
 Visible vocabulary: ${input.exercise.vocabulary.map((item) => `${item.greek}=${item.english}`).join(', ')}`
       : '';
 
+    const courseContextBlock = input.courseDescription?.trim()
+      ? `COURSE CONTEXT — "${input.courseTitle || '(untitled course)'}"
+Authoritative overview of the course this lesson belongs to. Use it to ground tone, register,
+era, and cultural setting in your answers.
+<<<COURSE_DESCRIPTION
+${input.courseDescription.trim()}
+COURSE_DESCRIPTION>>>`
+      : '';
+
+    const lessonContextBlock = input.lessonDescription?.trim()
+      ? `LESSON CONTEXT — "${input.lessonTitle}"
+Authoritative source material for this lesson (lyrics, passage, brief). When the learner asks
+about words, themes, or scenes from this lesson, refer back to this text — quote it when useful.
+<<<LESSON_DESCRIPTION
+${input.lessonDescription.trim()}
+LESSON_DESCRIPTION>>>`
+      : '';
+
     const model = input.aiModel === 'flash' ? GAME_GENERATION_MODEL : YIAYIA_CHAT_MODEL;
     const { stream } = await getAI().generateStream({
       model,
@@ -609,8 +655,10 @@ Visible vocabulary: ${input.exercise.vocabulary.map((item) => `${item.greek}=${i
         YIAYIA_SYSTEM,
         preferenceContext(preferences),
         `Lesson: ${input.lessonId} ${input.lessonTitle}`,
+        courseContextBlock,
+        lessonContextBlock,
         exerciseContext,
-      ].join('\n\n'),
+      ].filter(Boolean).join('\n\n'),
       messages,
       tools: [getLessonOverviewTool, searchLessonWordsTool, getExerciseCoverageTool],
     });
@@ -760,6 +808,9 @@ const PreviousPlanSummarySchema = z.object({
 const GenerateLessonPlanInputSchema = z.object({
   lessonId: z.number(),
   lessonTitle: z.string(),
+  courseTitle: z.string().max(200).default(''),
+  courseDescription: z.string().max(5000).default(''),
+  lessonDescription: z.string().max(8000).default(''),
   planNumber: z.number().int().min(1).default(1),
   previousPlans: z.array(PreviousPlanSummarySchema).max(50).default([]),
   entries: z.array(LessonEntrySchema).max(160).default([]),
@@ -794,7 +845,27 @@ const generateLessonPlanFlow = getAI().defineFlow(
       ? `\nUSER-REQUESTED FOCUS: "${input.customFocus.trim()}" — prioritise this angle when choosing the plan's theme.`
       : '';
 
-    const prompt = `Design Plan #${input.planNumber} for lesson ${input.lessonId}: ${input.lessonTitle}.${customFocusLine}
+    const courseContextBlock = input.courseDescription?.trim()
+      ? `\nCOURSE CONTEXT — "${input.courseTitle || '(untitled course)'}"
+This is the authoritative overview of the whole course this lesson belongs to. Use it to ground
+tone, register, era, cultural setting, and pedagogical voice across the entire plan.
+<<<COURSE_DESCRIPTION
+${input.courseDescription.trim()}
+COURSE_DESCRIPTION>>>`
+      : '';
+
+    const lessonContextBlock = input.lessonDescription?.trim()
+      ? `\nLESSON CONTEXT — "${input.lessonTitle}"
+This is the authoritative source material for THIS specific lesson (e.g. song lyrics, a poem,
+a passage of cultural context, or a topic brief). Quote, analyse, or build directly on it.
+When the lesson description contains lyrics or a text, treat them as the primary text the
+learner is studying — your plan should illuminate THAT text via its vocabulary.
+<<<LESSON_DESCRIPTION
+${input.lessonDescription.trim()}
+LESSON_DESCRIPTION>>>`
+      : '';
+
+    const prompt = `Design Plan #${input.planNumber} for lesson ${input.lessonId}: ${input.lessonTitle}.${customFocusLine}${courseContextBlock}${lessonContextBlock}
 
 A "Plan" is a 1–2 textbook-page pedagogical module woven from lesson vocabulary. It must feel
 like reading a beautifully designed language textbook — engaging, structured, and varied —
@@ -905,6 +976,9 @@ const VocabSuggestionSchema = z.object({
 const GenerateVocabSuggestionsInputSchema = z.object({
   lessonId: z.number(),
   lessonTitle: z.string(),
+  courseTitle: z.string().max(200).default(''),
+  courseDescription: z.string().max(5000).default(''),
+  lessonDescription: z.string().max(8000).default(''),
   prompt: z.string().max(500),
   existingLemmas: z.array(z.string()).max(300).default([]),
 });
@@ -924,12 +998,19 @@ const generateVocabSuggestionsFlow = getAI().defineFlow(
       ? `\nDo NOT include any of these already-existing words: ${input.existingLemmas.slice(0, 100).join(', ')}`
       : '';
 
+    const courseBlock = input.courseDescription.trim()
+      ? `\n\nCOURSE_CONTEXT (markdown overview of the parent course "${input.courseTitle}"; use it to gauge register, level, and overall syllabus):\n${input.courseDescription.trim()}`
+      : (input.courseTitle ? `\n\nParent course: "${input.courseTitle}"` : '');
+    const lessonBlock = input.lessonDescription.trim()
+      ? `\n\nLESSON_CONTEXT (markdown overview of THIS lesson; new vocabulary should fit this angle, register, and themes):\n${input.lessonDescription.trim()}`
+      : '';
+
     const { output } = await getAI().generate({
       model: GAME_GENERATION_MODEL,
       output: { schema: GenerateVocabSuggestionsOutputSchema },
       config: { maxOutputTokens: 8192 },
       system: 'You are a Modern Greek vocabulary expert. Generate accurate, learner-friendly Greek vocabulary entries as JSON.',
-      prompt: `Generate Modern Greek vocabulary entries for a lesson called "${input.lessonTitle}" (lesson ${input.lessonId}).
+      prompt: `Generate Modern Greek vocabulary entries for a lesson called "${input.lessonTitle}" (lesson ${input.lessonId}).${courseBlock}${lessonBlock}
 
 User request: ${input.prompt}${existingList}
 
@@ -939,6 +1020,7 @@ Rules:
 - english_senses: 1–4 clear, concise English meanings. Prefer specific definitions over vague ones.
 - category: one of Ουσιαστικά (nouns), Ρήματα (verbs), Επίθετα (adjectives), Εκφράσεις (phrases/expressions)
 - notes: optional short note about usage, register, or form (leave empty string if none)
+- Anchor new words in the LESSON_CONTEXT angle and the COURSE_CONTEXT register — do not drift into unrelated topics.
 
 How many entries to return:
 - If the user asks for a specific word or two, return just those (1–2 entries).
@@ -962,8 +1044,84 @@ const GenerateLessonContentInputSchema = z.object({
 const GenerateLessonContentOutputSchema = z.object({
   lessonTitle: z.string(),
   courseName: z.string().catch(''),
+  lessonDescription: z.string().default(''),
+  courseDescription: z.string().default(''),
   entries: z.array(VocabSuggestionSchema),
 });
+
+const GenerateEntriesOnlySchema = z.object({
+  lessonTitle: z.string(),
+  courseName: z.string().catch(''),
+  entries: z.array(VocabSuggestionSchema),
+});
+
+const DESCRIPTION_STYLE_GUIDE = `Write rich textbook-style markdown that doubles as
+(a) a learner-facing home page AND (b) authoritative source context for an AI tutor
+that will later generate plans, games, and dialogues anchored in this content.
+
+Structure (adapt sensibly to the topic):
+- Single H1 title matching the supplied title.
+- 2–4 sentence opening hook that establishes WHY this matters and what register it
+  lives in (everyday / formal / literary / regional / classroom / etc.).
+- One H2 "Why this lesson" (or analogous framing) section.
+- At least one H2 with a vocabulary or comparison table grouping key words by theme:
+  Greek | English | brief note (3+ rows). Anchor it in vocabulary actually supplied.
+- One H2 "Key cultural/grammatical notes" — concrete observations on register,
+  frequency, common collocations, false-friend traps. Use Greek words inline in *italic*.
+- Optional H2 with a short example mini-dialogue or example sentences in Greek with
+  English glosses, inside a blockquote.
+- End with H2 "Pedagogical note" addressed to the future AI tutor — what kinds of
+  practice scenes, examples, and tone fit this material (~2–4 sentences).
+
+Rules:
+- Output ONLY the markdown body. No code fences, no preamble like "Here is...".
+- Don't invent vocabulary that isn't in the supplied sample.
+- Italicise Greek words/phrases inline with *single asterisks*; **bold** sparingly.
+- Length: 300–650 words. Prefer density over length.
+- Voice: a passionate language-textbook author, not a wiki.`;
+
+function entriesForDescriptionPrompt(entries: Array<z.infer<typeof VocabSuggestionSchema>>) {
+  return entries
+    .slice(0, 60)
+    .map((e) => {
+      const senses = (e.english_senses || []).slice(0, 2).join(' / ');
+      const cat = e.category ? ` [${e.category}]` : '';
+      return `- ${e.article ? `${e.article} ` : ''}${e.lemma}${cat} → ${senses}`;
+    })
+    .join('\n');
+}
+
+async function generateDescriptionMarkdown(args: {
+  kind: 'lesson' | 'course';
+  title: string;
+  courseTitle?: string;
+  userPrompt: string;
+  entries: Array<z.infer<typeof VocabSuggestionSchema>>;
+}): Promise<string> {
+  const { kind, title, courseTitle, userPrompt, entries } = args;
+  const subjectLine = kind === 'lesson'
+    ? `Lesson title: ${title}${courseTitle ? `\nCourse: ${courseTitle}` : ''}`
+    : `Course title: ${title}`;
+
+  const { text } = await getAI().generate({
+    model: GAME_GENERATION_MODEL,
+    config: { maxOutputTokens: 4096 },
+    system: 'You are a passionate Modern Greek language-textbook author. Output only the markdown body.',
+    prompt: `Write a markdown overview for a Modern Greek ${kind}.
+
+${subjectLine}
+Origin of this ${kind}: it was just generated by AI from this user brief — "${userPrompt}"
+
+Representative vocabulary (a sample from the ${kind}'s ${entries.length} entries):
+${entriesForDescriptionPrompt(entries)}
+
+${DESCRIPTION_STYLE_GUIDE}`,
+  });
+
+  const md = (text || '').trim();
+  if (!md) throw new Error(`${kind} description generation returned empty output.`);
+  return md.length > 7800 ? md.slice(0, 7800).replace(/\s+\S*$/, '') : md;
+}
 
 const generateLessonContentFlow = getAI().defineFlow(
   {
@@ -982,9 +1140,9 @@ const generateLessonContentFlow = getAI().defineFlow(
       ? '\nAlso generate a concise course name (3–6 words) that describes this collection of lessons.'
       : '';
 
-    const { output } = await getAI().generate({
+    const { output: entriesOutput } = await getAI().generate({
       model: GAME_GENERATION_MODEL,
-      output: { schema: GenerateLessonContentOutputSchema },
+      output: { schema: GenerateEntriesOnlySchema },
       config: {
         maxOutputTokens: 8192,
         tools: [{ urlContext: {} }],
@@ -1007,8 +1165,43 @@ Rules:
 Return only vocabulary genuinely relevant to the request. Prioritise frequent, learner-useful words.`,
     });
 
-    if (!output) throw new Error('Lesson generation returned no output.');
-    return output;
+    if (!entriesOutput) throw new Error('Lesson generation returned no output.');
+
+    const resolvedCourseName = entriesOutput.courseName || input.courseName || '';
+
+    // Second pass: dedicated description generation, anchored on the freshly-produced
+    // entries. Run lesson + (optional) course descriptions in parallel.
+    const [lessonDescription, courseDescription] = await Promise.all([
+      generateDescriptionMarkdown({
+        kind: 'lesson',
+        title: entriesOutput.lessonTitle,
+        courseTitle: resolvedCourseName,
+        userPrompt: input.prompt,
+        entries: entriesOutput.entries,
+      }).catch((err) => {
+        console.error('lesson description generation failed:', err);
+        return '';
+      }),
+      input.generateCourseName
+        ? generateDescriptionMarkdown({
+            kind: 'course',
+            title: resolvedCourseName,
+            userPrompt: input.prompt,
+            entries: entriesOutput.entries,
+          }).catch((err) => {
+            console.error('course description generation failed:', err);
+            return '';
+          })
+        : Promise.resolve(''),
+    ]);
+
+    return {
+      lessonTitle: entriesOutput.lessonTitle,
+      courseName: entriesOutput.courseName,
+      lessonDescription,
+      courseDescription,
+      entries: entriesOutput.entries,
+    };
   },
 );
 
@@ -1016,7 +1209,7 @@ export const generateLessonContent = onCallGenkit(
   {
     secrets: [GOOGLE_GENAI_API_KEY],
     cors: true,
-    timeoutSeconds: 90,
+    timeoutSeconds: 240,
     memory: '512MiB',
   },
   generateLessonContentFlow,
