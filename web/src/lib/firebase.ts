@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import {
   initializeFirestore,
+  getFirestore,
   connectFirestoreEmulator,
   persistentLocalCache,
   persistentMultipleTabManager,
@@ -22,20 +23,29 @@ const firebaseConfig = {
 // Idempotent init — Vite HMR may re-execute this module.
 export const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-export const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
-});
+function makeDb() {
+  try {
+    return initializeFirestore(app, {
+      localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+    });
+  } catch {
+    return getFirestore(app);
+  }
+}
+export const db = makeDb();
 
 export const functions = getFunctions(app, "us-central1");
 
+// Default: talk to production fanari-b6bb4.
+// Set VITE_USE_FIRESTORE_EMULATOR=1 to point Firestore + Functions
+// at the local emulators (matches fanariotes' pattern).
+const useEmulator = import.meta.env.VITE_USE_FIRESTORE_EMULATOR === "1";
+
 export function isEmulator(): boolean {
-  return (
-    typeof window !== "undefined" &&
-    (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-  );
+  return useEmulator;
 }
 
-if (isEmulator()) {
+if (useEmulator) {
   try {
     connectFirestoreEmulator(db, "127.0.0.1", 8080);
     connectFunctionsEmulator(functions, "127.0.0.1", 5001);

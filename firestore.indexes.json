@@ -9,42 +9,12 @@
       ]
     },
     {
-      "collectionGroup": "entries",
-      "queryScope": "COLLECTION",
-      "fields": [{ "fieldPath": "order", "order": "ASCENDING" }]
-    },
-    {
-      "collectionGroup": "entries",
-      "queryScope": "COLLECTION_GROUP",
-      "fields": [{ "fieldPath": "generationId", "order": "ASCENDING" }]
-    },
-    {
-      "collectionGroup": "plans",
-      "queryScope": "COLLECTION",
-      "fields": [{ "fieldPath": "planNumber", "order": "ASCENDING" }]
-    },
-    {
-      "collectionGroup": "plans",
-      "queryScope": "COLLECTION_GROUP",
-      "fields": [{ "fieldPath": "generationId", "order": "ASCENDING" }]
-    },
-    {
       "collectionGroup": "games",
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "type", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
-    },
-    {
-      "collectionGroup": "games",
-      "queryScope": "COLLECTION_GROUP",
-      "fields": [{ "fieldPath": "generationId", "order": "ASCENDING" }]
-    },
-    {
-      "collectionGroup": "lessons",
-      "queryScope": "COLLECTION_GROUP",
-      "fields": [{ "fieldPath": "generationId", "order": "ASCENDING" }]
     },
     {
       "collectionGroup": "generations",
@@ -63,5 +33,38 @@
       ]
     }
   ],
-  "fieldOverrides": []
+  "fieldOverrides": [
+    {
+      "collectionGroup": "entries",
+      "fieldPath": "generationId",
+      "indexes": [
+        { "queryScope": "COLLECTION", "order": "ASCENDING" },
+        { "queryScope": "COLLECTION_GROUP", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "lessons",
+      "fieldPath": "generationId",
+      "indexes": [
+        { "queryScope": "COLLECTION", "order": "ASCENDING" },
+        { "queryScope": "COLLECTION_GROUP", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "plans",
+      "fieldPath": "generationId",
+      "indexes": [
+        { "queryScope": "COLLECTION", "order": "ASCENDING" },
+        { "queryScope": "COLLECTION_GROUP", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "games",
+      "fieldPath": "generationId",
+      "indexes": [
+        { "queryScope": "COLLECTION", "order": "ASCENDING" },
+        { "queryScope": "COLLECTION_GROUP", "order": "ASCENDING" }
+      ]
+    }
+  ]
 }

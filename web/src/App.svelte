@@ -1,62 +1,150 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { collection, getDocs } from "firebase/firestore";
-  import { db, isEmulator } from "./lib/firebase";
+  import { onDestroy } from "svelte";
+  import { navigate, route } from "./lib/router.svelte";
+  import { subscribeCourse } from "./lib/data/courses.svelte";
+  import { subscribeLesson } from "./lib/data/lessons.svelte";
+  import Home from "./routes/Home.svelte";
+  import Course from "./routes/Course.svelte";
+  import Lesson from "./routes/Lesson.svelte";
+  import Breadcrumb from "./lib/ui/Breadcrumb.svelte";
+  import type { Crumb } from "./lib/ui/Breadcrumb.svelte";
 
-  let connected = $state<"checking" | "online" | "offline">("checking");
-  let env = $state(isEmulator() ? "emulator" : "production");
+  // Route matching — recomputed reactively when route.pathname changes.
+  const match = $derived.by(() => {
+    const p = route.pathname;
+    let m: RegExpMatchArray | null;
 
-  onMount(async () => {
-    try {
-      await getDocs(collection(db, "ai_config"));
-      connected = "online";
-    } catch (err) {
-      console.error("Firestore connect failed:", err);
-      connected = "offline";
+    if (p === "/" || p === "") return { kind: "home" as const };
+
+    m = p.match(/^\/c\/([^/]+)$/);
+    if (m) return { kind: "course" as const, courseId: m[1] };
+
+    m = p.match(/^\/c\/([^/]+)\/l\/([^/]+)$/);
+    if (m) return { kind: "lesson-redirect" as const, courseId: m[1], lessonId: m[2] };
+
+    m = p.match(/^\/c\/([^/]+)\/l\/([^/]+)\/(vocab|cards|games|plans)$/);
+    if (m) return { kind: "lesson" as const, courseId: m[1], lessonId: m[2], tab: m[3] };
+
+    return { kind: "notfound" as const };
+  });
+
+  // If we land on /c/X/l/Y with no tab segment, jump to /vocab.
+  $effect(() => {
+    if (match.kind === "lesson-redirect") {
+      navigate(`/c/${match.courseId}/l/${match.lessonId}/vocab`, { replace: true });
     }
+  });
+
+  // Breadcrumb labels — subscribe based on route, cleaning up when the
+  // dependent IDs change. Effect cleanup avoids the "set state inside an
+  // effect that reads that state" loop.
+  let courseSub = $state<ReturnType<typeof subscribeCourse> | null>(null);
+  let lessonSub = $state<ReturnType<typeof subscribeLesson> | null>(null);
+
+  const courseIdForCrumb = $derived(
+    match.kind === "course" || match.kind === "lesson" || match.kind === "lesson-redirect"
+      ? match.courseId
+      : null
+  );
+  const lessonIdForCrumb = $derived(
+    match.kind === "lesson" || match.kind === "lesson-redirect" ? match.lessonId : null
+  );
+
+  $effect(() => {
+    if (!courseIdForCrumb) {
+      courseSub = null;
+      return;
+    }
+    const next = subscribeCourse(courseIdForCrumb);
+    courseSub = next;
+    return () => next.stop();
+  });
+
+  $effect(() => {
+    if (!courseIdForCrumb || !lessonIdForCrumb) {
+      lessonSub = null;
+      return;
+    }
+    const next = subscribeLesson(courseIdForCrumb, lessonIdForCrumb);
+    lessonSub = next;
+    return () => next.stop();
+  });
+
+  onDestroy(() => {
+    courseSub?.stop();
+    lessonSub?.stop();
+  });
+
+  const crumbs = $derived.by<Crumb[]>(() => {
+    const m = match;
+    const list: Crumb[] = [{ label: "Courses", href: "/" }];
+    if (m.kind === "course" || m.kind === "lesson" || m.kind === "lesson-redirect") {
+      list.push({
+        label: courseSub?.course?.title ?? m.courseId,
+        href: m.kind === "course" ? undefined : `/c/${m.courseId}`,
+      });
+    }
+    if (m.kind === "lesson") {
+      list.push({ label: lessonSub?.lesson?.title ?? m.lessonId });
+    }
+    return list;
   });
 </script>
 
-<main class="max-w-2xl mx-auto pt-24 px-6">
-  <p class="text-xs tracking-widest uppercase text-(--color-muted) mb-2 font-medium">Greekflash</p>
-
-  <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight m-0">The rewrite is alive.</h1>
-
-  <p class="text-(--color-muted) mt-3 text-base">
-    Scaffolding ready. Backend: <code
-      class="font-mono text-sm px-1.5 py-0.5 rounded bg-(--color-surface-muted) border border-(--color-border)"
-      >fanari-b6bb4</code
-    >.
-  </p>
-
-  <div
-    class="mt-10 p-5 border border-(--color-border) rounded-lg bg-(--color-surface) shadow-xs"
+<div class="min-h-screen flex flex-col">
+  <header
+    class="sticky top-0 z-10 bg-(--color-bg)/85 backdrop-blur border-b border-(--color-border) px-4 sm:px-6 py-3"
   >
-    <div class="flex justify-between items-center">
-      <span class="text-sm text-(--color-muted)">Environment</span>
-      <span
-        class="text-xs px-2 py-0.5 rounded-full border border-(--color-border) bg-(--color-surface-muted) font-mono text-(--color-text)"
-        >{env}</span
+    <div class="max-w-3xl mx-auto flex items-center gap-4">
+      <a
+        href="/"
+        onclick={(e) => {
+          if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+          e.preventDefault();
+          navigate("/");
+        }}
+        class="font-semibold tracking-tight text-(--color-text) shrink-0"
       >
-    </div>
-    <div class="flex justify-between items-center mt-3">
-      <span class="text-sm text-(--color-muted)">Firestore</span>
-      {#if connected === "checking"}
-        <span class="inline-flex items-center gap-1.5 text-sm text-(--color-generating)">
-          <span class="w-1.5 h-1.5 rounded-full bg-(--color-generating) animate-pulse"></span>
-          checking…
-        </span>
-      {:else if connected === "online"}
-        <span class="inline-flex items-center gap-1.5 text-sm text-(--color-success)">
-          <span class="w-1.5 h-1.5 rounded-full bg-(--color-success)"></span>
-          online
-        </span>
-      {:else}
-        <span class="inline-flex items-center gap-1.5 text-sm text-(--color-danger)">
-          <span class="w-1.5 h-1.5 rounded-full bg-(--color-danger)"></span>
-          offline
-        </span>
+        Greekflash
+      </a>
+      {#if crumbs.length > 1}
+        <span class="text-(--color-border) hidden sm:inline">·</span>
+        <div class="min-w-0 hidden sm:block">
+          <Breadcrumb crumbs={crumbs.slice(1)} />
+        </div>
       {/if}
+      <span class="grow"></span>
+      <button
+        type="button"
+        class="text-sm text-(--color-muted) hover:text-(--color-text)"
+        title="Yiayia (coming soon)"
+        disabled
+      >
+        Yiayia
+      </button>
     </div>
-  </div>
-</main>
+  </header>
+
+  <main class="grow">
+    {#if match.kind === "home"}
+      <Home />
+    {:else if match.kind === "course"}
+      <Course courseId={match.courseId} />
+    {:else if match.kind === "lesson"}
+      <Lesson courseId={match.courseId} lessonId={match.lessonId} tab={match.tab} />
+    {:else if match.kind === "notfound"}
+      <div class="max-w-3xl mx-auto pt-24 px-6">
+        <h1 class="text-2xl font-semibold">Not found</h1>
+        <p class="mt-2 text-(--color-muted)">No page at <code>{route.pathname}</code>.</p>
+        <a
+          href="/"
+          onclick={(e) => {
+            e.preventDefault();
+            navigate("/");
+          }}
+          class="inline-block mt-4 text-(--color-accent) hover:underline">Back to home</a
+        >
+      </div>
+    {/if}
+  </main>
+</div>
