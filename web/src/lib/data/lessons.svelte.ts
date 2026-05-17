@@ -24,6 +24,13 @@ export type EntryDoc = DocumentData & {
   article?: string;
   english: string;
   senses?: string[];
+  image?: {
+    url: string;
+    thumbnail?: string;
+    position?: string;
+    photographer?: string;
+    pexelsUrl?: string;
+  } | null;
   category?: string;
   order: number;
 };

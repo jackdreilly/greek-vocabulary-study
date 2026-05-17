@@ -7,6 +7,7 @@
   let index = $state(0);
   let answer = $state("");
   let checked = $state(false);
+  let typeFilter = $state("all");
 
   $effect(() => {
     const next = subscribeGames(courseId, lessonId);
@@ -17,7 +18,9 @@
     return () => next.stop();
   });
 
-  const games = $derived(sub?.games ?? []);
+  const allGames = $derived(sub?.games ?? []);
+  const gameTypes = $derived([...new Set(allGames.map((game) => game.type))]);
+  const games = $derived(typeFilter === "all" ? allGames : allGames.filter((game) => game.type === typeFilter));
   const current = $derived(games[index]);
   const progress = $derived(games.length ? ((index + 1) / games.length) * 100 : 0);
   const accepted = $derived(
@@ -48,6 +51,17 @@
       checked = false;
     }
   }
+
+  function move(delta: number) {
+    if (games.length === 0) return;
+    index = (index + delta + games.length) % games.length;
+    answer = "";
+    checked = false;
+  }
+
+  function skip() {
+    move(1);
+  }
 </script>
 
 <div>
@@ -55,16 +69,50 @@
     <p class="text-(--color-muted)">Loading games...</p>
   {:else if sub.error}
     <p class="text-(--color-danger)">Failed to load games: {sub.error.message}</p>
-  {:else if games.length === 0}
+  {:else if allGames.length === 0}
     <div class="text-center py-16 border border-dashed border-(--color-border) rounded-lg">
       <p class="text-(--color-muted) text-sm">No games for this lesson yet.</p>
+    </div>
+  {:else if games.length === 0}
+    <div>
+      <select
+        bind:value={typeFilter}
+        onchange={() => {
+          index = 0;
+          answer = "";
+          checked = false;
+        }}
+        class="mb-4 rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm"
+      >
+        <option value="all">All game types</option>
+        {#each gameTypes as type}
+          <option value={type}>{label(type)}</option>
+        {/each}
+      </select>
+      <p class="text-(--color-muted)">No games match this filter.</p>
     </div>
   {:else if current}
     <section class="max-w-xl mx-auto">
       <div class="mb-4">
-        <div class="mb-2 flex items-center justify-between text-sm text-(--color-muted)">
+        <div class="mb-2 flex flex-wrap items-center justify-between gap-3 text-sm text-(--color-muted)">
           <span>{index + 1} / {games.length}</span>
-          <span>{label(current.type)}</span>
+          <label class="flex items-center gap-2">
+            <span>Type</span>
+            <select
+              bind:value={typeFilter}
+              onchange={() => {
+                index = 0;
+                answer = "";
+                checked = false;
+              }}
+              class="rounded-md border border-(--color-border) bg-(--color-surface) px-2 py-1 text-sm text-(--color-text)"
+            >
+              <option value="all">All</option>
+              {#each gameTypes as type}
+                <option value={type}>{label(type)}</option>
+              {/each}
+            </select>
+          </label>
         </div>
         <div class="h-1 rounded-full bg-(--color-border) overflow-hidden">
           <div
@@ -128,7 +176,22 @@
         {/if}
       </article>
 
-      <div class="mt-4 flex justify-end">
+      <div class="mt-4 flex items-center justify-between gap-2">
+        <button
+          type="button"
+          onclick={() => move(-1)}
+          class="rounded-md border border-(--color-border) px-4 py-2 text-sm hover:bg-(--color-surface-muted)"
+        >
+          Previous
+        </button>
+        <div class="flex gap-2">
+          <button
+            type="button"
+            onclick={skip}
+            class="rounded-md border border-(--color-border) px-4 py-2 text-sm hover:bg-(--color-surface-muted)"
+          >
+            Skip
+          </button>
         {#if checked}
           <button
             type="button"
@@ -147,6 +210,7 @@
             Check
           </button>
         {/if}
+        </div>
       </div>
     </section>
   {/if}
