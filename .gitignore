@@ -24,6 +24,12 @@ _legacy/functions/lib/
 .artifacts/
 *.zip
 
+# Migration / Firebase debug
+.migration-progress.json
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
 # Secrets
 .env
 .env.local

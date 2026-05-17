@@ -75,9 +75,9 @@ async function main() {
   const mode = dryRun ? "DRY RUN (inventory only)" : "EXECUTE";
   console.log(`\n[migrate] mode: ${mode}`);
   console.log(`[migrate] source: ${SRC_PROJECT}:${SRC_DB_VOCAB}`);
-  if (targetEmulator) {
-    process.env.FIRESTORE_EMULATOR_HOST ||= "127.0.0.1:8080";
-    console.log(`[migrate] target: EMULATOR @ ${process.env.FIRESTORE_EMULATOR_HOST}`);
+  const emulatorHost = targetEmulator ? process.env.FIRESTORE_EMULATOR_HOST || "127.0.0.1:8080" : null;
+  if (emulatorHost) {
+    console.log(`[migrate] target: EMULATOR @ ${emulatorHost}`);
   } else {
     console.log(`[migrate] target: ${DST_PROJECT}:${DST_DB}`);
   }
@@ -85,8 +85,17 @@ async function main() {
   if (resume) console.log(`[migrate] resuming from ${PROGRESS_FILE}`);
   console.log("");
 
+  // Order matters: construct the source FIRST without FIRESTORE_EMULATOR_HOST,
+  // then set the env var only for the destination so the source still talks
+  // to real Cloud Firestore.
+  delete process.env.FIRESTORE_EMULATOR_HOST;
   const src = new Firestore({ projectId: SRC_PROJECT, databaseId: SRC_DB_VOCAB });
-  const dst = new Firestore({ projectId: DST_PROJECT, databaseId: DST_DB });
+  if (emulatorHost) process.env.FIRESTORE_EMULATOR_HOST = emulatorHost;
+  const dst = new Firestore({
+    projectId: DST_PROJECT,
+    databaseId: DST_DB,
+    ignoreUndefinedProperties: true,
+  });
 
   console.log("[migrate] fetching source data…");
   const [coursesSnap, themesSnap, entriesSnap, plansSnap, gamesSnap] = await Promise.all([
@@ -127,7 +136,7 @@ async function main() {
     console.log("\n[migrate] planned writes per course:");
     for (const c of courses) {
       const lessonsForCourse = themes.filter(
-        (t) => t.course === c.id || t.courseId === c.id
+        (t) => t.courseId === c.id || t.course === c.id
       );
       const lessonIds = new Set(lessonsForCourse.map((t) => t.id));
       const entriesForCourse = entries.filter((e) => lessonIds.has(Number(e.theme_id)));
@@ -192,7 +201,8 @@ async function main() {
   const themesByCourse = new Map();
   for (const c of courses) themesByCourse.set(c.id, []);
   for (const t of themes) {
-    const cid = t.course ?? t.courseId;
+    // courseId is the slug; t.course is the display name (e.g. "Afrodite Lourbakos").
+    const cid = t.courseId ?? t.course;
     if (!cid || !themesByCourse.has(cid)) continue;
     themesByCourse.get(cid).push(t);
   }
