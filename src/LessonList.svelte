@@ -346,7 +346,7 @@
   }
   @media (min-width: 1000px) {
     .main-grid.has-aside {
-      grid-template-columns: minmax(0, 1fr) 340px;
+      grid-template-columns: minmax(340px, 0.78fr) minmax(480px, 1.22fr);
       align-items: start;
     }
   }
@@ -388,6 +388,10 @@
 
   /* Lessons panel */
   .lessons-panel { padding-bottom: 22px; }
+  .lessons-panel,
+  .about-panel {
+    min-width: 0;
+  }
 
   .search-box {
     position: relative;
