@@ -19,6 +19,7 @@
   import { streamYiayiaMessage } from "./lib/aiGames";
 
   export let lesson = null;
+  export let course = null;
   export let exercise = null;
   export let entries = [];
   export let contextLabel = "";
@@ -135,6 +136,7 @@
     try {
       const reply = await streamYiayiaMessage({
         lesson,
+        course,
         exercise,
         entries,
         messages: nextMessages,

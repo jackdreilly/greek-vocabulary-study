@@ -212,16 +212,31 @@ export async function scoreExerciseAnswer({ lesson, exercise, answer, preference
   return result.data;
 }
 
-export async function sendYiayiaMessage({ lesson, exercise, entries, messages, preferences, adminMode = false }) {
+function yiayiaRequestContext({ lesson, course }) {
+  const activeLesson = lesson || {};
+  const activeCourse = course || activeLesson.courseRecord || {};
+  const courseTitle = activeLesson.course || activeCourse.title || activeCourse.name || "";
+  return {
+    lessonId: Number(activeLesson.id || 0),
+    lessonTitle: activeLesson.title || courseTitle || "GreekFlash",
+    courseId: activeCourse.id || activeLesson.courseId || "",
+    courseTitle,
+    courseDescription: (activeCourse.description || "").slice(0, 5000),
+    courseSourcePrompt: (activeCourse.sourcePrompt || "").slice(0, 1200),
+    courseLessons: (activeCourse.lessons || []).slice(0, 80).map((item) => ({
+      id: item.id,
+      title: item.title || "",
+      entryCount: Number(item.entry_count || item.entryCount || 0),
+    })),
+    lessonDescription: (activeLesson.description || "").slice(0, 8000),
+    lessonSourcePrompt: (activeLesson.sourcePrompt || "").slice(0, 1200),
+  };
+}
+
+export async function sendYiayiaMessage({ lesson, course, exercise, entries, messages, preferences, adminMode = false }) {
   const callable = httpsCallable(functions, "yiayiaChat");
   const result = await callable({
-    lessonId: lesson.id,
-    lessonTitle: lesson.title,
-    courseTitle: lesson.course || lesson.courseRecord?.title || '',
-    courseDescription: (lesson.courseRecord?.description || '').slice(0, 5000),
-    courseSourcePrompt: (lesson.courseRecord?.sourcePrompt || '').slice(0, 1200),
-    lessonDescription: (lesson.description || '').slice(0, 8000),
-    lessonSourcePrompt: (lesson.sourcePrompt || '').slice(0, 1200),
+    ...yiayiaRequestContext({ lesson, course }),
     exercise,
     entries: entriesForAI(entries).slice(0, 80),
     messages: messages.map((message) => ({
@@ -234,19 +249,13 @@ export async function sendYiayiaMessage({ lesson, exercise, entries, messages, p
   return String(result.data || "");
 }
 
-export async function streamYiayiaMessage({ lesson, exercise, entries, messages, preferences, adminMode = false, onChunk }) {
+export async function streamYiayiaMessage({ lesson, course, exercise, entries, messages, preferences, adminMode = false, onChunk }) {
   const callable = httpsCallable(functions, "yiayiaChat");
   if (typeof callable.stream !== "function") {
-    return sendYiayiaMessage({ lesson, exercise, entries, messages, preferences, adminMode });
+    return sendYiayiaMessage({ lesson, course, exercise, entries, messages, preferences, adminMode });
   }
   const result = await callable.stream({
-    lessonId: lesson.id,
-    lessonTitle: lesson.title,
-    courseTitle: lesson.course || lesson.courseRecord?.title || '',
-    courseDescription: (lesson.courseRecord?.description || '').slice(0, 5000),
-    courseSourcePrompt: (lesson.courseRecord?.sourcePrompt || '').slice(0, 1200),
-    lessonDescription: (lesson.description || '').slice(0, 8000),
-    lessonSourcePrompt: (lesson.sourcePrompt || '').slice(0, 1200),
+    ...yiayiaRequestContext({ lesson, course }),
     exercise,
     entries: entriesForAI(entries).slice(0, 80),
     messages: messages.map((message) => ({

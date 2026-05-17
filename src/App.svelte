@@ -759,9 +759,10 @@ const displayType = (v) => ({"Ουσιαστικά": "Nouns", "Επίθετα": 
 
   <YiaYiaChat
     lesson={selectedLesson}
+    course={selectedCourseRecord}
     exercise={currentExercise}
     entries={lessonEntries}
-    contextLabel={activeTab === 'games' ? currentExercise?.title : selectedLesson?.title}
+    contextLabel={activeTab === 'games' ? currentExercise?.title : selectedLesson?.title || selectedCourseName}
     contextWords={activeTab === 'cards' ? [deck[cardIndex]?.lemma].filter(Boolean) : activeTab === 'games' ? [...(currentExercise?.requiredWords ?? []), ...(currentExercise?.vocabulary?.map(v => v.greek) ?? [])].filter(Boolean).slice(0, 6) : []}
     contextType={activeTab === 'games' ? currentExercise?.type : null}
   />

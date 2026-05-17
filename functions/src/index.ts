@@ -158,9 +158,20 @@ const YiayiaMessageSchema = z.object({
 const YiayiaChatInputSchema = z.object({
   lessonId: z.number(),
   lessonTitle: z.string(),
+  courseId: z.string().max(200).default(''),
   courseTitle: z.string().max(200).default(''),
   courseDescription: z.string().max(5000).default(''),
   courseSourcePrompt: z.string().max(1200).default(''),
+  courseLessons: z
+    .array(
+      z.object({
+        id: z.union([z.string(), z.number()]),
+        title: z.string(),
+        entryCount: z.number().optional().default(0),
+      }),
+    )
+    .max(80)
+    .default([]),
   lessonDescription: z.string().max(8000).default(''),
   lessonSourcePrompt: z.string().max(1200).default(''),
   exercise: GameExerciseSchema.nullish(),
@@ -977,6 +988,13 @@ era, and cultural setting in your answers.
 ${input.courseDescription.trim()}
 COURSE_DESCRIPTION>>>`
       : '';
+    const courseAdminBlock = input.courseId || input.courseLessons.length
+      ? `CURRENT COURSE
+Course id: ${input.courseId || '(unknown)'}
+Course title: ${input.courseTitle || '(untitled course)'}
+Lessons in this course:
+${input.courseLessons.map((lesson) => `- ${lesson.id}: ${lesson.title} (${lesson.entryCount || 0} cards)`).join('\n') || '(not provided)'}`
+      : '';
 
     const lessonContextBlock = input.lessonDescription?.trim()
       ? `LESSON CONTEXT — "${input.lessonTitle}"
@@ -1016,6 +1034,7 @@ After any admin mutation, summarize exactly what changed and mention that curren
         preferenceContext(preferences),
         adminContext,
         `Lesson: ${input.lessonId} ${input.lessonTitle}`,
+        courseAdminBlock,
         courseContextBlock,
         lessonContextBlock,
         sourcePromptBlock,
