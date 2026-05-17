@@ -10,6 +10,7 @@
     Minimize2,
     PenLine,
     Send,
+    ShieldCheck,
     Sparkles,
     Trash2,
     Type,
@@ -46,11 +47,13 @@
   let responseLanguage = localStorage.getItem("greekflash:ai-response-language") || "english";
   let cefrLevel = localStorage.getItem("greekflash:ai-cefr-level") || "A2";
   let aiModel = localStorage.getItem("greekflash:ai-model") || "lite";
+  let adminMode = localStorage.getItem("greekflash:yiayia-admin-mode") === "1";
 
   $: preferences = { responseLanguage, cefrLevel, aiModel };
   $: localStorage.setItem("greekflash:ai-response-language", responseLanguage);
   $: localStorage.setItem("greekflash:ai-cefr-level", cefrLevel);
   $: localStorage.setItem("greekflash:ai-model", aiModel);
+  $: localStorage.setItem("greekflash:yiayia-admin-mode", adminMode ? "1" : "0");
 
   const yiayiaModes = [
     {
@@ -136,6 +139,7 @@
         entries,
         messages: nextMessages,
         preferences,
+        adminMode,
         onChunk: async (text) => {
           streamingText = text;
           await tick();
@@ -212,6 +216,16 @@
           title={aiModel === 'flash' ? 'Using Flash — click for Lite' : 'Using Lite — click for Flash'}
           on:click={() => aiModel = aiModel === 'lite' ? 'flash' : 'lite'}
         >{aiModel === 'flash' ? '⚡' : '·'}</button>
+        <button
+          class="yiayia-admin-btn"
+          class:active={adminMode}
+          type="button"
+          title={adminMode ? "Admin tools enabled" : "Enable admin tools"}
+          aria-pressed={adminMode}
+          on:click={() => adminMode = !adminMode}
+        >
+          <ShieldCheck size={13} />
+        </button>
         {#if chatMessages.length}
           <button class="yiayia-icon-btn" type="button" title="Clear chat" on:click={clearChat}>
             <Trash2 size={14} />
@@ -230,6 +244,7 @@
       {#if !chatMessages.length}
         <div class="yiayia-empty">
           Ask about vocabulary, a lesson word, or use Explore / Word / Drill modes.
+          {#if adminMode}<strong> Admin mode is on.</strong>{/if}
         </div>
       {/if}
       {#each chatMessages as message}
@@ -426,6 +441,24 @@
   }
   .yiayia-model-btn:hover { border-color: #99a1b3; }
   .yiayia-model-btn.flash { color: #a77716; border-color: #a77716; background: rgba(167,119,22,0.06); }
+  .yiayia-admin-btn {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    border: 1px solid #e5e8ef;
+    background: #fff;
+    color: #667085;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .yiayia-admin-btn:hover { border-color: #99a1b3; color: #202124; }
+  .yiayia-admin-btn.active {
+    color: #8a1f11;
+    border-color: #c44733;
+    background: #fff2ef;
+  }
 
   /* Messages */
   .yiayia-messages {

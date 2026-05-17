@@ -168,6 +168,7 @@ const YiayiaChatInputSchema = z.object({
   messages: z.array(YiayiaMessageSchema).min(1).max(16),
   preferences: LearningPreferencesSchema.default({ responseLanguage: 'english', cefrLevel: 'A2' }),
   aiModel: z.enum(['lite', 'flash']).default('lite'),
+  adminMode: z.boolean().default(false),
 });
 
 const YIAYIA_SYSTEM = `You are YiaYia AI, a warm but concise Greek tutor in a vocabulary practice app.
@@ -263,6 +264,320 @@ async function fetchLessonEntries(lessonId: number): Promise<Array<ReturnType<ty
   const snapshot = await vocabDb().collection('entries').where('theme_id', '==', lessonId).get();
   return snapshot.docs.map((doc) => cleanEntryForTool(doc.data())).filter((entry) => entry.lemma);
 }
+
+const AdminEntityTypeSchema = z.enum(['course', 'lesson', 'card', 'game', 'plan']);
+const AdminActionSchema = z.enum(['set', 'update', 'delete']);
+const AdminPayloadSchema = z.record(z.any()).default({});
+
+type AdminEntityType = z.infer<typeof AdminEntityTypeSchema>;
+
+function adminCollection(entity: AdminEntityType): string {
+  return {
+    course: 'courses',
+    lesson: 'themes',
+    card: 'entries',
+    game: 'lesson_ai_exercises',
+    plan: 'lesson_ai_plans',
+  }[entity];
+}
+
+function courseIdFromTitle(title: unknown): string {
+  const base = compactText(title || 'course')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return base || `course-${Date.now()}`;
+}
+
+function generatedNumericId(): number {
+  return Date.now() * 1000 + Math.floor(Math.random() * 1000);
+}
+
+function generatedStringId(prefix: string): string {
+  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function resolveAdminId(entity: AdminEntityType, rawId: unknown, data: Record<string, unknown>): string {
+  const explicit = compactText(rawId || data.id);
+  if (explicit) return explicit;
+  if (entity === 'course') return courseIdFromTitle(data.title || data.name);
+  if (entity === 'lesson' || entity === 'card') return String(generatedNumericId());
+  if (entity === 'plan' && data.lessonId && data.planNumber) return `l${data.lessonId}-plan-${data.planNumber}`;
+  return generatedStringId(entity);
+}
+
+function adminPayload(
+  entity: AdminEntityType,
+  id: string,
+  data: Record<string, unknown>,
+  action: z.infer<typeof AdminActionSchema>,
+): Record<string, unknown> {
+  const now = Date.now();
+  const payload: Record<string, unknown> = { ...data, id, updatedAt: now };
+  if (entity === 'lesson' || entity === 'card') {
+    const numericId = Number(id);
+    if (!Number.isFinite(numericId)) throw new Error(`${entity} ids must be numeric.`);
+    payload.id = numericId;
+  }
+  if (entity === 'course') {
+    payload.id = id;
+    if (!compactText(payload.title)) payload.title = compactText(data.name) || id;
+  }
+  if (entity === 'lesson') {
+    if (!compactText(payload.title)) payload.title = `Lesson ${payload.id}`;
+  }
+  if (entity === 'card') {
+    const lemma = compactText(payload.lemma || payload.term);
+    if (lemma && !compactText(payload.term)) payload.term = lemma;
+    if (Array.isArray(payload.english_senses)) {
+      const senses = payload.english_senses.map((sense) => compactText(sense)).filter(Boolean);
+      payload.english_senses = senses;
+      if (!compactText(payload.english)) payload.english = senses.join('; ');
+    } else if (compactText(payload.english)) {
+      payload.english_senses = compactText(payload.english).split(/\s*;\s*/).filter(Boolean);
+    }
+    if (action === 'set') {
+      if (!compactText(payload.category)) payload.category = 'Ουσιαστικά';
+      if (payload.createdAt === undefined) payload.createdAt = now;
+      if (payload.audio_available === undefined) payload.audio_available = false;
+      if (!Array.isArray(payload.groupKeys)) payload.groupKeys = [];
+    }
+  }
+  if (entity === 'game') {
+    payload.id = id;
+    if (!compactText(payload.status)) payload.status = 'active';
+  }
+  if (entity === 'plan') {
+    payload.id = id;
+    if (!compactText(payload.status)) payload.status = 'active';
+  }
+  return payload;
+}
+
+function noteCount(counts: Record<string, number>, key: string, amount: number): void {
+  counts[key] = (counts[key] || 0) + amount;
+}
+
+async function deleteDocIfPresent(collectionName: string, id: string): Promise<number> {
+  const ref = vocabDb().collection(collectionName).doc(id);
+  const doc = await ref.get();
+  if (!doc.exists) return 0;
+  await ref.delete();
+  return 1;
+}
+
+async function deleteDocsByQuery(queryRef: FirebaseFirestore.Query): Promise<number> {
+  const snapshot = await queryRef.get();
+  for (let index = 0; index < snapshot.docs.length; index += 450) {
+    const batch = vocabDb().batch();
+    for (const doc of snapshot.docs.slice(index, index + 450)) {
+      batch.delete(doc.ref);
+    }
+    await batch.commit();
+  }
+  return snapshot.size;
+}
+
+async function deleteLessonCascade(lessonId: string): Promise<Record<string, number>> {
+  const counts: Record<string, number> = {};
+  const numericId = Number(lessonId);
+  if (!Number.isFinite(numericId)) throw new Error('lesson ids must be numeric for cascade delete.');
+  noteCount(counts, 'entries', await deleteDocsByQuery(vocabDb().collection('entries').where('theme_id', '==', numericId)));
+  noteCount(counts, 'lesson_ai_exercises', await deleteDocsByQuery(vocabDb().collection('lesson_ai_exercises').where('lessonId', '==', numericId)));
+  noteCount(counts, 'lesson_ai_plans', await deleteDocsByQuery(vocabDb().collection('lesson_ai_plans').where('lessonId', '==', numericId)));
+  noteCount(counts, 'themes', await deleteDocIfPresent('themes', lessonId));
+  return counts;
+}
+
+async function deleteCourseCascade(courseId: string): Promise<Record<string, number>> {
+  const counts: Record<string, number> = {};
+  const courseDoc = await vocabDb().collection('courses').doc(courseId).get();
+  const courseTitle = compactText(courseDoc.data()?.title);
+  const lessonDocs = new Map<string, FirebaseFirestore.QueryDocumentSnapshot>();
+  for (const queryRef of [
+    vocabDb().collection('themes').where('courseId', '==', courseId),
+    vocabDb().collection('themes').where('course', '==', courseId),
+    ...(courseTitle ? [vocabDb().collection('themes').where('course', '==', courseTitle)] : []),
+  ]) {
+    const snapshot = await queryRef.get();
+    for (const doc of snapshot.docs) lessonDocs.set(doc.id, doc);
+  }
+  for (const id of lessonDocs.keys()) {
+    const childCounts = await deleteLessonCascade(id);
+    for (const [key, count] of Object.entries(childCounts)) noteCount(counts, key, count);
+  }
+  noteCount(counts, 'courses', await deleteDocIfPresent('courses', courseId));
+  return counts;
+}
+
+async function deleteAdminEntity(entity: AdminEntityType, id: string, cascade: boolean): Promise<Record<string, number>> {
+  if (entity === 'course' && cascade) return deleteCourseCascade(id);
+  if (entity === 'lesson' && cascade) return deleteLessonCascade(id);
+  const collectionName = adminCollection(entity);
+  const counts: Record<string, number> = {};
+  noteCount(counts, collectionName, await deleteDocIfPresent(collectionName, id));
+  return counts;
+}
+
+async function refreshLessonStats(lessonId: number): Promise<void> {
+  if (!Number.isFinite(lessonId)) return;
+  const themeRef = vocabDb().collection('themes').doc(String(lessonId));
+  const themeDoc = await themeRef.get();
+  if (!themeDoc.exists) return;
+  const snapshot = await vocabDb().collection('entries').where('theme_id', '==', lessonId).get();
+  const categories: Record<string, number> = {};
+  let translated = 0;
+  let audio = 0;
+  for (const doc of snapshot.docs) {
+    const data = doc.data();
+    const category = compactText(data.category) || 'Uncategorized';
+    categories[category] = (categories[category] || 0) + 1;
+    if (compactText(data.english) || (Array.isArray(data.english_senses) && data.english_senses.length)) translated += 1;
+    if (data.audio_available || data.audio_path) audio += 1;
+  }
+  await themeRef.set(
+    {
+      entry_count: snapshot.size,
+      translated_count: translated,
+      audio_count: audio,
+      categories,
+      updatedAt: Date.now(),
+    },
+    { merge: true },
+  );
+}
+
+function shrinkForTool(value: unknown): unknown {
+  if (typeof value === 'string') return value.length > 1200 ? `${value.slice(0, 1200)}...` : value;
+  if (Array.isArray(value)) return value.slice(0, 30).map(shrinkForTool);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, shrinkForTool(item)]));
+  }
+  return value;
+}
+
+const adminListEntitiesTool = getAI().defineTool(
+  {
+    name: 'adminListEntities',
+    description:
+      'ADMIN MODE ONLY. List existing GreekFlash Firestore entities before editing or deleting them. Entity mapping: course=courses, lesson=themes, card=entries, game=lesson_ai_exercises, plan=lesson_ai_plans.',
+    inputSchema: z.object({
+      entity: AdminEntityTypeSchema,
+      lessonId: z.number().optional(),
+      courseId: z.string().optional(),
+      query: z.string().optional().default(''),
+      limit: z.number().min(1).max(80).optional().default(20),
+    }),
+    outputSchema: z.object({
+      entity: AdminEntityTypeSchema,
+      count: z.number(),
+      items: z.array(z.object({ id: z.string(), data: z.record(z.any()) })),
+    }),
+  },
+  async ({ entity, lessonId, courseId, query, limit }) => {
+    let queryRef: FirebaseFirestore.Query = vocabDb().collection(adminCollection(entity));
+    if (entity === 'lesson' && courseId) queryRef = queryRef.where('courseId', '==', courseId);
+    if (entity === 'card' && lessonId) queryRef = queryRef.where('theme_id', '==', lessonId);
+    if ((entity === 'game' || entity === 'plan') && lessonId) queryRef = queryRef.where('lessonId', '==', lessonId);
+    const snapshot = await queryRef.limit(Math.min(limit * 4, 240)).get();
+    const needle = normalizeStudyText(query);
+    const items = snapshot.docs
+      .map((doc) => ({ id: doc.id, data: doc.data() }))
+      .filter((item) => !needle || normalizeStudyText(JSON.stringify(item.data)).includes(needle))
+      .slice(0, limit)
+      .map((item) => ({ id: item.id, data: shrinkForTool(item.data) as Record<string, unknown> }));
+    return { entity, count: items.length, items };
+  },
+);
+
+const adminApplyChangesTool = getAI().defineTool(
+  {
+    name: 'adminApplyChanges',
+    description:
+      'ADMIN MODE ONLY. Add, edit, or delete GreekFlash entities in Firestore. Use cascade=true when deleting a course or lesson and all children should be removed. Cards are entries; lessons are themes.',
+    inputSchema: z.object({
+      operations: z
+        .array(
+          z.object({
+            action: AdminActionSchema,
+            entity: AdminEntityTypeSchema,
+            id: z.string().optional().default(''),
+            data: AdminPayloadSchema,
+            cascade: z.boolean().optional().default(false),
+          }),
+        )
+        .min(1)
+        .max(80),
+    }),
+    outputSchema: z.object({
+      ok: z.boolean(),
+      results: z.array(
+        z.object({
+          action: AdminActionSchema,
+          entity: AdminEntityTypeSchema,
+          id: z.string(),
+          status: z.string(),
+          counts: z.record(z.number()).optional(),
+        }),
+      ),
+      refreshedLessonIds: z.array(z.number()),
+    }),
+  },
+  async ({ operations }) => {
+    const results: Array<{
+      action: z.infer<typeof AdminActionSchema>;
+      entity: AdminEntityType;
+      id: string;
+      status: string;
+      counts?: Record<string, number>;
+    }> = [];
+    const affectedLessonIds = new Set<number>();
+    const deletedLessonIds = new Set<number>();
+
+    for (const operation of operations) {
+      const entity = operation.entity;
+      const id = resolveAdminId(entity, operation.id, operation.data);
+
+      if (operation.action === 'delete') {
+        if (entity === 'card') {
+          const existing = await vocabDb().collection('entries').doc(id).get();
+          const themeId = Number(existing.data()?.theme_id);
+          if (Number.isFinite(themeId)) affectedLessonIds.add(themeId);
+        }
+        if (entity === 'lesson') {
+          const lessonId = Number(id);
+          if (Number.isFinite(lessonId)) deletedLessonIds.add(lessonId);
+        }
+        const counts = await deleteAdminEntity(entity, id, operation.cascade);
+        results.push({ action: operation.action, entity, id, status: 'deleted', counts });
+        continue;
+      }
+
+      if (entity === 'card') {
+        const existing = await vocabDb().collection('entries').doc(id).get();
+        const previousLessonId = Number(existing.data()?.theme_id);
+        if (Number.isFinite(previousLessonId)) affectedLessonIds.add(previousLessonId);
+      }
+      const payload = adminPayload(entity, id, operation.data, operation.action);
+      await vocabDb().collection(adminCollection(entity)).doc(id).set(payload, { merge: true });
+      if (entity === 'card') {
+        const lessonId = Number(payload.theme_id);
+        if (Number.isFinite(lessonId)) affectedLessonIds.add(lessonId);
+      }
+      if ((entity === 'game' || entity === 'plan') && payload.lessonId !== undefined) {
+        const lessonId = Number(payload.lessonId);
+        if (Number.isFinite(lessonId)) affectedLessonIds.add(lessonId);
+      }
+      results.push({ action: operation.action, entity, id, status: 'saved' });
+    }
+
+    const refreshIds = [...affectedLessonIds].filter((id) => !deletedLessonIds.has(id));
+    await Promise.all(refreshIds.map(refreshLessonStats));
+    return { ok: true, results, refreshedLessonIds: refreshIds };
+  },
+);
 
 const getLessonOverviewTool = getAI().defineTool(
   {
@@ -678,11 +993,28 @@ LESSON_DESCRIPTION>>>`
     });
 
     const model = input.aiModel === 'flash' ? GAME_GENERATION_MODEL : YIAYIA_CHAT_MODEL;
+    const adminContext = input.adminMode
+      ? `ADMIN MODE is ON.
+You may use admin tools to add, edit, list, or delete Firestore entities only when the learner clearly asks for an admin action.
+Entity mapping: courses -> courses, lessons -> themes, cards -> entries, games -> lesson_ai_exercises, plans -> lesson_ai_plans.
+For destructive course/lesson requests, use cascade delete only when the learner asks to delete the container and its children.
+After any admin mutation, summarize exactly what changed and mention that currently open lesson/course views may need to be reopened or refreshed.`
+      : '';
+    const tools = input.adminMode
+      ? [
+          getLessonOverviewTool,
+          searchLessonWordsTool,
+          getExerciseCoverageTool,
+          adminListEntitiesTool,
+          adminApplyChangesTool,
+        ]
+      : [getLessonOverviewTool, searchLessonWordsTool, getExerciseCoverageTool];
     const { stream } = await getAI().generateStream({
       model,
       system: [
         YIAYIA_SYSTEM,
         preferenceContext(preferences),
+        adminContext,
         `Lesson: ${input.lessonId} ${input.lessonTitle}`,
         courseContextBlock,
         lessonContextBlock,
@@ -690,7 +1022,7 @@ LESSON_DESCRIPTION>>>`
         exerciseContext,
       ].filter(Boolean).join('\n\n'),
       messages,
-      tools: [getLessonOverviewTool, searchLessonWordsTool, getExerciseCoverageTool],
+      tools,
     });
 
     let fullText = '';

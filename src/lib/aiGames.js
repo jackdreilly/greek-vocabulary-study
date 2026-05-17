@@ -212,7 +212,7 @@ export async function scoreExerciseAnswer({ lesson, exercise, answer, preference
   return result.data;
 }
 
-export async function sendYiayiaMessage({ lesson, exercise, entries, messages, preferences }) {
+export async function sendYiayiaMessage({ lesson, exercise, entries, messages, preferences, adminMode = false }) {
   const callable = httpsCallable(functions, "yiayiaChat");
   const result = await callable({
     lessonId: lesson.id,
@@ -229,14 +229,15 @@ export async function sendYiayiaMessage({ lesson, exercise, entries, messages, p
       content: message.requestContent || message.content,
     })),
     preferences,
+    adminMode,
   });
   return String(result.data || "");
 }
 
-export async function streamYiayiaMessage({ lesson, exercise, entries, messages, preferences, onChunk }) {
+export async function streamYiayiaMessage({ lesson, exercise, entries, messages, preferences, adminMode = false, onChunk }) {
   const callable = httpsCallable(functions, "yiayiaChat");
   if (typeof callable.stream !== "function") {
-    return sendYiayiaMessage({ lesson, exercise, entries, messages, preferences });
+    return sendYiayiaMessage({ lesson, exercise, entries, messages, preferences, adminMode });
   }
   const result = await callable.stream({
     lessonId: lesson.id,
@@ -254,6 +255,7 @@ export async function streamYiayiaMessage({ lesson, exercise, entries, messages,
     })),
     preferences,
     aiModel: preferences?.aiModel || 'lite',
+    adminMode,
   });
   let accumulated = "";
   for await (const chunk of result.stream) {
