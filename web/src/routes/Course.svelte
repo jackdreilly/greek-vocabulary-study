@@ -40,7 +40,12 @@
     <p class="text-(--color-danger)">Course not found.</p>
   {:else}
     <header class="mb-10">
-      <h1 class="text-3xl font-semibold tracking-tight">{sub.course.title}</h1>
+      <div class="flex items-start justify-between gap-4">
+        <h1 class="text-3xl font-semibold tracking-tight">{sub.course.title}</h1>
+        {#if sub.course.status && sub.course.status !== "ready"}
+          <StatusPill status={sub.course.status} />
+        {/if}
+      </div>
       {#if sub.course.subtitle}
         <p class="mt-2 text-base text-(--color-muted)">{sub.course.subtitle}</p>
       {/if}
@@ -57,6 +62,23 @@
           >
             {expanded ? "Show less" : "Read full overview →"}
           </button>
+        {/if}
+      </section>
+    {/if}
+
+    {#if lessons.length === 0 && sub.course.status !== "ready"}
+      <section class="mb-12 border-y border-(--color-border) py-5">
+        <h2 class="text-xs tracking-widest uppercase text-(--color-muted) mb-3 font-semibold">
+          Status
+        </h2>
+        {#if sub.course.statusLog?.length}
+          <ol class="space-y-2">
+            {#each sub.course.statusLog.slice(-5) as item}
+              <li class="text-sm text-(--color-muted)">{item.message}</li>
+            {/each}
+          </ol>
+        {:else}
+          <p class="text-sm text-(--color-muted)">Starting up...</p>
         {/if}
       </section>
     {/if}

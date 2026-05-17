@@ -12,7 +12,9 @@ export type CourseDoc = DocumentData & {
   title?: string;
   subtitle?: string;
   description?: string;
+  sourcePrompt?: string;
   status?: string;
+  statusLog?: Array<{ message: string; source: string; at: unknown }>;
   counts?: { lessons?: number; entries?: number; plans?: number; games?: number };
   lessonSummaries?: Record<
     string,
