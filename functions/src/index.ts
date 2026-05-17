@@ -22,11 +22,9 @@ setGlobalOptions({
   maxInstances: 10,
 });
 
-// Sanity-check function so we can verify the deploy pipeline end-to-end
-// before the first real trigger is wired up. Delete once `onCourseWritten`
-// is in place.
 export const ping = onRequest({ cors: true }, (_req, res) => {
   res.json({ ok: true, project: "fanari-b6bb4", at: new Date().toISOString() });
 });
 
 export { onAIConfigWritten } from "./triggers/onAIConfigWritten.js";
+export { onCourseWritten } from "./triggers/onCourseWritten.js";

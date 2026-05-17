@@ -4,6 +4,7 @@
   import VocabTab from "./lesson/VocabTab.svelte";
   import OverviewTab from "./lesson/OverviewTab.svelte";
   import PlansTab from "./lesson/PlansTab.svelte";
+  import GamesTab from "./lesson/GamesTab.svelte";
   import ComingSoon from "./lesson/ComingSoon.svelte";
 
   let { courseId, lessonId, tab }: { courseId: string; lessonId: string; tab: string } = $props();
@@ -65,7 +66,7 @@
     {:else if tab === "cards"}
       <ComingSoon name="Flashcards" />
     {:else if tab === "games"}
-      <ComingSoon name="Games" />
+      <GamesTab {courseId} {lessonId} />
     {:else if tab === "plans"}
       <PlansTab {courseId} {lessonId} />
     {/if}

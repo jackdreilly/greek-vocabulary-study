@@ -28,6 +28,24 @@ export type EntryDoc = DocumentData & {
   order: number;
 };
 
+export type GameDoc = DocumentData & {
+  id: string;
+  lessonId: string;
+  courseId: string;
+  type: string;
+  title?: string;
+  prompt: string;
+  expectedAnswer?: string;
+  acceptableAnswers?: string[];
+  requiredWords?: string[];
+  sourceEntryIds?: string[];
+  direction?: string;
+  passage?: string;
+  question?: string;
+  rubric?: string;
+  createdAt?: unknown;
+};
+
 export function subscribeLesson(courseId: string, lessonId: string) {
   let lesson = $state<LessonDoc | null>(null);
   let loading = $state(true);
@@ -83,6 +101,41 @@ export function subscribeEntries(courseId: string, lessonId: string) {
   return {
     get entries() {
       return entries;
+    },
+    get loading() {
+      return loading;
+    },
+    get error() {
+      return error;
+    },
+    stop: unsubscribe,
+  };
+}
+
+export function subscribeGames(courseId: string, lessonId: string) {
+  let games = $state<GameDoc[]>([]);
+  let loading = $state(true);
+  let error = $state<Error | null>(null);
+
+  const q = query(
+    collection(db, "courses", courseId, "lessons", lessonId, "games"),
+    orderBy("type")
+  );
+  const unsubscribe = onSnapshot(
+    q,
+    (snap) => {
+      games = snap.docs.map((d) => ({ id: d.id, ...(d.data() as DocumentData) } as GameDoc));
+      loading = false;
+    },
+    (err) => {
+      error = err;
+      loading = false;
+    }
+  );
+
+  return {
+    get games() {
+      return games;
     },
     get loading() {
       return loading;
