@@ -16,6 +16,7 @@
     "clean": "rm -rf web/dist functions/lib node_modules web/node_modules functions/node_modules .emulator-data"
   },
   "devDependencies": {
+    "@google-cloud/firestore": "^8.6.0",
     "firebase-tools": "^15.15.0"
   }
 }
