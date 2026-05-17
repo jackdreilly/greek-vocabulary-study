@@ -295,10 +295,22 @@ function normalizeAdminEntity(entity: unknown): AdminEntityType {
   const normalized = compactText(entity).toLowerCase().replace(/[^a-z_]/g, '');
   if (normalized.startsWith('course')) return 'course';
   if (normalized.startsWith('lesson') || normalized.startsWith('theme')) return 'lesson';
-  if (normalized.startsWith('card') || normalized.startsWith('entry') || normalized.startsWith('word')) return 'card';
+  if (
+    normalized.startsWith('card') ||
+    normalized.startsWith('entry') ||
+    normalized.startsWith('entrie') ||
+    normalized.startsWith('vocab') ||
+    normalized.startsWith('word')
+  ) return 'card';
   if (normalized.startsWith('game') || normalized.startsWith('exercise')) return 'game';
   if (normalized.startsWith('plan')) return 'plan';
   throw new Error(`Unknown admin entity "${compactText(entity)}".`);
+}
+
+function clampInteger(value: unknown, fallback: number, min: number, max: number): number {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return fallback;
+  return Math.min(max, Math.max(min, Math.trunc(numeric)));
 }
 
 function adminCollection(entity: AdminEntityType): string {
@@ -356,10 +368,10 @@ function adminPayload(
   }
   if (entity === 'course') {
     payload.id = id;
-    if (!compactText(payload.title)) payload.title = compactText(data.name) || id;
+    if (action === 'set' && !compactText(payload.title)) payload.title = compactText(data.name) || id;
   }
   if (entity === 'lesson') {
-    if (!compactText(payload.title)) payload.title = `Lesson ${payload.id}`;
+    if (action === 'set' && !compactText(payload.title)) payload.title = `Lesson ${payload.id}`;
   }
   if (entity === 'card') {
     if (payload.lessonId !== undefined && payload.theme_id === undefined) payload.theme_id = payload.lessonId;
@@ -383,11 +395,11 @@ function adminPayload(
   }
   if (entity === 'game') {
     payload.id = id;
-    if (!compactText(payload.status)) payload.status = 'active';
+    if (action === 'set' && !compactText(payload.status)) payload.status = 'active';
   }
   if (entity === 'plan') {
     payload.id = id;
-    if (!compactText(payload.status)) payload.status = 'active';
+    if (action === 'set' && !compactText(payload.status)) payload.status = 'active';
   }
   return payload;
 }
@@ -514,16 +526,17 @@ const adminListEntitiesTool = getAI().defineTool(
   },
   async (input) => {
     const entity = normalizeAdminEntity(input.entity);
+    const limit = clampInteger(input.limit, 20, 1, 80);
     let queryRef: FirebaseFirestore.Query = vocabDb().collection(adminCollection(entity));
     if (entity === 'lesson' && input.courseId) queryRef = queryRef.where('courseId', '==', input.courseId);
     if (entity === 'card' && input.lessonId) queryRef = queryRef.where('theme_id', '==', input.lessonId);
     if ((entity === 'game' || entity === 'plan') && input.lessonId) queryRef = queryRef.where('lessonId', '==', input.lessonId);
-    const snapshot = await queryRef.limit(Math.min(input.limit * 4, 240)).get();
+    const snapshot = await queryRef.limit(Math.min(limit * 4, 240)).get();
     const needle = normalizeStudyText(input.query);
     const items = snapshot.docs
       .map((doc) => ({ id: doc.id, data: doc.data() }))
       .filter((item) => !needle || normalizeStudyText(JSON.stringify(item.data)).includes(needle))
-      .slice(0, input.limit)
+      .slice(0, limit)
       .map((item) => ({ id: item.id, data: shrinkForTool(item.data) as Record<string, unknown> }));
     return { entity, count: items.length, items };
   },
@@ -636,6 +649,7 @@ const getLessonOverviewTool = getAI().defineTool(
     }),
   },
   async ({ lessonId, sampleLimit }) => {
+    const resolvedSampleLimit = clampInteger(sampleLimit, 10, 0, 20);
     const [themeDoc, entries] = await Promise.all([
       vocabDb().collection('themes').doc(String(lessonId)).get(),
       fetchLessonEntries(lessonId),
@@ -656,7 +670,7 @@ const getLessonOverviewTool = getAI().defineTool(
       categories,
       sampleWords: entries
         .filter((entry) => entry.english || entry.english_senses?.length)
-        .slice(0, sampleLimit),
+        .slice(0, resolvedSampleLimit),
     };
   },
 );
@@ -680,16 +694,19 @@ const searchLessonWordsTool = getAI().defineTool(
     }),
   },
   async ({ lessonId, query, category, limit }) => {
-    const normalizedCategory = normalizeStudyText(category);
+    const resolvedQuery = compactText(query);
+    const resolvedCategory = compactText(category);
+    const resolvedLimit = clampInteger(limit, 12, 1, 50);
+    const normalizedCategory = normalizeStudyText(resolvedCategory);
     const matches = (await fetchLessonEntries(lessonId))
       .filter((entry) => entry.english || entry.english_senses?.length)
       .filter((entry) => !normalizedCategory || normalizeStudyText(entry.category || '').includes(normalizedCategory))
-      .filter((entry) => entryMatchesQuery(entry, query))
-      .slice(0, limit);
+      .filter((entry) => entryMatchesQuery(entry, resolvedQuery))
+      .slice(0, resolvedLimit);
     return {
       lessonId,
-      query,
-      category,
+      query: resolvedQuery,
+      category: resolvedCategory,
       matches,
     };
   },
@@ -728,6 +745,7 @@ const getExerciseCoverageTool = getAI().defineTool(
     }),
   },
   async ({ lessonId, perTypeLimit }) => {
+    const resolvedPerTypeLimit = clampInteger(perTypeLimit, 8, 1, 20);
     const snapshot = await vocabDb().collection('lesson_ai_exercises').where('lessonId', '==', lessonId).get();
     const countsByType: Record<string, number> = {};
     const wordCounts = new Map<string, number>();
@@ -804,7 +822,7 @@ const getExerciseCoverageTool = getAI().defineTool(
     for (const [type, items] of Object.entries(recentByType)) {
       trimmedRecentByType[type] = items
         .sort((left, right) => right.updatedAt - left.updatedAt)
-        .slice(0, perTypeLimit)
+        .slice(0, resolvedPerTypeLimit)
         .map(({ updatedAt: _updatedAt, ...item }) => item);
     }
 

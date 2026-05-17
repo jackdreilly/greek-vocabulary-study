@@ -235,14 +235,17 @@ function yiayiaRequestContext({ lesson, course }) {
 
 export async function sendYiayiaMessage({ lesson, course, exercise, entries, messages, preferences, adminMode = false }) {
   const callable = httpsCallable(functions, "yiayiaChat");
+  const requestMessages = messages
+    .filter((message) => message.role !== "assistant" || !["INTERNAL", "UNKNOWN", "ERROR"].includes(compactText(message.content).toUpperCase()))
+    .map((message) => ({
+      role: message.role,
+      content: message.requestContent || message.content,
+    }));
   const result = await callable({
     ...yiayiaRequestContext({ lesson, course }),
     exercise,
     entries: entriesForAI(entries).slice(0, 80),
-    messages: messages.map((message) => ({
-      role: message.role,
-      content: message.requestContent || message.content,
-    })),
+    messages: requestMessages,
     preferences,
     adminMode,
   });
@@ -254,14 +257,17 @@ export async function streamYiayiaMessage({ lesson, course, exercise, entries, m
   if (typeof callable.stream !== "function") {
     return sendYiayiaMessage({ lesson, course, exercise, entries, messages, preferences, adminMode });
   }
+  const requestMessages = messages
+    .filter((message) => message.role !== "assistant" || !["INTERNAL", "UNKNOWN", "ERROR"].includes(compactText(message.content).toUpperCase()))
+    .map((message) => ({
+      role: message.role,
+      content: message.requestContent || message.content,
+    }));
   const result = await callable.stream({
     ...yiayiaRequestContext({ lesson, course }),
     exercise,
     entries: entriesForAI(entries).slice(0, 80),
-    messages: messages.map((message) => ({
-      role: message.role,
-      content: message.requestContent || message.content,
-    })),
+    messages: requestMessages,
     preferences,
     aiModel: preferences?.aiModel || 'lite',
     adminMode,
