@@ -142,6 +142,7 @@
       return;
     }
 
+    suppressNextClick = true;
     resetDrag();
     flipped = !flipped;
   }
@@ -217,12 +218,22 @@
           if (suppressNextClick) {
             event.preventDefault();
             suppressNextClick = false;
+            return;
           }
+          flipped = !flipped;
         }}
-        class="relative w-full min-h-[22rem] touch-pan-y select-none rounded-lg border border-(--color-border) bg-(--color-surface) px-8 py-8 text-left shadow-sm hover:border-(--color-border-strong) focus:outline-none focus:ring-2 focus:ring-(--color-accent)
+        class="relative w-full min-h-[22rem] touch-pan-y select-none rounded-lg border px-8 py-8 text-left shadow-sm focus:outline-none focus:ring-2 focus:ring-(--color-accent)
+          {flipped
+          ? 'border-[#bfdbfe] bg-[#eff6ff] shadow-[0_0_0_1px_rgba(37,99,235,0.10),0_10px_30px_rgba(37,99,235,0.08)]'
+          : 'border-(--color-border) bg-(--color-surface) hover:border-(--color-border-strong)'}
           {dragTransition ? 'transition-transform duration-150 ease-out' : ''}"
         style="transform: {cardTransform}"
       >
+        {#if flipped}
+          <span class="absolute left-5 top-5 rounded border border-[#bfdbfe] bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-(--color-accent)">
+            Answer
+          </span>
+        {/if}
         {#if Math.abs(dragX) > 35}
           <span
             class="absolute top-5 {dragX > 0 ? 'left-5 text-[#15803d] border-[#bbf7d0]' : 'right-5 text-(--color-danger) border-[#fecaca]'} rounded border px-3 py-1 text-xs font-semibold uppercase tracking-widest bg-white/85"
@@ -306,7 +317,7 @@
         </button>
       </div>
       <p class="mt-3 text-center text-xs text-(--color-muted)">
-        Hotkeys: Left/Right move, Space/Enter flip, S shuffle, 1/2/3 change mode.
+        Swipe left/right or use arrow keys to move. Space/Enter flips. S shuffles.
       </p>
     </section>
   {/if}
