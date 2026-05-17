@@ -2,10 +2,10 @@
   import { subscribeLesson } from "../lib/data/lessons.svelte";
   import { linkClick, route } from "../lib/router.svelte";
   import VocabTab from "./lesson/VocabTab.svelte";
+  import FlashcardsTab from "./lesson/FlashcardsTab.svelte";
   import OverviewTab from "./lesson/OverviewTab.svelte";
   import PlansTab from "./lesson/PlansTab.svelte";
   import GamesTab from "./lesson/GamesTab.svelte";
-  import ComingSoon from "./lesson/ComingSoon.svelte";
 
   let { courseId, lessonId, tab }: { courseId: string; lessonId: string; tab: string } = $props();
 
@@ -64,7 +64,7 @@
     {:else if tab === "vocab"}
       <VocabTab {courseId} {lessonId} />
     {:else if tab === "cards"}
-      <ComingSoon name="Flashcards" />
+      <FlashcardsTab {courseId} {lessonId} />
     {:else if tab === "games"}
       <GamesTab {courseId} {lessonId} />
     {:else if tab === "plans"}
