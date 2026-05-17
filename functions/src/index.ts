@@ -281,6 +281,25 @@ const AdminActionSchema = z.enum(['set', 'update', 'delete']);
 const AdminPayloadSchema = z.record(z.any()).default({});
 
 type AdminEntityType = z.infer<typeof AdminEntityTypeSchema>;
+type AdminAction = z.infer<typeof AdminActionSchema>;
+
+function normalizeAdminAction(action: unknown): AdminAction {
+  const normalized = compactText(action).toLowerCase();
+  if (normalized === 'set' || normalized === 'add' || normalized === 'create') return 'set';
+  if (normalized === 'update' || normalized === 'edit' || normalized === 'patch') return 'update';
+  if (normalized === 'delete' || normalized === 'remove') return 'delete';
+  throw new Error(`Unknown admin action "${compactText(action)}".`);
+}
+
+function normalizeAdminEntity(entity: unknown): AdminEntityType {
+  const normalized = compactText(entity).toLowerCase().replace(/[^a-z_]/g, '');
+  if (normalized.startsWith('course')) return 'course';
+  if (normalized.startsWith('lesson') || normalized.startsWith('theme')) return 'lesson';
+  if (normalized.startsWith('card') || normalized.startsWith('entry') || normalized.startsWith('word')) return 'card';
+  if (normalized.startsWith('game') || normalized.startsWith('exercise')) return 'game';
+  if (normalized.startsWith('plan')) return 'plan';
+  throw new Error(`Unknown admin entity "${compactText(entity)}".`);
+}
 
 function adminCollection(entity: AdminEntityType): string {
   return {
@@ -310,8 +329,11 @@ function generatedStringId(prefix: string): string {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-function resolveAdminId(entity: AdminEntityType, rawId: unknown, data: Record<string, unknown>): string {
+function resolveAdminId(entity: AdminEntityType, action: AdminAction, rawId: unknown, data: Record<string, unknown>): string {
   const explicit = compactText(rawId || data.id);
+  if ((entity === 'lesson' || entity === 'card') && explicit && !Number.isFinite(Number(explicit)) && action === 'set') {
+    return String(generatedNumericId());
+  }
   if (explicit) return explicit;
   if (entity === 'course') return courseIdFromTitle(data.title || data.name);
   if (entity === 'lesson' || entity === 'card') return String(generatedNumericId());
@@ -323,7 +345,7 @@ function adminPayload(
   entity: AdminEntityType,
   id: string,
   data: Record<string, unknown>,
-  action: z.infer<typeof AdminActionSchema>,
+  action: AdminAction,
 ): Record<string, unknown> {
   const now = Date.now();
   const payload: Record<string, unknown> = { ...data, id, updatedAt: now };
@@ -340,6 +362,9 @@ function adminPayload(
     if (!compactText(payload.title)) payload.title = `Lesson ${payload.id}`;
   }
   if (entity === 'card') {
+    if (payload.lessonId !== undefined && payload.theme_id === undefined) payload.theme_id = payload.lessonId;
+    if (payload.greek !== undefined && payload.lemma === undefined) payload.lemma = payload.greek;
+    if (payload.greek !== undefined && payload.term === undefined) payload.term = payload.greek;
     const lemma = compactText(payload.lemma || payload.term);
     if (lemma && !compactText(payload.term)) payload.term = lemma;
     if (Array.isArray(payload.english_senses)) {
@@ -475,7 +500,7 @@ const adminListEntitiesTool = getAI().defineTool(
     description:
       'ADMIN MODE ONLY. List existing GreekFlash Firestore entities before editing or deleting them. Entity mapping: course=courses, lesson=themes, card=entries, game=lesson_ai_exercises, plan=lesson_ai_plans.',
     inputSchema: z.object({
-      entity: AdminEntityTypeSchema,
+      entity: z.string(),
       lessonId: z.number().optional(),
       courseId: z.string().optional(),
       query: z.string().optional().default(''),
@@ -487,17 +512,18 @@ const adminListEntitiesTool = getAI().defineTool(
       items: z.array(z.object({ id: z.string(), data: z.record(z.any()) })),
     }),
   },
-  async ({ entity, lessonId, courseId, query, limit }) => {
+  async (input) => {
+    const entity = normalizeAdminEntity(input.entity);
     let queryRef: FirebaseFirestore.Query = vocabDb().collection(adminCollection(entity));
-    if (entity === 'lesson' && courseId) queryRef = queryRef.where('courseId', '==', courseId);
-    if (entity === 'card' && lessonId) queryRef = queryRef.where('theme_id', '==', lessonId);
-    if ((entity === 'game' || entity === 'plan') && lessonId) queryRef = queryRef.where('lessonId', '==', lessonId);
-    const snapshot = await queryRef.limit(Math.min(limit * 4, 240)).get();
-    const needle = normalizeStudyText(query);
+    if (entity === 'lesson' && input.courseId) queryRef = queryRef.where('courseId', '==', input.courseId);
+    if (entity === 'card' && input.lessonId) queryRef = queryRef.where('theme_id', '==', input.lessonId);
+    if ((entity === 'game' || entity === 'plan') && input.lessonId) queryRef = queryRef.where('lessonId', '==', input.lessonId);
+    const snapshot = await queryRef.limit(Math.min(input.limit * 4, 240)).get();
+    const needle = normalizeStudyText(input.query);
     const items = snapshot.docs
       .map((doc) => ({ id: doc.id, data: doc.data() }))
       .filter((item) => !needle || normalizeStudyText(JSON.stringify(item.data)).includes(needle))
-      .slice(0, limit)
+      .slice(0, input.limit)
       .map((item) => ({ id: item.id, data: shrinkForTool(item.data) as Record<string, unknown> }));
     return { entity, count: items.length, items };
   },
@@ -512,8 +538,8 @@ const adminApplyChangesTool = getAI().defineTool(
       operations: z
         .array(
           z.object({
-            action: AdminActionSchema,
-            entity: AdminEntityTypeSchema,
+            action: z.string(),
+            entity: z.string(),
             id: z.string().optional().default(''),
             data: AdminPayloadSchema,
             cascade: z.boolean().optional().default(false),
@@ -538,7 +564,7 @@ const adminApplyChangesTool = getAI().defineTool(
   },
   async ({ operations }) => {
     const results: Array<{
-      action: z.infer<typeof AdminActionSchema>;
+      action: AdminAction;
       entity: AdminEntityType;
       id: string;
       status: string;
@@ -548,10 +574,11 @@ const adminApplyChangesTool = getAI().defineTool(
     const deletedLessonIds = new Set<number>();
 
     for (const operation of operations) {
-      const entity = operation.entity;
-      const id = resolveAdminId(entity, operation.id, operation.data);
+      const action = normalizeAdminAction(operation.action);
+      const entity = normalizeAdminEntity(operation.entity);
+      const id = resolveAdminId(entity, action, operation.id, operation.data);
 
-      if (operation.action === 'delete') {
+      if (action === 'delete') {
         if (entity === 'card') {
           const existing = await vocabDb().collection('entries').doc(id).get();
           const themeId = Number(existing.data()?.theme_id);
@@ -562,7 +589,7 @@ const adminApplyChangesTool = getAI().defineTool(
           if (Number.isFinite(lessonId)) deletedLessonIds.add(lessonId);
         }
         const counts = await deleteAdminEntity(entity, id, operation.cascade);
-        results.push({ action: operation.action, entity, id, status: 'deleted', counts });
+        results.push({ action, entity, id, status: 'deleted', counts });
         continue;
       }
 
@@ -571,7 +598,7 @@ const adminApplyChangesTool = getAI().defineTool(
         const previousLessonId = Number(existing.data()?.theme_id);
         if (Number.isFinite(previousLessonId)) affectedLessonIds.add(previousLessonId);
       }
-      const payload = adminPayload(entity, id, operation.data, operation.action);
+      const payload = adminPayload(entity, id, operation.data, action);
       await vocabDb().collection(adminCollection(entity)).doc(id).set(payload, { merge: true });
       if (entity === 'card') {
         const lessonId = Number(payload.theme_id);
@@ -581,7 +608,7 @@ const adminApplyChangesTool = getAI().defineTool(
         const lessonId = Number(payload.lessonId);
         if (Number.isFinite(lessonId)) affectedLessonIds.add(lessonId);
       }
-      results.push({ action: operation.action, entity, id, status: 'saved' });
+      results.push({ action, entity, id, status: 'saved' });
     }
 
     const refreshIds = [...affectedLessonIds].filter((id) => !deletedLessonIds.has(id));
