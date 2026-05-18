@@ -5,45 +5,62 @@ import { z } from "genkit";
 import { getAI, geminiApiKey } from "../ai/genkitClient.js";
 import { getDecodingFor, getModelFor } from "../ai/configResolver.js";
 
+// Flat widget schema for generation.
+// Rules for Gemini legacyResponseSchema compatibility:
+//   - z.string().optional() is fine (cleanSchema converts type:["string","null"] → "string")
+//   - z.array().optional() / z.object().optional() generate anyOf which Gemini rejects → use required arrays
+//   - z.array(z.array(...)) (2D arrays) not supported → excluded
+//   - conjugation_table / comparison_table excluded (nested complexity); keep in Firestore schema only
+const GeneratableWidgetSchema = z.object({
+  type: z.enum([
+    "heading", "markdown", "callout", "vocab_table", "reading_passage",
+    "dialogue", "mini_quiz", "fill_in_blanks", "word_tree",
+  ]),
+  // heading
+  level: z.number().int().min(1).max(3).optional(),
+  text: z.string().optional(),
+  // markdown / callout
+  markdown: z.string().optional(),
+  title: z.string().optional(),
+  calloutKind: z.enum(["pattern", "history", "etymology", "tip", "cultural", "mnemonic"]).optional(),
+  // vocab_table
+  rows: z.array(z.object({
+    el: z.string(),
+    en: z.string(),
+    article: z.string().optional(),
+    example: z.string().optional(),
+  })),
+  // reading_passage
+  el: z.string().optional(),
+  en: z.string().optional(),
+  glossary: z.array(z.object({ el: z.string(), en: z.string() })),
+  // dialogue
+  lines: z.array(z.object({ speaker: z.string(), el: z.string(), en: z.string() })),
+  // fill_in_blanks / mini_quiz (renamed from "items" to avoid JSON Schema keyword collision)
+  instructions: z.string().optional(),
+  exerciseItems: z.array(z.object({
+    sentence: z.string().optional(),
+    answer: z.string().optional(),
+    hint: z.string().optional(),
+    english: z.string().optional(),
+    q: z.string().optional(),
+    options: z.array(z.string()),
+    correctIndex: z.number().int().nonnegative().optional(),
+    explanation: z.string().optional(),
+  })),
+  // word_tree
+  rootEl: z.string().optional(),
+  rootEn: z.string().optional(),
+  branches: z.array(z.object({ el: z.string(), en: z.string(), relation: z.string() })),
+});
+
 const GeneratedPlanSchema = z.object({
   title: z.string(),
   subtitle: z.string().optional(),
-  estimatedMinutes: z.number().int().positive(),
+  estimatedMinutes: z.number().int().min(1),
   coveredWords: z.array(z.string()).min(3).max(30),
   coveredConcepts: z.array(z.string()).min(2).max(10),
-  hookMarkdown: z.string(),
-  patternTitle: z.string(),
-  patternMarkdown: z.string(),
-  vocabRows: z.array(
-    z.object({
-      el: z.string(),
-      en: z.string(),
-      article: z.string().optional(),
-      example: z.string().optional(),
-    }),
-  ).min(4).max(12),
-  reading: z.object({
-    el: z.string(),
-    en: z.string(),
-    glossary: z.array(z.object({ el: z.string(), en: z.string() })).min(2).max(8),
-  }),
-  quizItems: z.array(
-    z.object({
-      q: z.string(),
-      options: z.array(z.string()).min(2).max(4),
-      correctIndex: z.number().int().nonnegative(),
-      explanation: z.string().optional(),
-    }),
-  ).min(2).max(5),
-  blanks: z.array(
-    z.object({
-      sentence: z.string(),
-      answer: z.string(),
-      hint: z.string().optional(),
-      english: z.string().optional(),
-    }),
-  ).min(2).max(5),
-  wrapUpMarkdown: z.string(),
+  widgets: z.array(GeneratableWidgetSchema),
 });
 
 const GeneratePlanInputSchema = z.object({
@@ -51,7 +68,7 @@ const GeneratePlanInputSchema = z.object({
   courseDescription: z.string().optional(),
   lessonTitle: z.string(),
   lessonDescription: z.string().optional(),
-  planNumber: z.number().int().positive(),
+  planNumber: z.number().int().min(1),
   customFocus: z.string().optional(),
   entries: z.array(
     z.object({
@@ -65,7 +82,7 @@ const GeneratePlanInputSchema = z.object({
   ),
   previousPlans: z.array(
     z.object({
-      planNumber: z.number().int().positive(),
+      planNumber: z.number().int().min(1),
       title: z.string(),
       coveredWords: z.array(z.string()).default([]),
       coveredConcepts: z.array(z.string()).default([]),
@@ -103,7 +120,7 @@ const generatePlanFlow = getAI().defineFlow(
         ...decoding,
       },
       system:
-        "You design polished Modern Greek textbook modules as strict JSON. Use only the provided widget schema. Keep Greek natural, concise, and appropriate for adult learners.",
+        "You design polished Modern Greek textbook modules as strict JSON. Compose a widgets array — each widget is a typed object. Keep Greek natural, concise, and appropriate for adult learners.",
       prompt: `Create Plan ${input.planNumber} for this Greek lesson.
 
 Course: ${input.courseTitle}
@@ -118,13 +135,28 @@ ${previous}
 Lesson vocabulary:
 ${vocab}
 
-Plan requirements:
-- Pick one coherent angle: semantic field, shared grammar pattern, phrase family, register, or cultural scene.
-- Use 8-20 lesson words when possible, but do not invent vocabulary entries not present above.
-- Fill every requested field. The app will convert these fields into textbook widgets.
-- The reading must be 3-6 short Greek sentences and use the target vocabulary.
-- Every blank sentence must contain "___" exactly once.
-- Explanatory text should be in English. Greek target text stays Greek.`,
+OUTPUT: a JSON object with title, subtitle, estimatedMinutes, coveredWords, coveredConcepts, and a "widgets" array.
+
+Widget types you may use (discriminated by "type"):
+  heading       — { type, level: 1|2|3, text }
+  markdown      — { type, title?, markdown }  ← free-form; use any markdown structure
+  callout       — { type, calloutKind: "pattern"|"history"|"etymology"|"tip"|"cultural"|"mnemonic", title?, markdown }
+  vocab_table   — { type, title?, rows: [{el, en, article?, example?}] }
+  reading_passage — { type, title?, el, en, glossary?: [{el,en}] }
+  dialogue      — { type, title?, lines: [{speaker, el, en}] }
+  fill_in_blanks — { type, title?, instructions?, exerciseItems: [{sentence (contains ___), answer, hint?, english?}] }
+  mini_quiz     — { type, title?, exerciseItems: [{q, options[], correctIndex, explanation?}] }
+  word_tree     — { type, root:{el,en}, branches:[{el,en,relation}] }
+  conjugation_table — { type, title?, headers[], rows:[{form, cells[]}], interactivePractice? }
+  comparison_table  — { type, title?, headers[], rows:[[...]] }
+
+Composition rules:
+- Default to ~8 widgets. Add more (up to 20) only when the requested focus genuinely calls for it (e.g. "10 examples" → add fill_in_blanks items or extra dialogue lines, not extra widgets).
+- Always open with a heading (level 1) and close with a markdown or callout wrap-up.
+- Pick one coherent angle; use 8-20 lesson words; do not invent vocabulary.
+- If the focus requests a specific count, honour it inside the relevant widget's items array.
+- Use markdown widgets for free-form content (cultural notes, extended phrase lists, grammar asides) that doesn't map cleanly to a structured widget.
+- Explanatory text in English; Greek target text stays Greek.`,
     });
 
     if (!output) throw new Error("Plan generation returned no output.");
@@ -153,44 +185,6 @@ function prune<T>(value: T): T {
     return out as T;
   }
   return value;
-}
-
-function buildWidgets(plan: z.infer<typeof GeneratedPlanSchema>) {
-  const vocabRows = plan.vocabRows.map((row) => {
-    const articleOk =
-      row.article && !["n/a", "none", "-"].includes(row.article.trim().toLowerCase());
-    const { article: _drop, ...rest } = row;
-    return articleOk ? { ...rest, article: row.article } : rest;
-  });
-  return [
-    { id: "w01", type: "heading", level: 1, text: plan.title },
-    { id: "w02", type: "prose", markdown: plan.hookMarkdown },
-    {
-      id: "w03",
-      type: "callout",
-      calloutKind: "pattern",
-      title: plan.patternTitle,
-      markdown: plan.patternMarkdown,
-    },
-    { id: "w04", type: "vocab_table", title: "Key vocabulary", rows: vocabRows },
-    {
-      id: "w05",
-      type: "reading_passage",
-      title: "In context",
-      el: plan.reading.el,
-      en: plan.reading.en,
-      glossary: plan.reading.glossary,
-    },
-    {
-      id: "w06",
-      type: "fill_in_blanks",
-      title: "Try the pattern",
-      instructions: "Fill each blank with the best Greek form.",
-      items: plan.blanks,
-    },
-    { id: "w07", type: "mini_quiz", title: "Check yourself", items: plan.quizItems },
-    { id: "w08", type: "prose", markdown: plan.wrapUpMarkdown },
-  ];
 }
 
 async function appendStatus(path: string, message: string) {
@@ -301,7 +295,15 @@ export const onPlanWritten = onDocumentWritten(
         entries,
         previousPlans,
       });
-      const widgets = buildWidgets(generated);
+      const widgets = generated.widgets.map((w, i) => {
+        const { exerciseItems, rootEl, rootEn, ...rest } = w;
+        return prune({
+          ...rest,
+          id: `w${String(i + 1).padStart(2, "0")}`,
+          items: exerciseItems,
+          ...(rootEl || rootEn ? { root: { el: rootEl ?? "", en: rootEn ?? "" } } : {}),
+        });
+      });
 
       await planRef.update({
         title: generated.title,

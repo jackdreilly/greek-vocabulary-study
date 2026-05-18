@@ -7,8 +7,8 @@
     "node": "24"
   },
   "scripts": {
-    "dev": "export JAVA_HOME=/opt/homebrew/opt/openjdk@21 && export PATH=\"$JAVA_HOME/bin:$PATH\" && mkdir -p .emulator-data && pnpm --filter ./web build && pnpm --filter ./functions build && (pnpm --filter ./web build:watch & pnpm --filter ./functions build:watch & npx firebase-tools emulators:start --only hosting,functions,firestore,storage --import=.emulator-data --export-on-exit=.emulator-data)",
-    "dev:emulators": "export JAVA_HOME=/opt/homebrew/opt/openjdk@21 && export PATH=\"$JAVA_HOME/bin:$PATH\" && mkdir -p .emulator-data && (pnpm --filter ./web build:watch & pnpm --filter ./functions build:watch & npx firebase-tools emulators:start --only hosting,functions,firestore,storage --import=.emulator-data --export-on-exit=.emulator-data)",
+    "dev": "export JAVA_HOME=/opt/homebrew/opt/openjdk@21 && export PATH=\"$JAVA_HOME/bin:$PATH\" && export VITE_USE_FIRESTORE_EMULATOR=1 && mkdir -p .emulator-data && pnpm --filter ./web build && pnpm --filter ./functions build && (pnpm --filter ./web build:watch & pnpm --filter ./functions build:watch & node scripts/firebase-tools-proxy.mjs emulators:start --only hosting,functions,firestore,storage --import=.emulator-data --export-on-exit=.emulator-data)",
+    "dev:emulators": "export JAVA_HOME=/opt/homebrew/opt/openjdk@21 && export PATH=\"$JAVA_HOME/bin:$PATH\" && export VITE_USE_FIRESTORE_EMULATOR=1 && mkdir -p .emulator-data && (pnpm --filter ./web build:watch & pnpm --filter ./functions build:watch & node scripts/firebase-tools-proxy.mjs emulators:start --only hosting,functions,firestore,storage --import=.emulator-data --export-on-exit=.emulator-data)",
     "dev:firestore": "export JAVA_HOME=/opt/homebrew/opt/openjdk@21 && export PATH=\"$JAVA_HOME/bin:$PATH\" && mkdir -p .emulator-data && npx firebase-tools emulators:start --only firestore --project fanari-b6bb4 --import=.emulator-data --export-on-exit=.emulator-data",
     "dev:web": "pnpm --filter ./web dev",
     "build": "pnpm --filter ./web build && pnpm --filter ./functions build",

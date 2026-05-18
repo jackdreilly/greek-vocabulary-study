@@ -4,20 +4,24 @@
   type Branch = { el?: string; en?: string; greek?: string; english?: string; relation: string };
   let {
     root,
+    rootEl: rootElProp,
+    rootEn: rootEnProp,
     rootGreek,
     rootEnglish,
     rootGloss,
     branches = [],
   }: {
     root?: { el: string; en: string };
+    rootEl?: string;
+    rootEn?: string;
     rootGreek?: string;
     rootEnglish?: string;
     rootGloss?: string;
     branches?: Branch[];
   } = $props();
 
-  const rootEl = $derived(root?.el ?? rootGreek);
-  const rootEn = $derived(root?.en ?? rootGloss ?? rootEnglish);
+  const rootEl = $derived(root?.el ?? rootElProp ?? rootGreek);
+  const rootEn = $derived(root?.en ?? rootEnProp ?? rootGloss ?? rootEnglish);
   const visibleBranches = $derived(branches.filter((branch) => branch && (branch.el || branch.greek)));
 </script>
 

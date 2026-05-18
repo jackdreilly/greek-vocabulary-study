@@ -14,6 +14,36 @@ The codebase is in the middle of a hard cutover from the legacy single-DB archit
 
 **If you're starting a new task during the rewrite, read [00-overview.md](docs/rewrite/00-overview.md) first.** New code should follow the design — don't extend the legacy patterns described below unless the user explicitly asks for a hotfix in the old app.
 
+### Local development — always use the emulator
+
+For any frontend or function work, **always run against the local Firebase emulator** instead of hitting production. The repo has a single root script that starts everything:
+
+```bash
+pnpm run dev:emulators
+```
+
+This command (defined in the root `package.json`):
+1. Watches and rebuilds `functions/` on every change
+2. Watches and rebuilds `web/` on every change
+3. Starts Firebase emulators for hosting, functions, Firestore, and storage
+
+The app is served at **`localhost:5002`** (Firebase hosting emulator). Firestore runs at `localhost:8080`, Functions at `localhost:5001`, and the emulator UI at `localhost:4000`.
+
+**In Claude Code**, use the configured preview server instead of running the command manually:
+
+```
+preview_start("Full stack (emulators + build watch)")
+```
+
+This is defined in `.claude/launch.json` and points at port 5002.
+
+**Never** run bare `firebase deploy` or test against production during development — every UI action hits live data if the emulator isn't running.
+
+**For function-only changes** that need to reach production users, deploy just the changed function:
+```bash
+npx firebase-tools deploy --only functions:yiayiaChat --project fanari-b6bb4
+```
+
 User progress features (flashcard SRS, game scores, streaks) are intentionally **not** part of this phase and not being reimplemented.
 
 ---

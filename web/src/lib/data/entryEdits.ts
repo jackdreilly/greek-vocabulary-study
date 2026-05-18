@@ -1,5 +1,6 @@
 import { doc, serverTimestamp, updateDoc } from "firebase/firestore";
-import { db } from "../firebase";
+import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
+import { db, storage } from "../firebase";
 import type { EntryDoc } from "./lessons.svelte";
 
 export type PexelsPhoto = {
@@ -24,13 +25,33 @@ export async function saveEntryEdit(input: {
   english: string;
   senses: string[];
   image?: EntryDoc["image"];
+  audio?: EntryDoc["audio"];
 }) {
   await updateDoc(doc(db, "courses", input.courseId, "lessons", input.lessonId, "entries", input.entryId), {
     english: input.english.trim(),
     senses: input.senses.map((s) => s.trim()).filter(Boolean),
     image: input.image ?? null,
+    audio: input.audio ?? null,
     updatedAt: serverTimestamp(),
   });
+}
+
+export async function uploadAudio(
+  courseId: string,
+  lessonId: string,
+  entryId: string,
+  blob: Blob,
+): Promise<NonNullable<EntryDoc["audio"]>> {
+  const ext = blob.type.includes("ogg") ? "ogg" : "webm";
+  const storagePath = `audio/${courseId}/${lessonId}/${entryId}.${ext}`;
+  const storageRef = ref(storage, storagePath);
+  await uploadBytes(storageRef, blob, { contentType: blob.type });
+  const url = await getDownloadURL(storageRef);
+  return { url, storagePath };
+}
+
+export async function deleteAudio(storagePath: string): Promise<void> {
+  await deleteObject(ref(storage, storagePath));
 }
 
 export async function searchPexelsImages(query: string) {

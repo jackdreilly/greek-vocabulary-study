@@ -7,6 +7,7 @@ import {
   persistentMultipleTabManager,
 } from "firebase/firestore";
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
+import { getStorage, connectStorageEmulator } from "firebase/storage";
 
 // Public config — these are not secrets. Pulled directly from
 // Firebase Console > Project Settings > General > Your apps.
@@ -35,6 +36,7 @@ function makeDb() {
 export const db = makeDb();
 
 export const functions = getFunctions(app, "us-central1");
+export const storage = getStorage(app);
 
 // Default: talk to production fanari-b6bb4.
 // Set VITE_USE_FIRESTORE_EMULATOR=1 to point Firestore + Functions
@@ -49,6 +51,7 @@ if (useEmulator) {
   try {
     connectFirestoreEmulator(db, "127.0.0.1", 8080);
     connectFunctionsEmulator(functions, "127.0.0.1", 5001);
+    connectStorageEmulator(storage, "127.0.0.1", 9199);
     console.info("[firebase] Connected to local emulators.");
   } catch (err) {
     console.warn("[firebase] Emulator connection failed:", err);

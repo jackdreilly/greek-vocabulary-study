@@ -6,6 +6,7 @@
   import { linkClick } from "../lib/router.svelte";
   import WidgetRenderer from "../lib/widgets/WidgetRenderer.svelte";
   import { ArrowLeft, RefreshCw } from "lucide-svelte";
+  import { yiayiaFocus, clearFocus } from "../lib/data/yiayiaFocus.svelte";
 
   type PlanDoc = DocumentData & { id: string };
 
@@ -41,6 +42,16 @@
   });
 
   const backHref = $derived(`/c/${courseId}/l/${lessonId}/plans`);
+
+  // Expose plan's covered words to Yiayia.
+  $effect(() => {
+    if (plan) {
+      const words: string[] = plan.coveredWords ?? [];
+      yiayiaFocus.words = words;
+      yiayiaFocus.label = `Plan: ${plan.title ?? ""}`;
+    }
+    return () => clearFocus();
+  });
 </script>
 
 <div class="max-w-2xl mx-auto pt-10 pb-24 px-6">

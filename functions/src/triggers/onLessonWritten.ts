@@ -1,9 +1,53 @@
 import { getFirestore, FieldValue, Timestamp } from "firebase-admin/firestore";
 import { logger } from "firebase-functions";
 import { onDocumentWritten } from "firebase-functions/v2/firestore";
-import { geminiApiKey } from "../ai/genkitClient.js";
+import { z } from "genkit";
+import { geminiApiKey, getAI } from "../ai/genkitClient.js";
 import { generateVocabFlow, normalizeArticle, primaryEnglish } from "../ai/vocabGeneration.js";
-import { getModelFor } from "../ai/configResolver.js";
+import { getModelFor, getDecodingFor } from "../ai/configResolver.js";
+
+const LessonOverviewSchema = z.object({
+  overviewMarkdown: z.string(),
+});
+
+const generateLessonOverviewFlow = getAI().defineFlow(
+  {
+    name: "generateLessonOverview",
+    inputSchema: z.object({
+      courseTitle: z.string(),
+      courseDescription: z.string().optional(),
+      lessonTitle: z.string(),
+      lessonSubtitle: z.string().optional(),
+      lessonSourcePrompt: z.string().optional(),
+    }),
+    outputSchema: LessonOverviewSchema,
+  },
+  async (input) => {
+    const model = await getModelFor("lessonGen");
+    const decoding = await getDecodingFor("lessonGen");
+    const { output } = await getAI().generate({
+      model,
+      output: { schema: LessonOverviewSchema },
+      config: { maxOutputTokens: 1500, ...decoding },
+      system: "You are a Modern Greek curriculum designer. Write concise, scannable lesson overviews in markdown.",
+      prompt: `Write a lesson overview in markdown for this Greek vocabulary lesson.
+
+Course: ${input.courseTitle}
+Course description: ${input.courseDescription ?? ""}
+Lesson: ${input.lessonTitle}
+Lesson subtitle: ${input.lessonSubtitle ?? ""}
+Lesson focus: ${input.lessonSourcePrompt ?? input.lessonTitle}
+
+Requirements:
+- Use ## section headers and bullet lists — NOT a wall of prose.
+- Sections to include: "## What you'll learn" (3-5 bullets of vocabulary areas or situations), "## You'll be able to" (3-4 practical outcomes in the learner's voice, e.g. "Order a coffee and ask for the bill").
+- Keep it under 150 words total.
+- Write in English. Do not include the lesson title as a heading (it's already shown above the overview).`,
+    });
+    if (!output) throw new Error("Lesson overview generation returned no output.");
+    return output;
+  },
+);
 
 function status(message: string) {
   return { at: Timestamp.now(), message, source: "system" };
@@ -82,7 +126,7 @@ export const onLessonWritten = onDocumentWritten(
 
       await Promise.all([
         lessonRef.update({
-          statusLog: FieldValue.arrayUnion(status("Generating vocabulary.")),
+          statusLog: FieldValue.arrayUnion(status("Generating overview.")),
           generationId: genId,
           generationHistory: FieldValue.arrayUnion(genId),
           updatedAt: Timestamp.now(),
@@ -102,12 +146,33 @@ export const onLessonWritten = onDocumentWritten(
         }).catch(() => undefined),
       ]);
 
+      const generatedOverview = await generateLessonOverviewFlow({
+        courseTitle: String(course.title ?? "Greek course"),
+        courseDescription: typeof course.description === "string" ? course.description : "",
+        lessonTitle: String(data.title ?? lessonId),
+        lessonSubtitle: typeof data.subtitle === "string" ? data.subtitle : "",
+        lessonSourcePrompt: typeof data.sourcePrompt === "string" ? data.sourcePrompt : "",
+      });
+
+      await lessonRef.update({
+        description: generatedOverview.overviewMarkdown,
+        overview: {
+          generationId: genId,
+          widgets: [
+            { id: "overview-heading", type: "heading", level: 1, text: data.title ?? lessonId },
+            { id: "overview-prose", type: "markdown", markdown: generatedOverview.overviewMarkdown },
+          ],
+        },
+        statusLog: FieldValue.arrayUnion(status("Overview ready. Generating vocabulary.")),
+        updatedAt: Timestamp.now(),
+      });
+
       const generated = await generateVocabFlow({
         courseTitle: String(course.title ?? "Greek course"),
         courseDescription: typeof course.description === "string" ? course.description : "",
         courseSourcePrompt: typeof course.sourcePrompt === "string" ? course.sourcePrompt : "",
         lessonTitle: String(data.title ?? lessonId),
-        lessonDescription: typeof data.description === "string" ? data.description : "",
+        lessonDescription: generatedOverview.overviewMarkdown,
         lessonSourcePrompt: typeof data.sourcePrompt === "string" ? data.sourcePrompt : "",
         prompt: typeof data.sourcePrompt === "string" ? data.sourcePrompt : String(data.title ?? lessonId),
         count: Number(data.targetEntryCount ?? 30),
@@ -145,19 +210,6 @@ export const onLessonWritten = onDocumentWritten(
         lessonRef.update({
           status: "ready",
           statusLog: FieldValue.arrayUnion(status("Lesson vocabulary complete.")),
-          overview: {
-            generationId: genId,
-            widgets: [
-              { id: "overview-heading", type: "heading", level: 1, text: data.title ?? lessonId },
-              {
-                id: "overview-prose",
-                type: "prose",
-                markdown:
-                  data.description ||
-                  `This generated lesson introduces ${entryCount} vocabulary items for ${data.title ?? lessonId}.`,
-              },
-            ],
-          },
           counts: { ...(data.counts ?? {}), entries: entryCount, plans: 0, games: 0 },
           updatedAt: Timestamp.now(),
         }),

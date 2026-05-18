@@ -61,8 +61,10 @@ const generateCourseFlow = getAI().defineFlow(
 ${sourcePrompt}
 
 Return:
-- a clear course title, subtitle, and 250-450 word markdown description
+- a clear course title and subtitle
+- a course description in markdown (150-250 words) structured with ## section headers and bullet lists — NOT a prose paragraph. Use sections like "## What you'll learn", "## Who this is for", "## How it's structured". Make it scannable, not a wall of text.
 - 3-6 lessons ordered from easier/foundational to richer/contextual
+- each lesson description should be 2-4 short bullet points (markdown) describing what vocabulary and situations it covers — NOT a prose paragraph
 - each lesson needs a focused sourcePrompt that can independently generate vocabulary
 - each lesson targetEntryCount should usually be 24-36
 

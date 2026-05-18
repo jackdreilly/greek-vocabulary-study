@@ -1,6 +1,8 @@
 <script lang="ts">
   import { subscribeEntries } from "../../lib/data/lessons.svelte";
   import GreekText from "../../lib/ui/GreekText.svelte";
+  import { yiayiaFocus, clearFocus } from "../../lib/data/yiayiaFocus.svelte";
+  import { Volume2 } from "lucide-svelte";
 
   let { courseId, lessonId }: { courseId: string; lessonId: string } = $props();
 
@@ -20,7 +22,20 @@
     sub = next;
     index = 0;
     flipped = false;
-    return () => next.stop();
+    return () => {
+      next.stop();
+      clearFocus();
+    };
+  });
+
+  // Keep yiayiaFocus in sync with the current card.
+  $effect(() => {
+    if (current) {
+      yiayiaFocus.words = [current.lemma];
+      yiayiaFocus.label = `Flashcard: ${current.lemma}`;
+    } else {
+      clearFocus();
+    }
   });
 
   const entries = $derived.by(() => {
@@ -147,6 +162,11 @@
     flipped = !flipped;
   }
 
+  function playCurrentAudio() {
+    if (!current?.audio?.url) return;
+    new Audio(current.audio.url).play();
+  }
+
   function handlePointerCancel() {
     dragTransition = true;
     dragX = 0;
@@ -249,6 +269,18 @@
                   <span class="text-(--color-muted)">{current.article}</span>
                 {/if}
                 <GreekText size="lg">{current.lemma}</GreekText>
+                {#if current.audio?.url}
+                  <span
+                    role="button"
+                    tabindex="0"
+                    onclick={(e) => { e.stopPropagation(); playCurrentAudio(); }}
+                    onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); playCurrentAudio(); } }}
+                    class="ml-1 cursor-pointer text-(--color-muted) hover:text-(--color-accent)"
+                    title="Play pronunciation"
+                  >
+                    <Volume2 size={18} aria-hidden="true" />
+                  </span>
+                {/if}
               </div>
             {:else}
               <div class="max-w-md text-center">
@@ -265,6 +297,7 @@
         {:else}
           <div class="flex h-full min-h-56 flex-col items-center justify-center text-center">
             {#if direction === "gr-en"}
+              <!-- Back of GR→EN: show English answer, recap Greek below -->
               <div class="max-w-md">
                 <p class="text-3xl font-semibold tracking-tight leading-tight">{primarySense(current)}</p>
                 {#if secondarySenses(current).length}
@@ -273,22 +306,50 @@
                   </p>
                 {/if}
               </div>
+              <div class="mt-8 w-full max-w-md border-t border-(--color-border) pt-5">
+                <div class="flex items-baseline justify-center gap-2">
+                  {#if current.article}
+                    <span class="text-(--color-muted) text-sm">{current.article}</span>
+                  {/if}
+                  <GreekText>{current.lemma}</GreekText>
+                  {#if current.audio?.url}
+                    <span
+                      role="button"
+                      tabindex="0"
+                      onclick={(e) => { e.stopPropagation(); playCurrentAudio(); }}
+                      onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); playCurrentAudio(); } }}
+                      class="ml-1 cursor-pointer text-(--color-muted) hover:text-(--color-accent)"
+                      title="Play pronunciation"
+                    >
+                      <Volume2 size={16} aria-hidden="true" />
+                    </span>
+                  {/if}
+                </div>
+              </div>
             {:else}
+              <!-- Back of EN→GR: show Greek answer, recap English below -->
               <div class="flex items-baseline gap-2">
                 {#if current.article}
                   <span class="text-(--color-muted) text-sm">{current.article}</span>
                 {/if}
                 <GreekText size="lg">{current.lemma}</GreekText>
+                {#if current.audio?.url}
+                  <span
+                    role="button"
+                    tabindex="0"
+                    onclick={(e) => { e.stopPropagation(); playCurrentAudio(); }}
+                    onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); playCurrentAudio(); } }}
+                    class="ml-1 cursor-pointer text-(--color-muted) hover:text-(--color-accent)"
+                    title="Play pronunciation"
+                  >
+                    <Volume2 size={18} aria-hidden="true" />
+                  </span>
+                {/if}
+              </div>
+              <div class="mt-8 w-full max-w-md border-t border-(--color-border) pt-5">
+                <p class="text-sm text-(--color-muted)">{senses(current).slice(0, 2).join("; ")}</p>
               </div>
             {/if}
-            <div class="mt-8 w-full max-w-md border-t border-(--color-border) pt-5">
-              <div class="flex items-baseline justify-center gap-2">
-                {#if current.article}
-                  <span class="text-(--color-muted) text-sm">{current.article}</span>
-                {/if}
-                <GreekText>{current.lemma}</GreekText>
-              </div>
-            </div>
           </div>
         {/if}
       </button>

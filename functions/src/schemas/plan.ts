@@ -130,6 +130,13 @@ const WordTreeWidget = z.object({
   ),
 });
 
+const MarkdownWidget = z.object({
+  id: z.string().optional(),
+  type: z.literal("markdown"),
+  title: z.string().optional(),
+  markdown: z.string(),
+});
+
 export const WidgetSchema = z.discriminatedUnion("type", [
   HeadingWidget,
   ProseWidget,
@@ -142,6 +149,7 @@ export const WidgetSchema = z.discriminatedUnion("type", [
   MiniQuizWidget,
   FillInBlanksWidget,
   WordTreeWidget,
+  MarkdownWidget,
 ]);
 export type Widget = z.infer<typeof WidgetSchema>;
 export type WidgetType = Widget["type"];

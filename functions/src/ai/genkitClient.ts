@@ -61,7 +61,7 @@ function resolveApiKey(): string | undefined {
 export function getAI() {
   if (_ai) return _ai;
   _ai = genkit({
-    plugins: [googleAI({ apiKey: resolveApiKey() })],
+    plugins: [googleAI({ apiKey: resolveApiKey(), legacyResponseSchema: true })],
   });
   return _ai;
 }

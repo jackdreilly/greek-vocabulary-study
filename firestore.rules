@@ -27,7 +27,7 @@ service cloud.firestore {
         match /entries/{entryId} {
           allow read: if true;
           allow update: if request.resource.data.diff(resource.data).changedKeys().hasOnly(
-            ['english', 'senses', 'image', 'updatedAt']
+            ['english', 'senses', 'image', 'audio', 'updatedAt']
           );
           allow create, delete: if false;
         }

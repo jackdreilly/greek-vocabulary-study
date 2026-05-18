@@ -3,6 +3,7 @@
   import { subscribeCourses } from "../lib/data/courses.svelte";
   import { createCourseStub } from "../lib/data/createCourse";
   import { navigate } from "../lib/router.svelte";
+  import { textMatchesSearch } from "../lib/search";
   import Card from "../lib/ui/Card.svelte";
   import StatusPill from "../lib/ui/StatusPill.svelte";
   import { BookOpen, GraduationCap, Hash, Search, Sparkles } from "lucide-svelte";
@@ -18,12 +19,8 @@
     courseSearch.trim() === ""
       ? sub.courses
       : sub.courses.filter((course) => {
-          const q = courseSearch.trim().toLowerCase();
-          return (
-            course.title?.toLowerCase().includes(q) ||
-            course.subtitle?.toLowerCase().includes(q) ||
-            course.description?.toLowerCase().includes(q)
-          );
+          const haystack = [course.title, course.subtitle, course.description].join(" ");
+          return textMatchesSearch(haystack, courseSearch);
         })
   );
 

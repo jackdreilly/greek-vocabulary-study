@@ -7,11 +7,14 @@
     imageFromPexels,
     saveEntryEdit,
     searchPexelsImages,
+    uploadAudio,
+    deleteAudio,
   } from "../../lib/data/entryEdits";
   import { retryVocabBatchGeneration } from "../../lib/data/retryGeneration";
   import type { PexelsPhoto } from "../../lib/data/entryEdits";
+  import { textMatchesSearch } from "../../lib/search";
   import GreekText from "../../lib/ui/GreekText.svelte";
-  import { Edit2, Plus, RefreshCw, Search, Sparkles, Trash2, Wand2, X } from "lucide-svelte";
+  import { Edit2, Mic, MicOff, Play, Plus, RefreshCw, Search, Sparkles, Trash2, Upload, Volume2, Wand2, X } from "lucide-svelte";
 
   let { courseId, lessonId }: { courseId: string; lessonId: string } = $props();
 
@@ -50,16 +53,22 @@
   let assisting = $state(false);
   let assistError = $state<string | null>(null);
 
+  // Audio state
+  let draftAudio = $state<EntryDoc["audio"]>(null);
+  let audioRecording = $state(false);
+  let audioUploading = $state(false);
+  let audioError = $state<string | null>(null);
+  let audioRecordSeconds = $state(0);
+  let mediaRecorder = $state<MediaRecorder | null>(null);
+  let recordTimer: ReturnType<typeof setInterval> | null = null;
+  let audioPlayer = $state<HTMLAudioElement | null>(null);
+
   const filtered = $derived(
     search.trim() === ""
       ? (sub?.entries ?? [])
       : (sub?.entries ?? []).filter((e) => {
-          const q = search.trim().toLowerCase();
-          return (
-            e.lemma?.toLowerCase().includes(q) ||
-            e.english?.toLowerCase().includes(q) ||
-            e.senses?.some((s: string) => s.toLowerCase().includes(q))
-          );
+          const haystack = [e.lemma, e.article, e.partOfSpeech, e.english, ...(e.senses ?? [])].join(" ");
+          return textMatchesSearch(haystack, search);
         })
   );
   const latestBatch = $derived(batchSub?.latest ?? null);
@@ -71,16 +80,19 @@
     draftEnglish = entry.english ?? "";
     draftSenses = entry.senses?.length ? [...entry.senses] : [entry.english ?? ""];
     draftImage = entry.image ?? null;
+    draftAudio = entry.audio ?? null;
     saveError = null;
     pexelsOpen = false;
     pexelsResults = [];
     pexelsError = null;
     assistPrompt = "Improve these definitions for a learner.";
     assistError = null;
+    audioError = null;
   }
 
   function closeEdit() {
     if (saveTimer) clearTimeout(saveTimer);
+    stopRecording();
     editing = null;
   }
 
@@ -97,6 +109,7 @@
         english: draftEnglish,
         senses: draftSenses,
         image: draftImage,
+        audio: draftAudio,
       });
       saved = true;
     } catch (err) {
@@ -151,6 +164,82 @@
     } finally {
       generatingVocab = false;
     }
+  }
+
+  async function startRecording() {
+    audioError = null;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const chunks: BlobPart[] = [];
+      const mimeType = MediaRecorder.isTypeSupported("audio/webm") ? "audio/webm" : "audio/ogg";
+      const recorder = new MediaRecorder(stream, { mimeType });
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        if (!editing) return;
+        audioUploading = true;
+        try {
+          const blob = new Blob(chunks, { type: mimeType });
+          draftAudio = await uploadAudio(courseId, lessonId, editing.id, blob);
+          await saveEdit();
+        } catch (err) {
+          audioError = err instanceof Error ? err.message : String(err);
+        } finally {
+          audioUploading = false;
+        }
+      };
+      mediaRecorder = recorder;
+      recorder.start();
+      audioRecording = true;
+      audioRecordSeconds = 0;
+      recordTimer = setInterval(() => { audioRecordSeconds += 1; }, 1000);
+    } catch (err) {
+      audioError = err instanceof Error ? err.message : String(err);
+    }
+  }
+
+  function stopRecording() {
+    if (recordTimer) { clearInterval(recordTimer); recordTimer = null; }
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+      mediaRecorder.stop();
+    }
+    mediaRecorder = null;
+    audioRecording = false;
+  }
+
+  async function handleAudioFileUpload(files: FileList | null) {
+    if (!files || files.length === 0 || !editing) return;
+    const file = files[0];
+    audioError = null;
+    audioUploading = true;
+    try {
+      draftAudio = await uploadAudio(courseId, lessonId, editing.id, file);
+      await saveEdit();
+    } catch (err) {
+      audioError = err instanceof Error ? err.message : String(err);
+    } finally {
+      audioUploading = false;
+    }
+  }
+
+  async function removeAudio() {
+    if (!draftAudio) return;
+    const old = draftAudio;
+    draftAudio = null;
+    scheduleSave(0);
+    try {
+      await deleteAudio(old.storagePath);
+    } catch {
+      // Ignore storage delete failures — Firestore is already updated
+    }
+  }
+
+  function playAudio() {
+    if (!draftAudio?.url) return;
+    if (audioPlayer) { audioPlayer.pause(); audioPlayer = null; }
+    const a = new Audio(draftAudio.url);
+    audioPlayer = a;
+    a.play();
   }
 
   async function assistDefinitions() {
@@ -508,6 +597,91 @@
                   </p>
                 {/if}
               </div>
+            {/if}
+          </div>
+
+          <div>
+            <p class="mb-2 text-sm font-medium">Pronunciation audio</p>
+            {#if draftAudio}
+              <div class="flex items-center gap-3 flex-wrap">
+                <button
+                  type="button"
+                  onclick={playAudio}
+                  class="inline-flex items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-2 text-sm hover:bg-(--color-surface-muted)"
+                  title="Play pronunciation"
+                >
+                  <Volume2 size={14} aria-hidden="true" />
+                  Play
+                </button>
+                <button
+                  type="button"
+                  onclick={() => void startRecording()}
+                  disabled={audioRecording || audioUploading}
+                  class="inline-flex items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-2 text-sm hover:bg-(--color-surface-muted) disabled:opacity-50"
+                >
+                  <Mic size={14} aria-hidden="true" />
+                  Re-record
+                </button>
+                <label class="inline-flex items-center gap-1.5 cursor-pointer rounded-md border border-(--color-border) px-3 py-2 text-sm hover:bg-(--color-surface-muted)">
+                  <Upload size={14} aria-hidden="true" />
+                  Replace file
+                  <input
+                    type="file"
+                    accept="audio/*"
+                    class="sr-only"
+                    onchange={(e) => void handleAudioFileUpload((e.target as HTMLInputElement).files)}
+                  />
+                </label>
+                <button
+                  type="button"
+                  onclick={() => void removeAudio()}
+                  class="inline-flex items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-2 text-sm text-(--color-danger)"
+                >
+                  <Trash2 size={14} aria-hidden="true" />
+                  Remove
+                </button>
+              </div>
+            {:else if audioRecording}
+              <div class="flex items-center gap-3">
+                <span class="inline-flex items-center gap-2 text-sm text-(--color-danger) font-medium">
+                  <span class="h-2 w-2 rounded-full bg-(--color-danger) animate-pulse"></span>
+                  Recording… {audioRecordSeconds}s
+                </span>
+                <button
+                  type="button"
+                  onclick={stopRecording}
+                  class="inline-flex items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-2 text-sm hover:bg-(--color-surface-muted)"
+                >
+                  <MicOff size={14} aria-hidden="true" />
+                  Stop
+                </button>
+              </div>
+            {:else if audioUploading}
+              <p class="text-sm text-(--color-muted)">Uploading audio…</p>
+            {:else}
+              <div class="flex gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onclick={() => void startRecording()}
+                  class="inline-flex items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-2 text-sm hover:bg-(--color-surface-muted)"
+                >
+                  <Mic size={14} aria-hidden="true" />
+                  Record pronunciation
+                </button>
+                <label class="inline-flex items-center gap-1.5 cursor-pointer rounded-md border border-(--color-border) px-3 py-2 text-sm hover:bg-(--color-surface-muted)">
+                  <Upload size={14} aria-hidden="true" />
+                  Upload audio file
+                  <input
+                    type="file"
+                    accept="audio/*"
+                    class="sr-only"
+                    onchange={(e) => void handleAudioFileUpload((e.target as HTMLInputElement).files)}
+                  />
+                </label>
+              </div>
+            {/if}
+            {#if audioError}
+              <p class="mt-2 text-sm text-(--color-danger)">{audioError}</p>
             {/if}
           </div>
 

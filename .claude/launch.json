@@ -2,13 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "greekflash-web",
-      "runtimeExecutable": "sh",
-      "runtimeArgs": [
-        "-c",
-        "VITE_USE_FIRESTORE_EMULATOR=1 pnpm --filter ./web exec vite --host --port 5174 --strictPort"
-      ],
-      "port": 5174
+      "name": "Full stack (emulators + build watch)",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["run", "dev:emulators"],
+      "port": 5002
     }
   ]
 }

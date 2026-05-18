@@ -16,11 +16,20 @@ const YiayiaInputSchema = z.object({
   tab: z.string().optional().default(""),
   pathname: z.string().optional().default(""),
   messages: z.array(MessageSchema).min(1).max(20),
+  focusedWords: z.array(z.string()).optional().default([]),
 });
 
 async function readContext(input: z.infer<typeof YiayiaInputSchema>) {
   const db = getFirestore();
   const parts: string[] = [`Current app path: ${input.pathname || "(unknown)"}`];
+
+  // Focal words — the specific item the user is looking at right now.
+  // Must appear before generic lesson vocab so the AI treats it as highest priority.
+  if (input.focusedWords && input.focusedWords.length > 0) {
+    parts.push(
+      `CURRENTLY FOCUSED WORDS (user is actively looking at these right now):\n${input.focusedWords.join(", ")}\n\nWhen answering about a specific word, prioritize these over other lesson vocabulary.`
+    );
+  }
 
   if (input.courseId) {
     const courseSnap = await db.doc(`courses/${input.courseId}`).get();
@@ -90,7 +99,7 @@ async function readContext(input: z.infer<typeof YiayiaInputSchema>) {
   return parts.filter(Boolean).join("\n\n---\n\n").slice(0, 12000);
 }
 
-export const yiayiaChat = onCall({ secrets: [geminiApiKey] }, async (request) => {
+export const yiayiaChat = onCall({ secrets: [geminiApiKey] }, async (request, response) => {
   const parsed = YiayiaInputSchema.safeParse(request.data);
   if (!parsed.success) {
     throw new HttpsError("invalid-argument", parsed.error.issues.map((issue) => issue.message).join("; "));
@@ -114,24 +123,34 @@ export const yiayiaChat = onCall({ secrets: [geminiApiKey] }, async (request) =>
       content: [{ text: message.content }],
     }));
 
-    const { text } = await getAI().generate({
-      model,
-      config: {
-        maxOutputTokens: 1800,
-        ...decoding,
-      },
-      system: `You are Yiayia, a warm, precise Modern Greek tutor inside GreekFlash.
+    const systemPrompt = `You are Yiayia, a warm, precise Modern Greek tutor inside GreekFlash.
 Use the provided app context first. Explain Greek clearly, with transliteration only when useful.
 For learner questions, give direct help, a short example, and a tiny practice prompt when helpful.
 Do not claim a feature is saved or changed unless the user explicitly asks and a tool/function actually did it.
 
 APP CONTEXT:
-${context}`,
+${context}`;
+
+    const { stream } = await getAI().generateStream({
+      model,
+      config: {
+        maxOutputTokens: 1800,
+        ...decoding,
+      },
+      system: systemPrompt,
       messages: history,
       prompt: latest.content,
     });
 
-    return { message: text || "I am here, but I could not form a response." };
+    let fullText = "";
+    for await (const chunk of stream) {
+      if (chunk.text) {
+        fullText += chunk.text;
+        response?.sendChunk(chunk.text);
+      }
+    }
+
+    return { message: fullText || "I am here, but I could not form a response." };
   } catch (err) {
     throw new HttpsError("internal", err instanceof Error ? err.message : String(err));
   }

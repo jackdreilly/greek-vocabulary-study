@@ -11,6 +11,7 @@
   import MiniQuizWidget from "./types/MiniQuizWidget.svelte";
   import FillInBlanksWidget from "./types/FillInBlanksWidget.svelte";
   import WordTreeWidget from "./types/WordTreeWidget.svelte";
+  import MarkdownWidget from "./types/MarkdownWidget.svelte";
 
   // Widget is typed loosely here because the discriminated union — and its
   // type-import from `data/plans.svelte` — has been observed to interact
@@ -30,6 +31,7 @@
     mini_quiz: MiniQuizWidget,
     fill_in_blanks: FillInBlanksWidget,
     word_tree: WordTreeWidget,
+    markdown: MarkdownWidget,
   };
 
   let Component = $derived(widgetComponents[widget.type]);

@@ -34,7 +34,10 @@
         "headers": [{ "key": "Cache-Control", "value": "no-store" }]
       }
     ],
-    "rewrites": [{ "source": "**", "destination": "/index.html" }]
+    "rewrites": [
+      { "source": "/api/pexels-search", "function": "searchPexelsImages" },
+      { "source": "**", "destination": "/index.html" }
+    ]
   },
   "emulators": {
     "ui": { "enabled": true, "host": "0.0.0.0", "port": 4000 },

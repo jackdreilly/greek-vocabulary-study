@@ -3,9 +3,45 @@
   import { scoreGameAnswer, type GameScoreResult } from "../../lib/data/gameScoring";
   import { retryGameBatchGeneration } from "../../lib/data/retryGeneration";
   import { subscribeGames, subscribeLatestGameBatches, subscribeLesson } from "../../lib/data/lessons.svelte";
-  import { ChevronLeft, ChevronRight, Check, RefreshCw, Sparkles } from "lucide-svelte";
+  import { Check, ChevronLeft, ChevronRight, RefreshCw, Shuffle, Sparkles, X } from "lucide-svelte";
+  import { yiayiaFocus, clearFocus } from "../../lib/data/yiayiaFocus.svelte";
 
   let { courseId, lessonId }: { courseId: string; lessonId: string } = $props();
+
+  // --- banner dismiss logic ---
+  const DISMISS_KEY = "greekflash:dismissed-batches";
+  const AUTO_HIDE_MS = 60_000; // hide terminal banners after 60 s
+
+  function loadDismissed(): Set<string> {
+    try {
+      return new Set(JSON.parse(localStorage.getItem(DISMISS_KEY) ?? "[]") as string[]);
+    } catch {
+      return new Set();
+    }
+  }
+
+  function saveDismissed(ids: Set<string>) {
+    // Keep at most 50 entries so localStorage doesn't grow unbounded
+    const arr = [...ids].slice(-50);
+    localStorage.setItem(DISMISS_KEY, JSON.stringify(arr));
+  }
+
+  let dismissed = $state<Set<string>>(loadDismissed());
+
+  function dismissBatch(id: string) {
+    dismissed = new Set([...dismissed, id]);
+    saveDismissed(dismissed);
+  }
+
+  function isBannerVisible(batch: typeof latestBatch): boolean {
+    if (!batch) return false;
+    if (dismissed.has(batch.id)) return false;
+    const terminal = batch.status === "done" || batch.status === "ready";
+    if (terminal && batch.completedAt) {
+      if (Date.now() - batch.completedAt.toMillis() > AUTO_HIDE_MS) return false;
+    }
+    return true;
+  }
 
   let sub = $state<ReturnType<typeof subscribeGames>>();
   let lessonSub = $state<ReturnType<typeof subscribeLesson>>();
@@ -40,24 +76,46 @@
       next.stop();
       nextLesson.stop();
       nextBatch.stop();
+      clearFocus();
     };
   });
 
+  // Keep yiayiaFocus in sync with the current game's target words.
+  $effect(() => {
+    if (current) {
+      const words = current.requiredWords?.length
+        ? current.requiredWords
+        : current.prompt
+          ? [current.prompt]
+          : [];
+      yiayiaFocus.words = words;
+      yiayiaFocus.label = `Game: ${label(current.type)}`;
+    } else {
+      clearFocus();
+    }
+  });
+
   const allGames = $derived(sub?.games ?? []);
-  const gameTypes = $derived([...new Set(allGames.map((game) => game.type))]);
-  const games = $derived(typeFilter === "all" ? allGames : allGames.filter((game) => game.type === typeFilter));
+  const gameTypes = $derived([...new Set(allGames.map((g) => g.type))]);
+  const games = $derived(typeFilter === "all" ? allGames : allGames.filter((g) => g.type === typeFilter));
   const current = $derived(games[index]);
-  const progress = $derived(games.length ? ((index + 1) / games.length) * 100 : 0);
   const hasAnswer = $derived(answer.trim().length > 0);
   const latestBatch = $derived(batchSub?.latest ?? null);
   const batchRunning = $derived(latestBatch?.status === "initializing" || latestBatch?.status === "streaming");
-  const batchMessages = $derived((latestBatch?.statusLog ?? []).slice(-4));
 
   function label(type: string) {
-    return type
-      .split("_")
-      .map((part) => part[0]?.toUpperCase() + part.slice(1))
-      .join(" ");
+    return type.split("_").map((p) => p[0]?.toUpperCase() + p.slice(1)).join(" ");
+  }
+
+  function shortLabel(type: string) {
+    const map: Record<string, string> = {
+      missing_word: "Fill",
+      reading_comprehension: "Read",
+      story_prompt: "Story",
+      sentence_translation: "Translate",
+      word_translation: "Word",
+    };
+    return map[type] ?? label(type);
   }
 
   function resetAnswerState() {
@@ -69,24 +127,19 @@
     gradeError = "";
   }
 
-  function continuePractice() {
-    if (index < games.length - 1) {
-      index += 1;
-      resetAnswerState();
-    } else {
-      index = 0;
-      resetAnswerState();
-    }
-  }
-
   function move(delta: number) {
     if (games.length === 0) return;
     index = (index + delta + games.length) % games.length;
     resetAnswerState();
   }
 
-  function skip() {
-    move(1);
+  function shuffleOrder() {
+    // Jump to a random card
+    if (games.length > 1) {
+      const next = Math.floor(Math.random() * (games.length - 1));
+      index = next >= index ? next + 1 : next;
+    }
+    resetAnswerState();
   }
 
   async function checkAnswer() {
@@ -132,245 +185,275 @@
   }
 </script>
 
-<div>
-  {#if latestBatch}
-    <div
-      class="mb-4 rounded-md border px-3 py-2 text-sm {latestBatch.status === 'error'
+<!-- Full-height flex column matching legacy layout -->
+<div class="flex flex-col" style="min-height: 520px;">
+
+  <!-- Generation status banner — auto-hides 60 s after completion, or on X -->
+  {#if isBannerVisible(latestBatch)}
+    {@const batch = latestBatch!}
+    <div class="mb-3 flex-shrink-0 rounded-md border px-3 py-2 text-sm
+      {batch.status === 'error'
         ? 'border-[#fecaca] bg-[#fef2f2] text-(--color-danger)'
         : batchRunning
           ? 'border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]'
-          : 'border-[#bbf7d0] bg-[#f0fdf4] text-[#15803d]'}"
-    >
-      <div class="flex items-center justify-between gap-3">
+          : 'border-[#bbf7d0] bg-[#f0fdf4] text-[#15803d]'}">
+      <div class="flex items-center justify-between gap-2">
         <span class="font-medium">
-          {latestBatch.status === "error"
-            ? "Game generation failed"
-            : batchRunning
-              ? "Game generation running"
-              : "Game generation complete"}
+          {batch.status === "error" ? "Generation failed" : batchRunning ? "Generating games…" : "Generation complete"}
         </span>
-        <span class="text-xs uppercase tracking-wide opacity-75">{latestBatch.status}</span>
+        <div class="flex items-center gap-1.5">
+          {#if !batchRunning}
+            <button
+              type="button"
+              onclick={() => dismissBatch(batch.id)}
+              class="rounded p-0.5 opacity-50 hover:opacity-100"
+              aria-label="Dismiss"
+            >
+              <X size={12} aria-hidden="true" />
+            </button>
+          {/if}
+        </div>
       </div>
-      {#if latestBatch.error}
-        <p class="mt-1">{latestBatch.error}</p>
-      {:else if batchMessages.length}
-        <ul class="mt-1 space-y-0.5">
-          {#each batchMessages as item}
-            <li>{item.message}</li>
-          {/each}
-        </ul>
+      {#if batch.error}
+        <p class="mt-1">{batch.error}</p>
+      {:else if batchRunning && batch.statusLog?.length}
+        <p class="mt-1 opacity-75">{batch.statusLog[batch.statusLog.length - 1]?.message ?? ""}</p>
       {/if}
-      {#if latestBatch.status === "error"}
+      {#if batch.status === "error"}
         <button
           type="button"
-          onclick={() => void retryGameBatchGeneration(courseId, lessonId, latestBatch.id)}
+          onclick={() => void retryGameBatchGeneration(courseId, lessonId, batch.id)}
           class="mt-2 inline-flex items-center gap-1.5 rounded-md border border-current px-2 py-1 text-xs font-medium"
         >
-          <RefreshCw size={12} aria-hidden="true" />
-          Try again
+          <RefreshCw size={11} aria-hidden="true" /> Try again
         </button>
       {/if}
     </div>
   {/if}
 
   {#if !sub || sub.loading}
-    <p class="text-(--color-muted)">Loading games...</p>
+    <div class="flex flex-1 items-center justify-center">
+      <p class="text-(--color-muted) text-sm">Loading games…</p>
+    </div>
+
   {:else if sub.error}
-    <p class="text-(--color-danger)">Failed to load games: {sub.error.message}</p>
+    <p class="text-(--color-danger) text-sm">Failed to load games: {sub.error.message}</p>
+
   {:else if allGames.length === 0}
-    <div class="text-center py-16 border border-dashed border-(--color-border) rounded-lg">
+    <!-- Empty state -->
+    <div class="flex flex-1 flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-(--color-border) py-20">
       <p class="text-(--color-muted) text-sm">No games for this lesson yet.</p>
       <button
         type="button"
         onclick={() => void generateGames()}
         disabled={generatingGames}
-        class="mt-4 inline-flex items-center justify-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+        class="inline-flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
       >
         <Sparkles size={14} aria-hidden="true" />
-        {generatingGames ? "Generating..." : "Generate games"}
+        {generatingGames ? "Generating…" : "Generate games"}
       </button>
-      {#if generateError}
-        <p class="mt-2 text-sm text-(--color-danger)">{generateError}</p>
-      {/if}
+      {#if generateError}<p class="text-sm text-(--color-danger)">{generateError}</p>{/if}
     </div>
-  {:else if games.length === 0}
-    <div>
-      <select
-        bind:value={typeFilter}
-        onchange={() => {
-          index = 0;
-          resetAnswerState();
-        }}
-        class="mb-4 rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm"
-      >
-        <option value="all">All game types</option>
+
+  {:else}
+    <!-- Type tab bar -->
+    <div class="mb-0 flex flex-shrink-0 items-center justify-between gap-2 border-b border-(--color-border) pb-0">
+      <div class="flex gap-0.5 overflow-x-auto">
+        <button
+          type="button"
+          onclick={() => { typeFilter = "all"; index = 0; resetAnswerState(); }}
+          class="h-8 rounded-t px-3 text-xs font-bold transition-colors
+            {typeFilter === 'all'
+              ? 'bg-(--color-accent) text-white'
+              : 'text-(--color-muted) hover:text-(--color-text) hover:bg-(--color-surface-muted)'}"
+        >
+          All
+        </button>
         {#each gameTypes as type}
-          <option value={type}>{label(type)}</option>
+          <button
+            type="button"
+            onclick={() => { typeFilter = type; index = 0; resetAnswerState(); }}
+            class="h-8 rounded-t px-3 text-xs font-bold whitespace-nowrap transition-colors
+              {typeFilter === type
+                ? 'bg-(--color-accent) text-white'
+                : 'text-(--color-muted) hover:text-(--color-text) hover:bg-(--color-surface-muted)'}"
+          >
+            {shortLabel(type)}
+          </button>
         {/each}
-      </select>
-      <p class="text-(--color-muted)">No games match this filter.</p>
-      <button
-        type="button"
-        onclick={() => void generateGames()}
-        disabled={generatingGames}
-        class="mt-4 inline-flex items-center justify-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
-      >
-        <Sparkles size={14} aria-hidden="true" />
-        {generatingGames ? "Generating..." : "Generate this type"}
-      </button>
+      </div>
+      <div class="flex items-center gap-1 pb-1 flex-shrink-0">
+        <button
+          type="button"
+          onclick={shuffleOrder}
+          class="grid h-7 w-7 place-items-center rounded border border-(--color-border) text-(--color-muted) hover:border-(--color-accent) hover:text-(--color-accent)"
+          title="Shuffle"
+        >
+          <Shuffle size={13} aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          onclick={() => void generateGames()}
+          disabled={generatingGames}
+          class="inline-flex h-7 items-center gap-1 rounded border border-(--color-border) px-2 text-xs font-bold text-(--color-muted) hover:border-(--color-accent) hover:text-(--color-accent) disabled:opacity-40"
+          title="Generate more"
+        >
+          <Sparkles size={12} aria-hidden="true" />
+          {generatingGames ? "…" : "Generate"}
+        </button>
+      </div>
     </div>
-  {:else if current}
-    <section class="max-w-xl mx-auto">
-      <div class="mb-4">
-        <div class="mb-2 flex flex-wrap items-center justify-between gap-3 text-sm text-(--color-muted)">
-          <span>{index + 1} / {games.length}</span>
-          <div class="flex flex-wrap items-center gap-2">
-            <label class="flex items-center gap-2">
-              <span>Type</span>
-              <select
-                bind:value={typeFilter}
-                onchange={() => {
-                  index = 0;
-                  resetAnswerState();
-                }}
-                class="rounded-md border border-(--color-border) bg-(--color-surface) px-2 py-1 text-sm text-(--color-text)"
-              >
-                <option value="all">All</option>
-                {#each gameTypes as type}
-                  <option value={type}>{label(type)}</option>
-                {/each}
-              </select>
-            </label>
-            <button
-              type="button"
-              onclick={() => void generateGames()}
-              disabled={generatingGames}
-              class="inline-flex items-center gap-1 rounded-md border border-(--color-border) px-2 py-1 text-sm text-(--color-text) hover:bg-(--color-surface-muted) disabled:opacity-50"
-            >
-              <Sparkles size={12} aria-hidden="true" />
-              {generatingGames ? "Generating..." : "Generate"}
-            </button>
-          </div>
-        </div>
-        {#if generateError}
-          <p class="mb-2 text-sm text-(--color-danger)">{generateError}</p>
-        {/if}
-        <div class="h-1 rounded-full bg-(--color-border) overflow-hidden">
-          <div
-            class="h-full rounded-full bg-(--color-accent) transition-[width]"
-            style="width: {progress}%"
-          ></div>
-        </div>
+
+    {#if games.length === 0}
+      <div class="flex flex-1 flex-col items-center justify-center gap-3 py-16 text-center">
+        <p class="text-sm text-(--color-muted)">No {label(typeFilter)} games yet.</p>
+        <button
+          type="button"
+          onclick={() => void generateGames()}
+          disabled={generatingGames}
+          class="inline-flex items-center gap-1.5 rounded-md bg-(--color-accent) px-3 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+        >
+          <Sparkles size={13} aria-hidden="true" />
+          {generatingGames ? "Generating…" : "Generate this type"}
+        </button>
       </div>
 
-      <article class="rounded-lg border border-(--color-border) bg-(--color-surface) p-5 shadow-sm">
-        <div class="mb-5 flex items-baseline justify-between gap-3">
-          <div>
-            <h2 class="text-xl font-semibold tracking-tight">
-              {current.title ?? label(current.type)}
-            </h2>
-            <p class="text-sm text-(--color-muted)">{label(current.type)}</p>
+    {:else if current}
+      <!-- Question area — flex-1, vertically centered -->
+      <div class="flex flex-1 flex-col items-center justify-center px-4 py-6 text-center">
+        <!-- Counter + type badge -->
+        <div class="mb-4 flex w-full max-w-xl items-center justify-between">
+          <div class="flex flex-col items-start gap-1">
+            <span class="inline-flex items-center rounded bg-(--color-accent)/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-(--color-accent)">
+              {label(current.type)}
+            </span>
+            <span class="text-[11px] font-bold text-(--color-muted)">{index + 1} / {games.length}</span>
           </div>
           {#if current.direction}
             <span class="text-xs text-(--color-muted)">{current.direction}</span>
           {/if}
         </div>
 
+        <!-- Passage (for reading comprehension) -->
         {#if current.passage}
-          <p class="mb-4 rounded-md bg-(--color-surface-muted) px-4 py-3 font-serif text-lg leading-relaxed">
+          <div class="mb-5 w-full max-w-xl rounded-lg border border-(--color-border) bg-(--color-surface-muted) px-5 py-4 text-left font-serif text-base leading-relaxed">
             {current.passage}
-          </p>
+          </div>
+          {#if current.question}
+            <p class="mb-2 w-full max-w-xl text-left text-base font-medium">{current.question}</p>
+          {/if}
         {/if}
-        {#if current.question}
-          <p class="mb-2 text-base font-medium">{current.question}</p>
-        {/if}
-        <p class="mb-5 text-lg">{current.prompt}</p>
 
+        <!-- Main prompt — large and prominent -->
+        <p class="max-w-xl text-balance font-bold leading-snug text-(--color-text)"
+           style="font-size: clamp(1.3rem, 4vw, 2rem);">
+          {current.prompt}
+        </p>
+      </div>
+
+      <!-- Answer + result area -->
+      <div class="flex-shrink-0 px-4 pb-3">
         <input
           type="text"
           bind:value={answer}
           disabled={checked || grading}
-          class="w-full rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-3 text-base focus:outline-none focus:border-(--color-accent) focus:ring-1 focus:ring-(--color-accent) disabled:bg-(--color-surface-muted)"
-          placeholder="Type your answer"
-          onkeydown={(event) => {
-            if (event.key === "Enter") {
-              event.preventDefault();
-              void checkAnswer();
-            }
+          class="w-full rounded-lg border border-(--color-border) bg-(--color-surface-muted) px-4 py-3 text-base focus:border-(--color-accent) focus:outline-none focus:ring-1 focus:ring-(--color-accent) disabled:opacity-60"
+          placeholder="Your answer…"
+          onkeydown={(e) => {
+            if (e.key !== "Enter") return;
+            e.preventDefault();
+            if (checked) move(1);
+            else void checkAnswer();
           }}
         />
 
         {#if grading}
-          <div class="mt-4 rounded-md bg-[#eff6ff] px-4 py-3 text-sm text-[#1d4ed8]">
-            Grading with AI...
+          <div class="mt-3 rounded-lg bg-[#eff6ff] px-4 py-3 text-sm text-[#1d4ed8]">
+            Grading with AI…
           </div>
         {:else if gradeError}
-          <div class="mt-4 rounded-md bg-[#fef2f2] px-4 py-3 text-sm text-(--color-danger)">
-            Grading failed: {gradeError}
+          <div class="mt-3 rounded-lg bg-[#fef2f2] px-4 py-3 text-sm text-(--color-danger)">
+            {gradeError}
           </div>
         {:else if checked && gradeResult}
-          <div
-            class="mt-4 rounded-md px-4 py-3 text-sm {gradeResult.accepted
-              ? 'bg-[#f0fdf4] text-[#15803d]'
-              : 'bg-[#fef2f2] text-(--color-danger)'}"
-          >
-            <p class="font-medium">{gradeResult.verdict === "correct" ? "Correct." : gradeResult.verdict === "almost" ? "Almost." : "Not quite."}</p>
+          {@const verdict = gradeResult.verdict}
+          <div class="mt-3 rounded-lg border px-4 py-3 text-sm
+            {verdict === 'correct'
+              ? 'border-[#17614f]/30 bg-[#17614f]/5 text-[#17614f]'
+              : verdict === 'almost'
+                ? 'border-[#a77716]/30 bg-[#a77716]/5 text-[#92400e]'
+                : 'border-[#a24f3f]/30 bg-[#a24f3f]/5 text-(--color-danger)'}">
+            <div class="mb-1 flex items-center gap-2">
+              <span class="text-base font-black">
+                {verdict === "correct" ? "✓" : verdict === "almost" ? "~" : "✗"}
+              </span>
+              <span class="font-bold">
+                {verdict === "correct" ? "Correct" : verdict === "almost" ? "Close" : "Not quite"}
+              </span>
+              <span class="ml-auto text-xs font-bold opacity-60">
+                {Math.round(gradeResult.score * 100)}%
+              </span>
+            </div>
             <p>{gradeResult.feedback}</p>
-            {#if !gradeResult.accepted && gradeResult.betterAnswer}
-              <p class="mt-2">Better answer: {gradeResult.betterAnswer}</p>
+            {#if gradeResult.betterAnswer}
+              <p class="mt-1.5 text-xs opacity-75"><strong>Target:</strong> {gradeResult.betterAnswer}</p>
             {/if}
             {#if gradeResult.greekCorrection?.tips?.length}
-              <p class="mt-2">{gradeResult.greekCorrection.correctedText}</p>
+              <p class="mt-2 text-xs opacity-80">{gradeResult.greekCorrection.correctedText}</p>
             {/if}
           </div>
         {/if}
+      </div>
 
-        {#if current.requiredWords?.length}
-          <p class="mt-4 text-xs text-(--color-muted)">
-            Words: {current.requiredWords.join(", ")}
-          </p>
-        {/if}
-      </article>
-
-      <div class="mt-4 flex items-center justify-between gap-2">
+      <!-- Nav bar pinned to bottom -->
+      <div class="flex flex-shrink-0 items-center justify-center gap-2 border-t border-(--color-border) px-4 py-3">
         <button
           type="button"
           onclick={() => move(-1)}
-          class="inline-flex items-center gap-1.5 rounded-md border border-(--color-border) px-4 py-2 text-sm hover:bg-(--color-surface-muted)"
+          class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-(--color-border) text-(--color-muted) hover:border-(--color-accent) hover:text-(--color-accent)"
+          title="Previous"
         >
-          <ChevronLeft size={14} aria-hidden="true" />
-          Previous
+          <ChevronLeft size={18} aria-hidden="true" />
         </button>
-        <div class="flex gap-2">
+        <button
+          type="button"
+          onclick={() => move(1)}
+          class="h-9 rounded-lg border border-(--color-border) px-4 text-sm font-bold text-(--color-muted) hover:border-(--color-accent) hover:text-(--color-accent)"
+        >
+          Skip
+        </button>
+        {#if checked}
           <button
             type="button"
-            onclick={skip}
-            class="rounded-md border border-(--color-border) px-4 py-2 text-sm hover:bg-(--color-surface-muted)"
+            onclick={() => move(1)}
+            class="inline-flex h-9 items-center gap-1.5 rounded-lg bg-(--color-accent) px-5 text-sm font-bold text-white shadow-sm hover:bg-(--color-accent-hover)"
           >
-            Skip
+            Next <ChevronRight size={15} aria-hidden="true" />
           </button>
-          {#if checked}
-            <button
-              type="button"
-              onclick={continuePractice}
-              class="inline-flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
-            >
-              {index < games.length - 1 ? "Continue" : "Restart"}
-              <ChevronRight size={14} aria-hidden="true" />
-            </button>
-          {:else}
-            <button
-              type="button"
-              onclick={() => void checkAnswer()}
-              disabled={!hasAnswer || grading}
-              class="inline-flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
-            >
-              <Check size={14} aria-hidden="true" />
-              {grading ? "Checking" : "Check"}
-            </button>
-          {/if}
-        </div>
+        {:else}
+          <button
+            type="button"
+            onclick={() => void checkAnswer()}
+            disabled={!hasAnswer || grading}
+            class="inline-flex h-9 items-center gap-1.5 rounded-lg bg-(--color-accent) px-5 text-sm font-bold text-white shadow-sm hover:bg-(--color-accent-hover) disabled:opacity-40"
+          >
+            <Check size={15} aria-hidden="true" />
+            {grading ? "Checking…" : "Check"}
+          </button>
+        {/if}
+        <button
+          type="button"
+          onclick={() => move(1)}
+          class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-(--color-border) text-(--color-muted) hover:border-(--color-accent) hover:text-(--color-accent)"
+          title="Next"
+        >
+          <ChevronRight size={18} aria-hidden="true" />
+        </button>
       </div>
-    </section>
+
+      {#if generateError}
+        <p class="pb-2 text-center text-xs text-(--color-danger)">{generateError}</p>
+      {/if}
+    {/if}
   {/if}
 </div>
