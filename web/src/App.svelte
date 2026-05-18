@@ -8,7 +8,11 @@
   import Lesson from "./routes/Lesson.svelte";
   import Plan from "./routes/Plan.svelte";
   import AdminAI from "./routes/AdminAI.svelte";
+  import AdminHome from "./routes/AdminHome.svelte";
+  import AdminGenerations from "./routes/AdminGenerations.svelte";
+  import AdminGenerationDetail from "./routes/AdminGenerationDetail.svelte";
   import Breadcrumb from "./lib/ui/Breadcrumb.svelte";
+  import YiayiaPanel from "./lib/YiayiaPanel.svelte";
   import type { Crumb } from "./lib/ui/Breadcrumb.svelte";
 
   // Route matching — recomputed reactively when route.pathname changes.
@@ -17,7 +21,12 @@
     let m: RegExpMatchArray | null;
 
     if (p === "/" || p === "") return { kind: "home" as const };
+    if (p === "/admin" || p === "/admin/") return { kind: "admin-home" as const };
     if (p === "/admin/ai") return { kind: "admin-ai" as const };
+    if (p === "/admin/generations") return { kind: "admin-generations" as const };
+
+    m = p.match(/^\/admin\/generations\/([^/]+)$/);
+    if (m) return { kind: "admin-generation-detail" as const, generationId: m[1] };
 
     m = p.match(/^\/c\/([^/]+)$/);
     if (m) return { kind: "course" as const, courseId: m[1] };
@@ -38,13 +47,6 @@
     if (m) return { kind: "lesson" as const, courseId: m[1], lessonId: m[2], tab: m[3] };
 
     return { kind: "notfound" as const };
-  });
-
-  // If we land on /c/X/l/Y with no tab segment, default to /overview.
-  $effect(() => {
-    if (match.kind === "lesson-redirect") {
-      navigate(`/c/${match.courseId}/l/${match.lessonId}/overview`, { replace: true });
-    }
   });
 
   // Breadcrumb labels — subscribe based on route, cleaning up when the
@@ -87,6 +89,14 @@
     return () => next.stop();
   });
 
+  // If we land on /c/X/l/Y with no tab segment, pick the useful default
+  // after the lesson snapshot arrives.
+  $effect(() => {
+    if (match.kind !== "lesson-redirect" || !lessonSub?.lesson) return;
+    const targetTab = (lessonSub.lesson.counts?.entries ?? 0) > 0 ? "vocab" : "overview";
+    navigate(`/c/${match.courseId}/l/${match.lessonId}/${targetTab}`, { replace: true });
+  });
+
   onDestroy(() => {
     courseSub?.stop();
     lessonSub?.stop();
@@ -95,8 +105,21 @@
   const crumbs = $derived.by<Crumb[]>(() => {
     const m = match;
     const list: Crumb[] = [{ label: "Courses", href: "/" }];
+    if (m.kind === "admin-home") {
+      return [{ label: "Admin" }];
+    }
     if (m.kind === "admin-ai") {
-      return [{ label: "Admin" }, { label: "AI" }];
+      return [{ label: "Admin", href: "/admin" }, { label: "AI" }];
+    }
+    if (m.kind === "admin-generations") {
+      return [{ label: "Admin", href: "/admin" }, { label: "Generations" }];
+    }
+    if (m.kind === "admin-generation-detail") {
+      return [
+        { label: "Admin", href: "/admin" },
+        { label: "Generations", href: "/admin/generations" },
+        { label: "Detail" },
+      ];
     }
     if (
       m.kind === "course" ||
@@ -120,6 +143,43 @@
       list.push({ label: "Plan" });
     }
     return list;
+  });
+
+  let yiayiaOpen = $state(false);
+  function isTypingTarget(target: EventTarget | null) {
+    return (
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement ||
+      target instanceof HTMLSelectElement ||
+      (target instanceof HTMLElement && target.isContentEditable)
+    );
+  }
+
+  $effect(() => {
+    function onKeydown(event: KeyboardEvent) {
+      if (isTypingTarget(event.target)) return;
+      if (event.key === "y" || event.key === "Y") {
+        yiayiaOpen = true;
+      } else if (event.key === "Escape") {
+        yiayiaOpen = false;
+      }
+    }
+    window.addEventListener("keydown", onKeydown);
+    return () => window.removeEventListener("keydown", onKeydown);
+  });
+
+  const yiayiaContext = $derived.by(() => {
+    const m = match;
+    if (m.kind === "lesson") {
+      return { courseId: m.courseId, lessonId: m.lessonId, tab: m.tab };
+    }
+    if (m.kind === "plan") {
+      return { courseId: m.courseId, lessonId: m.lessonId, planId: m.planId, tab: "plans" };
+    }
+    if (m.kind === "course") {
+      return { courseId: m.courseId };
+    }
+    return {};
   });
 </script>
 
@@ -147,11 +207,11 @@
       {/if}
       <span class="grow"></span>
       <a
-        href="/admin/ai"
+        href="/admin"
         onclick={(e) => {
           if (e.metaKey || e.ctrlKey || e.shiftKey) return;
           e.preventDefault();
-          navigate("/admin/ai");
+          navigate("/admin");
         }}
         class="text-sm text-(--color-muted) hover:text-(--color-text)"
       >
@@ -160,8 +220,8 @@
       <button
         type="button"
         class="text-sm text-(--color-muted) hover:text-(--color-text)"
-        title="Yiayia (coming soon)"
-        disabled
+        title="Yiayia"
+        onclick={() => (yiayiaOpen = true)}
       >
         Yiayia
       </button>
@@ -177,8 +237,14 @@
       <Lesson courseId={match.courseId} lessonId={match.lessonId} tab={match.tab} />
     {:else if match.kind === "plan"}
       <Plan courseId={match.courseId} lessonId={match.lessonId} planId={match.planId} />
+    {:else if match.kind === "admin-home"}
+      <AdminHome />
     {:else if match.kind === "admin-ai"}
       <AdminAI />
+    {:else if match.kind === "admin-generations"}
+      <AdminGenerations />
+    {:else if match.kind === "admin-generation-detail"}
+      <AdminGenerationDetail generationId={match.generationId} />
     {:else if match.kind === "notfound"}
       <div class="max-w-3xl mx-auto pt-24 px-6">
         <h1 class="text-2xl font-semibold">Not found</h1>
@@ -194,4 +260,13 @@
       </div>
     {/if}
   </main>
+  <YiayiaPanel
+    open={yiayiaOpen}
+    courseId={yiayiaContext.courseId}
+    lessonId={yiayiaContext.lessonId}
+    planId={yiayiaContext.planId}
+    tab={yiayiaContext.tab}
+    pathname={route.pathname}
+    onClose={() => (yiayiaOpen = false)}
+  />
 </div>

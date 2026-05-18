@@ -1,22 +1,31 @@
 <script lang="ts">
-  import { subscribeEntries } from "../../lib/data/lessons.svelte";
+  import { createVocabBatch } from "../../lib/data/createVocabBatch";
+  import { aiAssistVocabEntry } from "../../lib/data/vocabAssist";
+  import { subscribeEntries, subscribeLatestVocabBatches } from "../../lib/data/lessons.svelte";
   import type { EntryDoc } from "../../lib/data/lessons.svelte";
   import {
     imageFromPexels,
     saveEntryEdit,
     searchPexelsImages,
   } from "../../lib/data/entryEdits";
+  import { retryVocabBatchGeneration } from "../../lib/data/retryGeneration";
   import type { PexelsPhoto } from "../../lib/data/entryEdits";
   import GreekText from "../../lib/ui/GreekText.svelte";
 
   let { courseId, lessonId }: { courseId: string; lessonId: string } = $props();
 
   let sub = $state<ReturnType<typeof subscribeEntries>>();
+  let batchSub = $state<ReturnType<typeof subscribeLatestVocabBatches>>();
 
   $effect(() => {
     const next = subscribeEntries(courseId, lessonId);
+    const nextBatch = subscribeLatestVocabBatches(courseId, lessonId);
     sub = next;
-    return () => next.stop();
+    batchSub = nextBatch;
+    return () => {
+      next.stop();
+      nextBatch.stop();
+    };
   });
 
   let search = $state("");
@@ -33,6 +42,12 @@
   let pexelsResults = $state<PexelsPhoto[]>([]);
   let pexelsLoading = $state(false);
   let pexelsError = $state<string | null>(null);
+  let vocabPrompt = $state("");
+  let generatingVocab = $state(false);
+  let vocabError = $state<string | null>(null);
+  let assistPrompt = $state("Improve these definitions for a learner.");
+  let assisting = $state(false);
+  let assistError = $state<string | null>(null);
 
   const filtered = $derived(
     search.trim() === ""
@@ -46,6 +61,9 @@
           );
         })
   );
+  const latestBatch = $derived(batchSub?.latest ?? null);
+  const batchRunning = $derived(latestBatch?.status === "initializing" || latestBatch?.status === "streaming");
+  const batchMessages = $derived((latestBatch?.statusLog ?? []).slice(-4));
 
   function openEdit(entry: EntryDoc) {
     editing = entry;
@@ -56,6 +74,8 @@
     pexelsOpen = false;
     pexelsResults = [];
     pexelsError = null;
+    assistPrompt = "Improve these definitions for a learner.";
+    assistError = null;
   }
 
   function closeEdit() {
@@ -113,15 +133,121 @@
     pexelsOpen = true;
     searchImages();
   }
+
+  async function generateVocab() {
+    generatingVocab = true;
+    vocabError = null;
+    try {
+      await createVocabBatch({
+        courseId,
+        lessonId,
+        prompt: vocabPrompt,
+        count: 20,
+      });
+      vocabPrompt = "";
+    } catch (err) {
+      vocabError = err instanceof Error ? err.message : String(err);
+    } finally {
+      generatingVocab = false;
+    }
+  }
+
+  async function assistDefinitions() {
+    if (!editing || assisting) return;
+    assisting = true;
+    assistError = null;
+    try {
+      const senses = await aiAssistVocabEntry({
+        entry: editing,
+        prompt: assistPrompt,
+        currentSenses: draftSenses.filter((sense) => sense.trim()),
+      });
+      draftSenses = senses.length ? senses : draftSenses;
+      draftEnglish = draftSenses[0] ?? draftEnglish;
+      scheduleSave(0);
+    } catch (err) {
+      assistError = err instanceof Error ? err.message : String(err);
+    } finally {
+      assisting = false;
+    }
+  }
 </script>
 
 <div>
-  <input
-    type="search"
-    placeholder="Search vocabulary…"
-    bind:value={search}
-    class="w-full max-w-sm px-3 py-2 text-sm border border-(--color-border) rounded-md bg-(--color-surface) focus:outline-none focus:border-(--color-accent) focus:ring-1 focus:ring-(--color-accent) mb-6"
-  />
+  <div class="mb-6 space-y-3">
+    <div class="flex flex-col gap-2 sm:flex-row">
+      <input
+        type="search"
+        placeholder="Search vocabulary..."
+        bind:value={search}
+        class="min-w-0 flex-1 px-3 py-2 text-sm border border-(--color-border) rounded-md bg-(--color-surface) focus:outline-none focus:border-(--color-accent) focus:ring-1 focus:ring-(--color-accent)"
+      />
+    </div>
+    <form
+      class="rounded-lg border border-(--color-border) bg-(--color-surface) p-3"
+      onsubmit={(event) => {
+        event.preventDefault();
+        void generateVocab();
+      }}
+    >
+      <div class="flex flex-col gap-2 sm:flex-row">
+        <input
+          type="text"
+          bind:value={vocabPrompt}
+          placeholder="Generate more vocab: cafe ordering, prices, polite phrases..."
+          class="min-w-0 flex-1 rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:outline-none focus:border-(--color-accent) focus:ring-1 focus:ring-(--color-accent)"
+        />
+        <button
+          type="submit"
+          disabled={generatingVocab || vocabPrompt.trim().length === 0}
+          class="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+        >
+          {generatingVocab ? "Generating..." : "Generate vocab"}
+        </button>
+      </div>
+      {#if vocabError}
+        <p class="mt-2 text-sm text-(--color-danger)">{vocabError}</p>
+      {/if}
+      {#if latestBatch}
+        <div
+          class="mt-3 rounded-md border px-3 py-2 text-sm {latestBatch.status === 'error'
+            ? 'border-[#fecaca] bg-[#fef2f2] text-(--color-danger)'
+            : batchRunning
+              ? 'border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]'
+              : 'border-[#bbf7d0] bg-[#f0fdf4] text-[#15803d]'}"
+        >
+          <div class="flex items-center justify-between gap-3">
+            <span class="font-medium">
+              {latestBatch.status === "error"
+                ? "Vocabulary generation failed"
+                : batchRunning
+                  ? "Vocabulary generation running"
+                  : "Vocabulary generation complete"}
+            </span>
+            <span class="text-xs uppercase tracking-wide opacity-75">{latestBatch.status}</span>
+          </div>
+          {#if latestBatch.error}
+            <p class="mt-1">{latestBatch.error}</p>
+          {:else if batchMessages.length}
+            <ul class="mt-1 space-y-0.5">
+              {#each batchMessages as item}
+                <li>{item.message}</li>
+              {/each}
+            </ul>
+          {/if}
+          {#if latestBatch.status === "error"}
+            <button
+              type="button"
+              onclick={() => void retryVocabBatchGeneration(courseId, lessonId, latestBatch.id)}
+              class="mt-2 rounded-md border border-current px-2 py-1 text-xs font-medium"
+            >
+              Try again
+            </button>
+          {/if}
+        </div>
+      {/if}
+    </form>
+  </div>
 
   {#if !sub || sub.loading}
     <p class="text-(--color-muted)">Loading entries…</p>
@@ -250,6 +376,28 @@
                 </div>
               {/each}
             </div>
+          </div>
+
+          <div class="rounded-md border border-(--color-border) bg-(--color-surface-muted) p-3">
+            <label class="block">
+              <span class="mb-1 block text-sm font-medium">AI definition assist</span>
+              <input
+                type="text"
+                bind:value={assistPrompt}
+                class="w-full rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm"
+              />
+            </label>
+            <button
+              type="button"
+              onclick={() => void assistDefinitions()}
+              disabled={assisting || !assistPrompt.trim()}
+              class="mt-2 rounded-md bg-(--color-accent) px-3 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+            >
+              {assisting ? "Asking AI..." : "Update meanings"}
+            </button>
+            {#if assistError}
+              <p class="mt-2 text-sm text-(--color-danger)">{assistError}</p>
+            {/if}
           </div>
 
           <div>

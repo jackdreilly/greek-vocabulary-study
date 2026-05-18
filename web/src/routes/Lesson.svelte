@@ -6,6 +6,8 @@
   import OverviewTab from "./lesson/OverviewTab.svelte";
   import PlansTab from "./lesson/PlansTab.svelte";
   import GamesTab from "./lesson/GamesTab.svelte";
+  import StatusPill from "../lib/ui/StatusPill.svelte";
+  import { retryLessonGeneration } from "../lib/data/retryGeneration";
 
   let { courseId, lessonId, tab }: { courseId: string; lessonId: string; tab: string } = $props();
 
@@ -37,9 +39,45 @@
     <p class="text-(--color-danger)">Lesson not found.</p>
   {:else}
     <header class="mb-6">
-      <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight">{sub.lesson.title}</h1>
+      <div class="flex items-start justify-between gap-4">
+        <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight">{sub.lesson.title}</h1>
+        {#if sub.lesson.status && sub.lesson.status !== "ready"}
+          <StatusPill status={sub.lesson.status} />
+        {/if}
+      </div>
       {#if sub.lesson.subtitle}
         <p class="mt-2 text-(--color-muted)">{sub.lesson.subtitle}</p>
+      {/if}
+      {#if sub.lesson.status && sub.lesson.status !== "ready"}
+        <div
+          class="mt-4 rounded-md border px-4 py-3 text-sm {sub.lesson.status === 'error'
+            ? 'border-[#fecaca] bg-[#fef2f2] text-(--color-danger)'
+            : 'border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]'}"
+        >
+          {#if sub.lesson.statusLog?.length}
+            <ol class="space-y-1">
+              {#each sub.lesson.statusLog.slice(-5) as item}
+                <li>{item.message}</li>
+              {/each}
+            </ol>
+          {:else}
+            Generating lesson...
+          {/if}
+          {#if sub.lesson.status === "error"}
+            <button
+              type="button"
+              onclick={() => void retryLessonGeneration(courseId, lessonId)}
+              class="mt-3 rounded-md border border-current px-3 py-2 text-sm font-medium"
+            >
+              Try again
+            </button>
+          {/if}
+        </div>
+      {/if}
+      {#if sub.lesson.error}
+        <p class="mt-3 rounded-md bg-[#fef2f2] px-4 py-3 text-sm text-(--color-danger)">
+          {sub.lesson.error}
+        </p>
       {/if}
     </header>
 

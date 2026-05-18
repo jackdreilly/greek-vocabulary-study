@@ -2,6 +2,7 @@
   import { doc, onSnapshot } from "firebase/firestore";
   import type { DocumentData } from "firebase/firestore";
   import { db } from "../lib/firebase";
+  import { retryPlanGeneration } from "../lib/data/retryGeneration";
   import { linkClick } from "../lib/router.svelte";
   import WidgetRenderer from "../lib/widgets/WidgetRenderer.svelte";
 
@@ -64,7 +65,43 @@
       {#if plan.subtitle}
         <p class="mt-2 text-(--color-muted)">{plan.subtitle}</p>
       {/if}
+      {#if plan.status && plan.status !== "ready"}
+        <div
+          class="mt-4 rounded-md border px-4 py-3 text-sm {plan.status === 'error'
+            ? 'border-[#fecaca] bg-[#fef2f2] text-(--color-danger)'
+            : 'border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]'}"
+        >
+          <p class="font-medium capitalize">{plan.status}</p>
+          {#if plan.statusLog?.length}
+            <ol class="mt-1 space-y-1">
+              {#each plan.statusLog.slice(-5) as item}
+                <li>{item.message}</li>
+              {/each}
+            </ol>
+          {/if}
+          {#if plan.status === "error"}
+            <button
+              type="button"
+              onclick={() => void retryPlanGeneration(courseId, lessonId, planId)}
+              class="mt-3 rounded-md border border-current px-3 py-2 text-sm font-medium"
+            >
+              Try again
+            </button>
+          {/if}
+        </div>
+      {/if}
+      {#if plan.error}
+        <p class="mt-3 rounded-md bg-[#fef2f2] px-4 py-3 text-sm text-(--color-danger)">
+          {plan.error}
+        </p>
+      {/if}
     </header>
+
+    {#if (plan.widgets ?? []).length === 0 && plan.status !== "error"}
+      <div class="rounded-lg border border-dashed border-(--color-border) px-5 py-10 text-center text-sm text-(--color-muted)">
+        Sections will appear here as they are generated.
+      </div>
+    {/if}
 
     <article>
       {#each plan.widgets ?? [] as widget, i}

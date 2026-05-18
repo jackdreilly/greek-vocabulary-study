@@ -18,6 +18,7 @@
 
   const rootEl = $derived(root?.el ?? rootGreek);
   const rootEn = $derived(root?.en ?? rootGloss ?? rootEnglish);
+  const visibleBranches = $derived(branches.filter((branch) => branch && (branch.el || branch.greek)));
 </script>
 
 <section class="my-6">
@@ -30,7 +31,7 @@
     </div>
   {/if}
   <ul class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-    {#each branches as b}
+    {#each visibleBranches as b}
       <li class="border border-(--color-border) rounded-md px-3 py-2 bg-(--color-surface)">
         <div class="flex items-baseline justify-between gap-2">
           <GreekText>{b.el ?? b.greek}</GreekText>

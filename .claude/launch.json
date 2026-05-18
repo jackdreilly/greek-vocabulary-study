@@ -3,9 +3,12 @@
   "configurations": [
     {
       "name": "greekflash-web",
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--filter", "./web", "dev"],
-      "port": 5173
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "VITE_USE_FIRESTORE_EMULATOR=1 pnpm --filter ./web exec vite --host --port 5174 --strictPort"
+      ],
+      "port": 5174
     }
   ]
 }

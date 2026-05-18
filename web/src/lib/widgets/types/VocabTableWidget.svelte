@@ -4,6 +4,8 @@
   type Row = { el?: string; en?: string; greek?: string; english?: string; article?: string; example?: string };
   let { rows, vocabEntries, title }: { rows?: Row[]; vocabEntries?: Row[]; title?: string } = $props();
   const items = $derived(rows ?? vocabEntries ?? []);
+  const showArticle = (article?: string) =>
+    Boolean(article && !["n/a", "none", "-"].includes(article.trim().toLowerCase()));
 </script>
 
 {#if title}
@@ -14,7 +16,7 @@
     <li class="py-3">
       <div class="flex items-baseline justify-between gap-4">
         <div class="flex items-baseline gap-2">
-          {#if row.article}
+          {#if showArticle(row.article)}
             <span class="text-sm text-(--color-muted)">{row.article}</span>
           {/if}
           <GreekText>{row.el ?? row.greek}</GreekText>

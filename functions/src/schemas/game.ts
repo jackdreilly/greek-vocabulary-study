@@ -34,3 +34,31 @@ export const GameSchema = z.object({
   createdAt: TimestampSchema,
 });
 export type Game = z.infer<typeof GameSchema>;
+
+export const GameScoreVerdictSchema = z.enum(["correct", "almost", "incorrect"]);
+export type GameScoreVerdict = z.infer<typeof GameScoreVerdictSchema>;
+
+export const GreekCorrectionSchema = z
+  .object({
+    correctedText: z.string(),
+    tips: z.array(
+      z.object({
+        type: z.enum(["spelling", "grammar", "accent", "vocabulary", "word_order"]),
+        original: z.string(),
+        corrected: z.string(),
+        explanation: z.string(),
+      }),
+    ),
+  })
+  .nullable();
+
+export const GameScoreResultSchema = z.object({
+  accepted: z.boolean(),
+  score: z.number().min(0).max(1),
+  verdict: GameScoreVerdictSchema,
+  feedback: z.string(),
+  betterAnswer: z.string(),
+  shortReason: z.string(),
+  greekCorrection: GreekCorrectionSchema,
+});
+export type GameScoreResult = z.infer<typeof GameScoreResultSchema>;

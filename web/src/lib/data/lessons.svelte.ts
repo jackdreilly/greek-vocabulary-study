@@ -1,7 +1,7 @@
 /**
  * Reactive subscriptions to a lesson document and its entries.
  */
-import { collection, doc, onSnapshot, orderBy, query } from "firebase/firestore";
+import { collection, doc, limit, onSnapshot, orderBy, query } from "firebase/firestore";
 import type { DocumentData } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -51,6 +51,18 @@ export type GameDoc = DocumentData & {
   question?: string;
   rubric?: string;
   createdAt?: unknown;
+};
+
+export type LessonBatchDoc = DocumentData & {
+  id: string;
+  courseId: string;
+  lessonId: string;
+  status: "initializing" | "streaming" | "ready" | "error" | string;
+  statusLog?: Array<{ message?: string; source?: string; at?: unknown }>;
+  error?: string;
+  generationId?: string;
+  createdAt?: unknown;
+  updatedAt?: unknown;
 };
 
 export function subscribeLesson(courseId: string, lessonId: string) {
@@ -152,4 +164,51 @@ export function subscribeGames(courseId: string, lessonId: string) {
     },
     stop: unsubscribe,
   };
+}
+
+function subscribeRecentLessonBatches(courseId: string, lessonId: string, collectionName: string) {
+  let batches = $state<LessonBatchDoc[]>([]);
+  let loading = $state(true);
+  let error = $state<Error | null>(null);
+
+  const q = query(
+    collection(db, "courses", courseId, "lessons", lessonId, collectionName),
+    orderBy("createdAt", "desc"),
+    limit(5)
+  );
+  const unsubscribe = onSnapshot(
+    q,
+    (snap) => {
+      batches = snap.docs.map((d) => ({ id: d.id, ...(d.data() as DocumentData) } as LessonBatchDoc));
+      loading = false;
+    },
+    (err) => {
+      error = err;
+      loading = false;
+    }
+  );
+
+  return {
+    get batches() {
+      return batches;
+    },
+    get latest() {
+      return batches[0] ?? null;
+    },
+    get loading() {
+      return loading;
+    },
+    get error() {
+      return error;
+    },
+    stop: unsubscribe,
+  };
+}
+
+export function subscribeLatestVocabBatches(courseId: string, lessonId: string) {
+  return subscribeRecentLessonBatches(courseId, lessonId, "vocabBatches");
+}
+
+export function subscribeLatestGameBatches(courseId: string, lessonId: string) {
+  return subscribeRecentLessonBatches(courseId, lessonId, "gameBatches");
 }

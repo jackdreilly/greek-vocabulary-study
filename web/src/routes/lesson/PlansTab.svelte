@@ -1,10 +1,15 @@
 <script lang="ts">
+  import { createPlanStub } from "../../lib/data/createPlan";
   import { subscribePlans } from "../../lib/data/plans.svelte";
+  import { navigate } from "../../lib/router.svelte";
   import { linkClick } from "../../lib/router.svelte";
 
   let { courseId, lessonId }: { courseId: string; lessonId: string } = $props();
 
   let sub = $state<ReturnType<typeof subscribePlans>>();
+  let customFocus = $state("");
+  let creating = $state(false);
+  let createError = $state("");
 
   $effect(() => {
     const next = subscribePlans(courseId, lessonId);
@@ -12,6 +17,25 @@
     return () => next.stop();
   });
 
+  async function generatePlan() {
+    if (creating) return;
+    creating = true;
+    createError = "";
+    try {
+      const planId = await createPlanStub({
+        courseId,
+        lessonId,
+        existingPlans: sub?.plans ?? [],
+        customFocus,
+      });
+      customFocus = "";
+      navigate(`/c/${courseId}/l/${lessonId}/plans/${planId}`);
+    } catch (err) {
+      createError = err instanceof Error ? err.message : String(err);
+    } finally {
+      creating = false;
+    }
+  }
 </script>
 
 <div>
@@ -20,12 +44,65 @@
   {:else if sub.error}
     <p class="text-(--color-danger)">Failed to load plans: {sub.error.message}</p>
   {:else if sub.plans.length === 0}
-    <div class="text-center py-16 border border-dashed border-(--color-border) rounded-lg">
+    <div class="py-12 border border-dashed border-(--color-border) rounded-lg px-4">
       <p class="text-(--color-muted) text-sm">
         No plans for this lesson yet.
       </p>
+      <div class="mt-4 flex flex-col gap-2 sm:flex-row">
+        <input
+          type="text"
+          bind:value={customFocus}
+          placeholder="Optional focus for the first plan"
+          class="min-w-0 flex-1 rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:outline-none focus:border-(--color-accent) focus:ring-1 focus:ring-(--color-accent)"
+          onkeydown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              void generatePlan();
+            }
+          }}
+        />
+        <button
+          type="button"
+          onclick={() => void generatePlan()}
+          disabled={creating}
+          class="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+        >
+          {creating ? "Generating..." : "Generate plan"}
+        </button>
+      </div>
+      {#if createError}
+        <p class="mt-2 text-sm text-(--color-danger)">{createError}</p>
+      {/if}
     </div>
   {:else}
+    <div class="mb-5 rounded-lg border border-(--color-border) bg-(--color-surface) p-3">
+      <div class="flex flex-col gap-2 sm:flex-row">
+        <input
+          type="text"
+          bind:value={customFocus}
+          placeholder="Optional focus for the next plan"
+          class="min-w-0 flex-1 rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:outline-none focus:border-(--color-accent) focus:ring-1 focus:ring-(--color-accent)"
+          onkeydown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              void generatePlan();
+            }
+          }}
+        />
+        <button
+          type="button"
+          onclick={() => void generatePlan()}
+          disabled={creating}
+          class="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+        >
+          {creating ? "Generating..." : "Generate plan"}
+        </button>
+      </div>
+      {#if createError}
+        <p class="mt-2 text-sm text-(--color-danger)">{createError}</p>
+      {/if}
+    </div>
+
     <ul class="space-y-3">
       {#each sub.plans as plan (plan.id)}
         {@const href = `/c/${courseId}/l/${lessonId}/plans/${plan.id}`}
@@ -44,6 +121,11 @@
                 {#if plan.estimatedMinutes}· {plan.estimatedMinutes} min{/if}
               </span>
             </div>
+            {#if plan.status && plan.status !== "ready"}
+              <p class="mt-2 text-xs font-medium uppercase tracking-widest text-(--color-accent)">
+                {plan.status}
+              </p>
+            {/if}
             {#if plan.subtitle}
               <p class="text-sm text-(--color-muted) mt-1">{plan.subtitle}</p>
             {/if}

@@ -1,7 +1,9 @@
 import { getFirestore, FieldValue, Timestamp } from "firebase-admin/firestore";
 import { logger } from "firebase-functions";
 import { onDocumentWritten } from "firebase-functions/v2/firestore";
-import { getModelFor } from "../ai/configResolver.js";
+import { z } from "genkit";
+import { getDecodingFor, getModelFor } from "../ai/configResolver.js";
+import { geminiApiKey, getAI } from "../ai/genkitClient.js";
 
 type DebugEntry = {
   id: string;
@@ -20,6 +22,56 @@ type DebugLesson = {
   description: string;
   entries: DebugEntry[];
 };
+
+const CourseOutlineSchema = z.object({
+  title: z.string(),
+  subtitle: z.string().optional(),
+  description: z.string(),
+  lessons: z.array(
+    z.object({
+      id: z.string().optional(),
+      title: z.string(),
+      subtitle: z.string().optional(),
+      description: z.string(),
+      sourcePrompt: z.string(),
+      targetEntryCount: z.number().int().min(12).max(60).optional(),
+    }),
+  ).min(2).max(8),
+});
+
+const generateCourseFlow = getAI().defineFlow(
+  {
+    name: "generateCourseOutline",
+    inputSchema: z.object({ sourcePrompt: z.string() }),
+    outputSchema: CourseOutlineSchema,
+  },
+  async ({ sourcePrompt }) => {
+    const model = await getModelFor("courseGen");
+    const decoding = await getDecodingFor("courseGen");
+    const { output } = await getAI().generate({
+      model,
+      output: { schema: CourseOutlineSchema },
+      config: {
+        maxOutputTokens: 5000,
+        ...decoding,
+      },
+      system:
+        "You are a Modern Greek curriculum designer. Create concise course outlines as strict JSON. Lessons should be specific, practical, and vocabulary-rich.",
+      prompt: `Design a Modern Greek vocabulary course from this request:
+${sourcePrompt}
+
+Return:
+- a clear course title, subtitle, and 250-450 word markdown description
+- 3-6 lessons ordered from easier/foundational to richer/contextual
+- each lesson needs a focused sourcePrompt that can independently generate vocabulary
+- each lesson targetEntryCount should usually be 24-36
+
+Do not include admin notes or implementation details.`,
+    });
+    if (!output) throw new Error("Course generation returned no output.");
+    return output;
+  },
+);
 
 const DEBUG_LESSONS: DebugLesson[] = [
   {
@@ -69,6 +121,17 @@ async function appendStatus(path: string, message: string) {
 
 function isDebugPrompt(prompt: string) {
   return /\b(debug|test|testing)\b/i.test(prompt);
+}
+
+function slug(input: string, fallback: string) {
+  const value = input
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 48);
+  return value || fallback;
 }
 
 function lessonSummary(lesson: DebugLesson) {
@@ -300,7 +363,94 @@ async function generateDebugCourse(courseId: string, sourcePrompt: string, event
   await batch.commit();
 }
 
-export const onCourseWritten = onDocumentWritten("courses/{courseId}", async (event) => {
+async function generateAICourse(courseId: string, sourcePrompt: string, eventId: string) {
+  const db = getFirestore();
+  const coursePath = `courses/${courseId}`;
+  const courseRef = db.doc(coursePath);
+  const generationId = `gen_course_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+  const startedAt = Date.now();
+  const modelUsed = await getModelFor("courseGen");
+
+  await db.doc(`generations/${generationId}`).set({
+    id: generationId,
+    kind: "course",
+    parentDoc: coursePath,
+    sourcePrompt,
+    trigger: {
+      kind: "user_action",
+      description: `Course generation: "${sourcePrompt.slice(0, 80)}"`,
+    },
+    status: "streaming",
+    statusLog: [logEntry("Course generation started.")],
+    modelUsed,
+    manifest: [{ path: coursePath, action: "update" }],
+    createdAt: Timestamp.now(),
+  });
+
+  await appendStatus(coursePath, "Designing course outline.");
+  const outline = await generateCourseFlow({ sourcePrompt });
+  await appendStatus(coursePath, "Writing lesson stubs.");
+
+  const lessonSummaries: Record<string, unknown> = {};
+  const batch = db.batch();
+  const manifest: Array<{ path: string; action: "create" | "update" }> = [{ path: coursePath, action: "update" }];
+
+  outline.lessons.forEach((lesson, index) => {
+    const id = slug(lesson.id || lesson.title, `lesson-${index + 1}`);
+    const lessonPath = `${coursePath}/lessons/${id}`;
+    manifest.push({ path: lessonPath, action: "create" });
+    lessonSummaries[id] = {
+      title: lesson.title,
+      subtitle: lesson.subtitle ?? "",
+      order: index + 1,
+      status: "initializing",
+      entryCount: 0,
+      planCount: 0,
+      gameCount: 0,
+    };
+    batch.set(db.doc(lessonPath), {
+      id,
+      courseId,
+      title: lesson.title,
+      subtitle: lesson.subtitle ?? "",
+      description: lesson.description,
+      sourcePrompt: lesson.sourcePrompt,
+      targetEntryCount: lesson.targetEntryCount,
+      order: index + 1,
+      status: "initializing",
+      statusLog: [logEntry("Lesson request received from course generation.")],
+      parentGenerationId: generationId,
+      counts: { entries: 0, plans: 0, games: 0 },
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    });
+  });
+
+  batch.update(courseRef, {
+    title: outline.title,
+    subtitle: outline.subtitle ?? "",
+    description: outline.description,
+    status: "ready",
+    statusLog: FieldValue.arrayUnion(logEntry("Course outline complete. Lesson vocabulary is generating.")),
+    generationId,
+    generationHistory: FieldValue.arrayUnion(generationId),
+    handledEventIds: FieldValue.arrayUnion(eventId),
+    lessonSummaries,
+    counts: { lessons: outline.lessons.length, entries: 0, plans: 0, games: 0 },
+    updatedAt: Timestamp.now(),
+  });
+  batch.update(db.doc(`generations/${generationId}`), {
+    status: "done",
+    manifest,
+    completedAt: Timestamp.now(),
+    latencyMs: Date.now() - startedAt,
+    statusLog: FieldValue.arrayUnion(logEntry("Course outline generation complete.")),
+  });
+
+  await batch.commit();
+}
+
+export const onCourseWritten = onDocumentWritten({ document: "courses/{courseId}", secrets: [geminiApiKey] }, async (event) => {
   const after = event.data?.after;
   if (!after?.exists) return;
 
@@ -334,14 +484,7 @@ export const onCourseWritten = onDocumentWritten("courses/{courseId}", async (ev
       return;
     }
 
-    await courseRef.update({
-      status: "error",
-      error:
-        "Only debug/test course generation is wired in this slice. Include 'debug' or 'test' in the prompt.",
-      statusLog: FieldValue.arrayUnion(logEntry("Course generation stopped: AI flow is not wired yet.")),
-      handledEventIds: FieldValue.arrayUnion(eventId),
-      updatedAt: Timestamp.now(),
-    });
+    await generateAICourse(courseId, sourcePrompt, eventId);
   } catch (err) {
     logger.error("onCourseWritten failed", err);
     await courseRef.update({

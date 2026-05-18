@@ -28,3 +28,11 @@ export const ping = onRequest({ cors: true }, (_req, res) => {
 
 export { onAIConfigWritten } from "./triggers/onAIConfigWritten.js";
 export { onCourseWritten } from "./triggers/onCourseWritten.js";
+export { onGameBatchWritten } from "./triggers/onGameBatchWritten.js";
+export { onLessonWritten } from "./triggers/onLessonWritten.js";
+export { onPlanWritten } from "./triggers/onPlanWritten.js";
+export { onVocabBatchWritten } from "./triggers/onVocabBatchWritten.js";
+export { aiAssistVocabEntry } from "./callables/aiAssistVocabEntry.js";
+export { revertGeneration } from "./callables/revertGeneration.js";
+export { scoreGameAnswer } from "./callables/scoreGameAnswer.js";
+export { yiayiaChat } from "./callables/yiayiaChat.js";
