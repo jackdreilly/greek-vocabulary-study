@@ -14,7 +14,8 @@
   import type { PexelsPhoto } from "../../lib/data/entryEdits";
   import { textMatchesSearch } from "../../lib/search";
   import GreekText from "../../lib/ui/GreekText.svelte";
-  import { Edit2, Mic, MicOff, Play, Plus, RefreshCw, Search, Sparkles, Trash2, Upload, Volume2, Wand2, X } from "lucide-svelte";
+  import AudioPlayButton from "../../lib/ui/AudioPlayButton.svelte";
+  import { Edit2, Loader2, Mic, MicOff, Plus, RefreshCw, Search, Sparkles, Trash2, Upload, Wand2, X } from "lucide-svelte";
 
   let { courseId, lessonId }: { courseId: string; lessonId: string } = $props();
 
@@ -55,13 +56,11 @@
 
   // Audio state
   let draftAudio = $state<EntryDoc["audio"]>(null);
-  let audioRecording = $state(false);
-  let audioUploading = $state(false);
+  let audioCaptureState = $state<"idle" | "initializing" | "recording" | "stopping" | "uploading">("idle");
   let audioError = $state<string | null>(null);
   let audioRecordSeconds = $state(0);
   let mediaRecorder = $state<MediaRecorder | null>(null);
   let recordTimer: ReturnType<typeof setInterval> | null = null;
-  let audioPlayer = $state<HTMLAudioElement | null>(null);
 
   const filtered = $derived(
     search.trim() === ""
@@ -74,6 +73,11 @@
   const latestBatch = $derived(batchSub?.latest ?? null);
   const batchRunning = $derived(latestBatch?.status === "initializing" || latestBatch?.status === "streaming");
   const batchMessages = $derived((latestBatch?.statusLog ?? []).slice(-4));
+  const audioInitializing = $derived(audioCaptureState === "initializing");
+  const audioRecording = $derived(audioCaptureState === "recording");
+  const audioStopping = $derived(audioCaptureState === "stopping");
+  const audioUploading = $derived(audioCaptureState === "uploading");
+  const audioBusy = $derived(audioCaptureState !== "idle");
 
   function openEdit(entry: EntryDoc) {
     editing = entry;
@@ -167,17 +171,34 @@
   }
 
   async function startRecording() {
+    if (audioBusy || !editing) return;
     audioError = null;
+    audioCaptureState = "initializing";
+    audioRecordSeconds = 0;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (!editing || audioCaptureState !== "initializing") {
+        stream.getTracks().forEach((t) => t.stop());
+        audioCaptureState = "idle";
+        return;
+      }
       const chunks: BlobPart[] = [];
       const mimeType = MediaRecorder.isTypeSupported("audio/webm") ? "audio/webm" : "audio/ogg";
       const recorder = new MediaRecorder(stream, { mimeType });
       recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+      recorder.onstart = () => {
+        audioCaptureState = "recording";
+        audioRecordSeconds = 0;
+        recordTimer = setInterval(() => { audioRecordSeconds += 1; }, 1000);
+      };
       recorder.onstop = async () => {
+        if (recordTimer) { clearInterval(recordTimer); recordTimer = null; }
         stream.getTracks().forEach((t) => t.stop());
-        if (!editing) return;
-        audioUploading = true;
+        if (!editing) {
+          audioCaptureState = "idle";
+          return;
+        }
+        audioCaptureState = "uploading";
         try {
           const blob = new Blob(chunks, { type: mimeType });
           draftAudio = await uploadAudio(courseId, lessonId, editing.id, blob);
@@ -185,40 +206,45 @@
         } catch (err) {
           audioError = err instanceof Error ? err.message : String(err);
         } finally {
-          audioUploading = false;
+          audioCaptureState = "idle";
         }
+      };
+      recorder.onerror = (event) => {
+        audioError = event.error?.message ?? "Recording failed.";
+        audioCaptureState = "idle";
+        stream.getTracks().forEach((t) => t.stop());
       };
       mediaRecorder = recorder;
       recorder.start();
-      audioRecording = true;
-      audioRecordSeconds = 0;
-      recordTimer = setInterval(() => { audioRecordSeconds += 1; }, 1000);
     } catch (err) {
       audioError = err instanceof Error ? err.message : String(err);
+      audioCaptureState = "idle";
     }
   }
 
   function stopRecording() {
     if (recordTimer) { clearInterval(recordTimer); recordTimer = null; }
     if (mediaRecorder && mediaRecorder.state !== "inactive") {
+      audioCaptureState = "stopping";
       mediaRecorder.stop();
+    } else {
+      audioCaptureState = "idle";
     }
     mediaRecorder = null;
-    audioRecording = false;
   }
 
   async function handleAudioFileUpload(files: FileList | null) {
     if (!files || files.length === 0 || !editing) return;
     const file = files[0];
     audioError = null;
-    audioUploading = true;
+    audioCaptureState = "uploading";
     try {
       draftAudio = await uploadAudio(courseId, lessonId, editing.id, file);
       await saveEdit();
     } catch (err) {
       audioError = err instanceof Error ? err.message : String(err);
     } finally {
-      audioUploading = false;
+      audioCaptureState = "idle";
     }
   }
 
@@ -232,14 +258,6 @@
     } catch {
       // Ignore storage delete failures — Firestore is already updated
     }
-  }
-
-  function playAudio() {
-    if (!draftAudio?.url) return;
-    if (audioPlayer) { audioPlayer.pause(); audioPlayer = null; }
-    const a = new Audio(draftAudio.url);
-    audioPlayer = a;
-    a.play();
   }
 
   async function assistDefinitions() {
@@ -364,6 +382,14 @@
                 <span class="text-(--color-muted) text-sm shrink-0">{entry.article}</span>
               {/if}
               <GreekText>{entry.lemma}</GreekText>
+              {#if entry.audio?.url}
+                <AudioPlayButton
+                  url={entry.audio.url}
+                  label=""
+                  iconSize={14}
+                  class="shrink-0 inline-flex h-7 w-7 items-center justify-center rounded-full text-(--color-muted) hover:bg-(--color-surface-muted) hover:text-(--color-accent) disabled:opacity-70"
+                />
+              {/if}
             </div>
             <button
               type="button"
@@ -602,21 +628,42 @@
 
           <div>
             <p class="mb-2 text-sm font-medium">Pronunciation audio</p>
-            {#if draftAudio}
-              <div class="flex items-center gap-3 flex-wrap">
+            {#if audioInitializing}
+              <div class="flex items-center gap-2 text-sm text-(--color-muted)">
+                <Loader2 size={14} aria-hidden="true" class="animate-spin" />
+                Initializing microphone...
+              </div>
+            {:else if audioRecording || audioStopping}
+              <div class="flex items-center gap-3">
+                <span class="inline-flex items-center gap-2 text-sm text-(--color-danger) font-medium">
+                  <span class="h-2 w-2 rounded-full bg-(--color-danger) animate-pulse"></span>
+                  {audioStopping ? "Stopping recording..." : `Recording... ${audioRecordSeconds}s`}
+                </span>
                 <button
                   type="button"
-                  onclick={playAudio}
-                  class="inline-flex items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-2 text-sm hover:bg-(--color-surface-muted)"
-                  title="Play pronunciation"
+                  onclick={stopRecording}
+                  disabled={audioStopping}
+                  class="inline-flex items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-2 text-sm hover:bg-(--color-surface-muted) disabled:opacity-50"
                 >
-                  <Volume2 size={14} aria-hidden="true" />
-                  Play
+                  <MicOff size={14} aria-hidden="true" />
+                  Stop
                 </button>
+              </div>
+            {:else if audioUploading}
+              <div class="flex items-center gap-2 text-sm text-(--color-muted)">
+                <Loader2 size={14} aria-hidden="true" class="animate-spin" />
+                Uploading audio...
+              </div>
+            {:else if draftAudio}
+              <div class="flex items-center gap-3 flex-wrap">
+                <AudioPlayButton
+                  url={draftAudio.url}
+                  class="inline-flex items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-2 text-sm hover:bg-(--color-surface-muted) disabled:opacity-70"
+                />
                 <button
                   type="button"
                   onclick={() => void startRecording()}
-                  disabled={audioRecording || audioUploading}
+                  disabled={audioBusy}
                   class="inline-flex items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-2 text-sm hover:bg-(--color-surface-muted) disabled:opacity-50"
                 >
                   <Mic size={14} aria-hidden="true" />
@@ -641,23 +688,6 @@
                   Remove
                 </button>
               </div>
-            {:else if audioRecording}
-              <div class="flex items-center gap-3">
-                <span class="inline-flex items-center gap-2 text-sm text-(--color-danger) font-medium">
-                  <span class="h-2 w-2 rounded-full bg-(--color-danger) animate-pulse"></span>
-                  Recording… {audioRecordSeconds}s
-                </span>
-                <button
-                  type="button"
-                  onclick={stopRecording}
-                  class="inline-flex items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-2 text-sm hover:bg-(--color-surface-muted)"
-                >
-                  <MicOff size={14} aria-hidden="true" />
-                  Stop
-                </button>
-              </div>
-            {:else if audioUploading}
-              <p class="text-sm text-(--color-muted)">Uploading audio…</p>
             {:else}
               <div class="flex gap-2 flex-wrap">
                 <button

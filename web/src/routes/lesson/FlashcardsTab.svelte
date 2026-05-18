@@ -1,8 +1,8 @@
 <script lang="ts">
   import { subscribeEntries } from "../../lib/data/lessons.svelte";
   import GreekText from "../../lib/ui/GreekText.svelte";
+  import AudioPlayButton from "../../lib/ui/AudioPlayButton.svelte";
   import { yiayiaFocus, clearFocus } from "../../lib/data/yiayiaFocus.svelte";
-  import { Volume2 } from "lucide-svelte";
 
   let { courseId, lessonId }: { courseId: string; lessonId: string } = $props();
 
@@ -162,11 +162,6 @@
     flipped = !flipped;
   }
 
-  function playCurrentAudio() {
-    if (!current?.audio?.url) return;
-    new Audio(current.audio.url).play();
-  }
-
   function handlePointerCancel() {
     dragTransition = true;
     dragX = 0;
@@ -270,16 +265,12 @@
                 {/if}
                 <GreekText size="lg">{current.lemma}</GreekText>
                 {#if current.audio?.url}
-                  <span
-                    role="button"
-                    tabindex="0"
-                    onclick={(e) => { e.stopPropagation(); playCurrentAudio(); }}
-                    onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); playCurrentAudio(); } }}
-                    class="ml-1 cursor-pointer text-(--color-muted) hover:text-(--color-accent)"
-                    title="Play pronunciation"
-                  >
-                    <Volume2 size={18} aria-hidden="true" />
-                  </span>
+                  <AudioPlayButton
+                    url={current.audio.url}
+                    label=""
+                    iconSize={18}
+                    class="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full text-(--color-muted) hover:bg-(--color-surface-muted) hover:text-(--color-accent) disabled:opacity-70"
+                  />
                 {/if}
               </div>
             {:else}
@@ -313,16 +304,12 @@
                   {/if}
                   <GreekText>{current.lemma}</GreekText>
                   {#if current.audio?.url}
-                    <span
-                      role="button"
-                      tabindex="0"
-                      onclick={(e) => { e.stopPropagation(); playCurrentAudio(); }}
-                      onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); playCurrentAudio(); } }}
-                      class="ml-1 cursor-pointer text-(--color-muted) hover:text-(--color-accent)"
-                      title="Play pronunciation"
-                    >
-                      <Volume2 size={16} aria-hidden="true" />
-                    </span>
+                    <AudioPlayButton
+                      url={current.audio.url}
+                      label=""
+                      iconSize={16}
+                      class="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full text-(--color-muted) hover:bg-(--color-surface-muted) hover:text-(--color-accent) disabled:opacity-70"
+                    />
                   {/if}
                 </div>
               </div>
@@ -334,16 +321,12 @@
                 {/if}
                 <GreekText size="lg">{current.lemma}</GreekText>
                 {#if current.audio?.url}
-                  <span
-                    role="button"
-                    tabindex="0"
-                    onclick={(e) => { e.stopPropagation(); playCurrentAudio(); }}
-                    onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); playCurrentAudio(); } }}
-                    class="ml-1 cursor-pointer text-(--color-muted) hover:text-(--color-accent)"
-                    title="Play pronunciation"
-                  >
-                    <Volume2 size={18} aria-hidden="true" />
-                  </span>
+                  <AudioPlayButton
+                    url={current.audio.url}
+                    label=""
+                    iconSize={18}
+                    class="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full text-(--color-muted) hover:bg-(--color-surface-muted) hover:text-(--color-accent) disabled:opacity-70"
+                  />
                 {/if}
               </div>
               <div class="mt-8 w-full max-w-md border-t border-(--color-border) pt-5">
