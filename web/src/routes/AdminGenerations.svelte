@@ -2,6 +2,7 @@
   import { onDestroy } from "svelte";
   import { linkClick } from "../lib/router.svelte";
   import { subscribeRecentGenerations } from "../lib/data/generations.svelte";
+  import { ChevronRight } from "lucide-svelte";
 
   let kindFilter = $state<string>("");
   let statusFilter = $state<string>("");
@@ -104,17 +105,20 @@
                 </span>
                 <span class="ml-2 text-xs text-(--color-muted)">{gen.id}</span>
               </div>
-              <span
-                class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium {gen.status === 'reverted'
-                  ? 'bg-(--color-surface-muted) text-(--color-muted)'
-                  : gen.status === 'error'
-                    ? 'bg-[#fef2f2] text-(--color-danger)'
-                    : gen.status === 'done'
-                      ? 'bg-[#f0fdf4] text-[#15803d]'
-                      : 'bg-[#eff6ff] text-[#1d4ed8]'}"
-              >
-                {gen.status ?? "—"}
-              </span>
+              <div class="flex shrink-0 items-center gap-2">
+                <span
+                  class="rounded-full px-2 py-0.5 text-xs font-medium {gen.status === 'reverted'
+                    ? 'bg-(--color-surface-muted) text-(--color-muted)'
+                    : gen.status === 'error'
+                      ? 'bg-[#fef2f2] text-(--color-danger)'
+                      : gen.status === 'done'
+                        ? 'bg-[#f0fdf4] text-[#15803d]'
+                        : 'bg-[#eff6ff] text-[#1d4ed8]'}"
+                >
+                  {gen.status ?? "—"}
+                </span>
+                <ChevronRight size={14} aria-hidden="true" class="text-(--color-muted)/60" />
+              </div>
             </div>
             <div class="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-(--color-muted)">
               <span>{format(gen.createdAt)}</span>

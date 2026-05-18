@@ -1,6 +1,7 @@
 <script lang="ts">
   import { linkClick } from "../lib/router.svelte";
   import { revertGeneration, subscribeGeneration } from "../lib/data/generations.svelte";
+  import { ArrowLeft, Trash2 } from "lucide-svelte";
 
   let { generationId }: { generationId: string } = $props();
 
@@ -66,7 +67,8 @@
     onclick={linkClick("/admin/generations")}
     class="inline-flex items-center gap-1.5 text-sm text-(--color-muted) hover:text-(--color-text) mb-6"
   >
-    ← All generations
+    <ArrowLeft size={14} aria-hidden="true" />
+    All generations
   </a>
 
   {#if !sub || sub.loading}
@@ -154,8 +156,9 @@
           <button
             type="button"
             onclick={() => (confirmOpen = true)}
-            class="rounded-md border border-(--color-danger) text-(--color-danger) px-3 py-2 text-sm hover:bg-[#fef2f2]"
+            class="inline-flex items-center gap-1.5 rounded-md border border-(--color-danger) text-(--color-danger) px-3 py-2 text-sm hover:bg-[#fef2f2]"
           >
+            <Trash2 size={14} aria-hidden="true" />
             Revert…
           </button>
         {:else}
@@ -164,8 +167,9 @@
               type="button"
               onclick={performRevert}
               disabled={reverting}
-              class="rounded-md bg-(--color-danger) text-white px-3 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50"
+              class="inline-flex items-center gap-1.5 rounded-md bg-(--color-danger) text-white px-3 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50"
             >
+              <Trash2 size={14} aria-hidden="true" />
               {reverting ? "Reverting…" : "Confirm revert"}
             </button>
             <button

@@ -5,6 +5,7 @@
   import { retryPlanGeneration } from "../lib/data/retryGeneration";
   import { linkClick } from "../lib/router.svelte";
   import WidgetRenderer from "../lib/widgets/WidgetRenderer.svelte";
+  import { ArrowLeft, RefreshCw } from "lucide-svelte";
 
   type PlanDoc = DocumentData & { id: string };
 
@@ -48,7 +49,8 @@
     onclick={linkClick(backHref)}
     class="inline-flex items-center gap-1.5 text-sm text-(--color-muted) hover:text-(--color-text) mb-6"
   >
-    ← Back to plans
+    <ArrowLeft size={14} aria-hidden="true" />
+    Back to plans
   </a>
 
   {#if loading}
@@ -83,8 +85,9 @@
             <button
               type="button"
               onclick={() => void retryPlanGeneration(courseId, lessonId, planId)}
-              class="mt-3 rounded-md border border-current px-3 py-2 text-sm font-medium"
+              class="mt-3 inline-flex items-center gap-1.5 rounded-md border border-current px-3 py-2 text-sm font-medium"
             >
+              <RefreshCw size={14} aria-hidden="true" />
               Try again
             </button>
           {/if}

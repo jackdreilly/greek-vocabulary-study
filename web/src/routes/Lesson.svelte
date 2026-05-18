@@ -8,6 +8,7 @@
   import GamesTab from "./lesson/GamesTab.svelte";
   import StatusPill from "../lib/ui/StatusPill.svelte";
   import { retryLessonGeneration } from "../lib/data/retryGeneration";
+  import { RefreshCw } from "lucide-svelte";
 
   let { courseId, lessonId, tab }: { courseId: string; lessonId: string; tab: string } = $props();
 
@@ -67,8 +68,9 @@
             <button
               type="button"
               onclick={() => void retryLessonGeneration(courseId, lessonId)}
-              class="mt-3 rounded-md border border-current px-3 py-2 text-sm font-medium"
+              class="mt-3 inline-flex items-center gap-1.5 rounded-md border border-current px-3 py-2 text-sm font-medium"
             >
+              <RefreshCw size={14} aria-hidden="true" />
               Try again
             </button>
           {/if}

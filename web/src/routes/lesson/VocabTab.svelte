@@ -11,6 +11,7 @@
   import { retryVocabBatchGeneration } from "../../lib/data/retryGeneration";
   import type { PexelsPhoto } from "../../lib/data/entryEdits";
   import GreekText from "../../lib/ui/GreekText.svelte";
+  import { Edit2, Plus, RefreshCw, Search, Sparkles, Trash2, Wand2, X } from "lucide-svelte";
 
   let { courseId, lessonId }: { courseId: string; lessonId: string } = $props();
 
@@ -176,12 +177,19 @@
 <div>
   <div class="mb-6 space-y-3">
     <div class="flex flex-col gap-2 sm:flex-row">
-      <input
-        type="search"
-        placeholder="Search vocabulary..."
-        bind:value={search}
-        class="min-w-0 flex-1 px-3 py-2 text-sm border border-(--color-border) rounded-md bg-(--color-surface) focus:outline-none focus:border-(--color-accent) focus:ring-1 focus:ring-(--color-accent)"
-      />
+      <div class="relative min-w-0 flex-1">
+        <Search
+          size={16}
+          aria-hidden="true"
+          class="absolute left-3 top-1/2 -translate-y-1/2 text-(--color-muted) pointer-events-none"
+        />
+        <input
+          type="search"
+          placeholder="Search vocabulary..."
+          bind:value={search}
+          class="w-full pl-9 pr-3 py-2 text-sm border border-(--color-border) rounded-md bg-(--color-surface) focus:outline-none focus:border-(--color-accent) focus:ring-1 focus:ring-(--color-accent)"
+        />
+      </div>
     </div>
     <form
       class="rounded-lg border border-(--color-border) bg-(--color-surface) p-3"
@@ -200,8 +208,9 @@
         <button
           type="submit"
           disabled={generatingVocab || vocabPrompt.trim().length === 0}
-          class="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+          class="inline-flex items-center justify-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
         >
+          <Sparkles size={14} aria-hidden="true" />
           {generatingVocab ? "Generating..." : "Generate vocab"}
         </button>
       </div>
@@ -239,8 +248,9 @@
             <button
               type="button"
               onclick={() => void retryVocabBatchGeneration(courseId, lessonId, latestBatch.id)}
-              class="mt-2 rounded-md border border-current px-2 py-1 text-xs font-medium"
+              class="mt-2 inline-flex items-center gap-1.5 rounded-md border border-current px-2 py-1 text-xs font-medium"
             >
+              <RefreshCw size={12} aria-hidden="true" />
               Try again
             </button>
           {/if}
@@ -269,8 +279,10 @@
             <button
               type="button"
               onclick={() => openEdit(entry)}
-              class="text-xs text-(--color-muted) hover:text-(--color-text)"
+              class="inline-flex items-center gap-1 text-xs text-(--color-muted) hover:text-(--color-text)"
+              title="Edit"
             >
+              <Edit2 size={12} aria-hidden="true" />
               Edit
             </button>
           </div>
@@ -315,7 +327,13 @@
               {saving ? "Saving..." : saved ? "Saved" : "Changes save automatically"}
             </p>
           </div>
-          <button type="button" onclick={closeEdit} class="text-sm text-(--color-muted) hover:text-(--color-text)">
+          <button
+            type="button"
+            onclick={closeEdit}
+            class="inline-flex items-center gap-1 text-sm text-(--color-muted) hover:text-(--color-text)"
+            title="Close"
+          >
+            <X size={14} aria-hidden="true" />
             Close
           </button>
         </header>
@@ -343,8 +361,9 @@
                   draftSenses = [...draftSenses, ""];
                   scheduleSave();
                 }}
-                class="text-sm text-(--color-accent) hover:text-(--color-accent-hover)"
+                class="inline-flex items-center gap-1 text-sm text-(--color-accent) hover:text-(--color-accent-hover)"
               >
+                <Plus size={14} aria-hidden="true" />
                 Add
               </button>
             </div>
@@ -391,8 +410,9 @@
               type="button"
               onclick={() => void assistDefinitions()}
               disabled={assisting || !assistPrompt.trim()}
-              class="mt-2 rounded-md bg-(--color-accent) px-3 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+              class="mt-2 inline-flex items-center gap-1.5 rounded-md bg-(--color-accent) px-3 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
             >
+              <Wand2 size={14} aria-hidden="true" />
               {assisting ? "Asking AI..." : "Update meanings"}
             </button>
             {#if assistError}
@@ -424,8 +444,9 @@
                       draftImage = null;
                       scheduleSave(0);
                     }}
-                    class="rounded-md border border-(--color-border) px-3 py-2 text-sm text-(--color-danger)"
+                    class="inline-flex items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-2 text-sm text-(--color-danger)"
                   >
+                    <Trash2 size={14} aria-hidden="true" />
                     Remove
                   </button>
                 </div>

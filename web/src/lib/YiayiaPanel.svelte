@@ -1,5 +1,6 @@
 <script lang="ts">
   import { askYiayia, type YiayiaMessage } from "./data/yiayia";
+  import { BotMessageSquare, Send, X } from "lucide-svelte";
 
   let {
     open,
@@ -54,12 +55,21 @@
   <div class="fixed inset-x-4 bottom-4 z-50 mx-auto max-w-3xl sm:inset-x-auto sm:right-6 sm:w-[26rem]">
     <section class="overflow-hidden rounded-lg border border-(--color-border) bg-(--color-bg) shadow-2xl">
       <header class="flex items-center justify-between gap-3 border-b border-(--color-border) px-4 py-3">
-        <div>
-          <h2 class="text-sm font-semibold tracking-tight">Yiayia</h2>
-          <p class="text-xs text-(--color-muted)">Context-aware Greek help</p>
+        <div class="flex items-center gap-2.5">
+          <BotMessageSquare size={20} aria-hidden="true" class="text-(--color-accent)" />
+          <div>
+            <h2 class="text-sm font-semibold tracking-tight">Yiayia</h2>
+            <p class="text-xs text-(--color-muted)">Context-aware Greek help</p>
+          </div>
         </div>
-        <button type="button" onclick={onClose} class="text-sm text-(--color-muted) hover:text-(--color-text)">
-          Close
+        <button
+          type="button"
+          onclick={onClose}
+          class="inline-flex items-center justify-center rounded-md p-1 text-(--color-muted) hover:text-(--color-text) hover:bg-(--color-surface-muted)"
+          title="Close"
+          aria-label="Close"
+        >
+          <X size={16} aria-hidden="true" />
         </button>
       </header>
 
@@ -99,8 +109,10 @@
           <button
             type="submit"
             disabled={sending || draft.trim().length === 0}
-            class="rounded-md bg-(--color-accent) px-3 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+            class="inline-flex items-center justify-center gap-1.5 rounded-md bg-(--color-accent) px-3 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+            title="Send"
           >
+            <Send size={14} aria-hidden="true" />
             Send
           </button>
         </div>

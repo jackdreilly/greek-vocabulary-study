@@ -14,6 +14,7 @@
   import Breadcrumb from "./lib/ui/Breadcrumb.svelte";
   import YiayiaPanel from "./lib/YiayiaPanel.svelte";
   import type { Crumb } from "./lib/ui/Breadcrumb.svelte";
+  import { Sparkles, ShieldCheck } from "lucide-svelte";
 
   // Route matching — recomputed reactively when route.pathname changes.
   const match = $derived.by(() => {
@@ -213,16 +214,18 @@
           e.preventDefault();
           navigate("/admin");
         }}
-        class="text-sm text-(--color-muted) hover:text-(--color-text)"
+        class="inline-flex items-center gap-1.5 text-sm text-(--color-muted) hover:text-(--color-text)"
       >
+        <ShieldCheck size={14} aria-hidden="true" />
         Admin
       </a>
       <button
         type="button"
-        class="text-sm text-(--color-muted) hover:text-(--color-text)"
-        title="Yiayia"
+        class="inline-flex items-center gap-1.5 text-sm text-(--color-muted) hover:text-(--color-text)"
+        title="Yiayia (Y)"
         onclick={() => (yiayiaOpen = true)}
       >
+        <Sparkles size={14} aria-hidden="true" />
         Yiayia
       </button>
     </div>

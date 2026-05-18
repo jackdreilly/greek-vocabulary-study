@@ -3,6 +3,7 @@
   import { subscribePlans } from "../../lib/data/plans.svelte";
   import { navigate } from "../../lib/router.svelte";
   import { linkClick } from "../../lib/router.svelte";
+  import { ChevronRight, Sparkles } from "lucide-svelte";
 
   let { courseId, lessonId }: { courseId: string; lessonId: string } = $props();
 
@@ -65,8 +66,9 @@
           type="button"
           onclick={() => void generatePlan()}
           disabled={creating}
-          class="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+          class="inline-flex items-center justify-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
         >
+          <Sparkles size={14} aria-hidden="true" />
           {creating ? "Generating..." : "Generate plan"}
         </button>
       </div>
@@ -93,8 +95,9 @@
           type="button"
           onclick={() => void generatePlan()}
           disabled={creating}
-          class="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+          class="inline-flex items-center justify-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
         >
+          <Sparkles size={14} aria-hidden="true" />
           {creating ? "Generating..." : "Generate plan"}
         </button>
       </div>
@@ -113,8 +116,9 @@
             class="block border border-(--color-border) rounded-lg p-4 bg-(--color-surface) hover:border-(--color-border-strong) hover:shadow-sm transition-all"
           >
             <div class="flex items-baseline justify-between gap-3">
-              <h3 class="text-lg font-semibold tracking-tight text-(--color-text)">
+              <h3 class="text-lg font-semibold tracking-tight text-(--color-text) inline-flex items-baseline gap-2">
                 {plan.title}
+                <ChevronRight size={14} aria-hidden="true" class="text-(--color-muted)/60 self-center" />
               </h3>
               <span class="text-xs text-(--color-muted) shrink-0">
                 Plan {plan.planNumber}

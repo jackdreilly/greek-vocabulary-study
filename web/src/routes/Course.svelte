@@ -7,6 +7,7 @@
   import { extractLead, hasMoreThanLead } from "../lib/markdown";
   import StatusPill from "../lib/ui/StatusPill.svelte";
   import MarkdownBody from "../lib/ui/MarkdownBody.svelte";
+  import { BookOpen, ChevronRight, RefreshCw, Sparkles } from "lucide-svelte";
 
   let { courseId }: { courseId: string } = $props();
 
@@ -108,8 +109,9 @@
           <button
             type="button"
             onclick={() => void retryCourseGeneration(courseId)}
-            class="mt-3 rounded-md border border-(--color-border) px-3 py-2 text-sm hover:bg-(--color-surface-muted)"
+            class="mt-3 inline-flex items-center gap-1.5 rounded-md border border-(--color-border) px-3 py-2 text-sm hover:bg-(--color-surface-muted)"
           >
+            <RefreshCw size={14} aria-hidden="true" />
             Try again
           </button>
         {/if}
@@ -139,8 +141,9 @@
           <button
             type="submit"
             disabled={creatingLesson || lessonPrompt.trim().length === 0}
-            class="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+            class="inline-flex items-center justify-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
           >
+            <Sparkles size={14} aria-hidden="true" />
             {creatingLesson ? "Starting..." : "Generate lesson"}
           </button>
         </div>
@@ -164,11 +167,19 @@
               </div>
               <div class="flex shrink-0 items-center gap-2">
                 {#if lesson.entryCount}
-                  <span class="text-xs text-(--color-muted)">{lesson.entryCount} words</span>
+                  <span class="inline-flex items-center gap-1 text-xs text-(--color-muted)">
+                    <BookOpen size={12} aria-hidden="true" />
+                    {lesson.entryCount} words
+                  </span>
                 {/if}
                 {#if lesson.status && lesson.status !== "ready"}
                   <StatusPill status={lesson.status} />
                 {/if}
+                <ChevronRight
+                  size={16}
+                  aria-hidden="true"
+                  class="text-(--color-muted)/60"
+                />
               </div>
             </a>
           </li>

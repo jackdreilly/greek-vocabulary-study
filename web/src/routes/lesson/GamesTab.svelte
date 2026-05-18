@@ -3,6 +3,7 @@
   import { scoreGameAnswer, type GameScoreResult } from "../../lib/data/gameScoring";
   import { retryGameBatchGeneration } from "../../lib/data/retryGeneration";
   import { subscribeGames, subscribeLatestGameBatches, subscribeLesson } from "../../lib/data/lessons.svelte";
+  import { ChevronLeft, ChevronRight, Check, RefreshCw, Sparkles } from "lucide-svelte";
 
   let { courseId, lessonId }: { courseId: string; lessonId: string } = $props();
 
@@ -163,8 +164,9 @@
         <button
           type="button"
           onclick={() => void retryGameBatchGeneration(courseId, lessonId, latestBatch.id)}
-          class="mt-2 rounded-md border border-current px-2 py-1 text-xs font-medium"
+          class="mt-2 inline-flex items-center gap-1.5 rounded-md border border-current px-2 py-1 text-xs font-medium"
         >
+          <RefreshCw size={12} aria-hidden="true" />
           Try again
         </button>
       {/if}
@@ -182,8 +184,9 @@
         type="button"
         onclick={() => void generateGames()}
         disabled={generatingGames}
-        class="mt-4 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+        class="mt-4 inline-flex items-center justify-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
       >
+        <Sparkles size={14} aria-hidden="true" />
         {generatingGames ? "Generating..." : "Generate games"}
       </button>
       {#if generateError}
@@ -210,8 +213,9 @@
         type="button"
         onclick={() => void generateGames()}
         disabled={generatingGames}
-        class="mt-4 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+        class="mt-4 inline-flex items-center justify-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
       >
+        <Sparkles size={14} aria-hidden="true" />
         {generatingGames ? "Generating..." : "Generate this type"}
       </button>
     </div>
@@ -241,8 +245,9 @@
               type="button"
               onclick={() => void generateGames()}
               disabled={generatingGames}
-              class="rounded-md border border-(--color-border) px-2 py-1 text-sm text-(--color-text) hover:bg-(--color-surface-muted) disabled:opacity-50"
+              class="inline-flex items-center gap-1 rounded-md border border-(--color-border) px-2 py-1 text-sm text-(--color-text) hover:bg-(--color-surface-muted) disabled:opacity-50"
             >
+              <Sparkles size={12} aria-hidden="true" />
               {generatingGames ? "Generating..." : "Generate"}
             </button>
           </div>
@@ -331,8 +336,9 @@
         <button
           type="button"
           onclick={() => move(-1)}
-          class="rounded-md border border-(--color-border) px-4 py-2 text-sm hover:bg-(--color-surface-muted)"
+          class="inline-flex items-center gap-1.5 rounded-md border border-(--color-border) px-4 py-2 text-sm hover:bg-(--color-surface-muted)"
         >
+          <ChevronLeft size={14} aria-hidden="true" />
           Previous
         </button>
         <div class="flex gap-2">
@@ -347,17 +353,19 @@
             <button
               type="button"
               onclick={continuePractice}
-              class="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
+              class="inline-flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover)"
             >
               {index < games.length - 1 ? "Continue" : "Restart"}
+              <ChevronRight size={14} aria-hidden="true" />
             </button>
           {:else}
             <button
               type="button"
               onclick={() => void checkAnswer()}
               disabled={!hasAnswer || grading}
-              class="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+              class="inline-flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
             >
+              <Check size={14} aria-hidden="true" />
               {grading ? "Checking" : "Check"}
             </button>
           {/if}

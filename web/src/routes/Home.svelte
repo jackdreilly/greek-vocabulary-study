@@ -5,6 +5,7 @@
   import { navigate } from "../lib/router.svelte";
   import Card from "../lib/ui/Card.svelte";
   import StatusPill from "../lib/ui/StatusPill.svelte";
+  import { BookOpen, GraduationCap, Hash, Search, Sparkles } from "lucide-svelte";
 
   const sub = subscribeCourses();
   onDestroy(sub.stop);
@@ -49,12 +50,17 @@
     <h1 class="text-4xl font-semibold tracking-tight">Greek vocabulary, with help.</h1>
   </header>
 
-  <div class="mb-8">
+  <div class="mb-8 relative">
+    <Search
+      size={16}
+      aria-hidden="true"
+      class="absolute left-3 top-1/2 -translate-y-1/2 text-(--color-muted) pointer-events-none"
+    />
     <input
       type="search"
       bind:value={courseSearch}
       placeholder="Search courses..."
-      class="w-full rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:outline-none focus:border-(--color-accent) focus:ring-1 focus:ring-(--color-accent)"
+      class="w-full rounded-md border border-(--color-border) bg-(--color-surface) pl-9 pr-3 py-2 text-sm focus:outline-none focus:border-(--color-accent) focus:ring-1 focus:ring-(--color-accent)"
     />
   </div>
 
@@ -77,8 +83,9 @@
       <button
         type="submit"
         disabled={creating || sourcePrompt.trim().length === 0}
-        class="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+        class="inline-flex items-center justify-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
       >
+        <Sparkles size={14} aria-hidden="true" />
         {creating ? "Starting" : "Generate"}
       </button>
     </div>
@@ -100,9 +107,16 @@
       {#each filteredCourses as course (course.id)}
         <Card href="/c/{course.id}" class="p-5">
           <div class="flex items-start justify-between gap-3">
-            <h2 class="text-lg font-semibold tracking-tight text-(--color-text)">
-              {course.title ?? "(untitled)"}
-            </h2>
+            <div class="flex items-start gap-2.5 min-w-0">
+              <GraduationCap
+                size={18}
+                aria-hidden="true"
+                class="shrink-0 text-(--color-muted) mt-0.5"
+              />
+              <h2 class="text-lg font-semibold tracking-tight text-(--color-text)">
+                {course.title ?? "(untitled)"}
+              </h2>
+            </div>
             {#if course.status && course.status !== "ready"}
               <StatusPill status={course.status} />
             {/if}
@@ -112,10 +126,16 @@
           {/if}
           <div class="mt-4 flex items-center gap-3 text-xs text-(--color-muted)">
             {#if course.counts?.lessons}
-              <span>{course.counts.lessons} lessons</span>
+              <span class="inline-flex items-center gap-1">
+                <BookOpen size={12} aria-hidden="true" />
+                {course.counts.lessons} lessons
+              </span>
             {/if}
             {#if course.counts?.entries}
-              <span>{course.counts.entries} words</span>
+              <span class="inline-flex items-center gap-1">
+                <Hash size={12} aria-hidden="true" />
+                {course.counts.entries} words
+              </span>
             {/if}
           </div>
         </Card>
