@@ -13,8 +13,9 @@
   import AdminGenerationDetail from "./routes/AdminGenerationDetail.svelte";
   import Breadcrumb from "./lib/ui/Breadcrumb.svelte";
   import YiayiaPanel from "./lib/YiayiaPanel.svelte";
+  import YiayiaAdminPanel from "./lib/YiayiaAdminPanel.svelte";
   import type { Crumb } from "./lib/ui/Breadcrumb.svelte";
-  import { BotMessageSquare, ShieldCheck } from "lucide-svelte";
+  import { BotMessageSquare, ShieldCheck, Wand2 } from "lucide-svelte";
 
   // Route matching — recomputed reactively when route.pathname changes.
   const match = $derived.by(() => {
@@ -147,6 +148,7 @@
   });
 
   let yiayiaOpen = $state(false);
+  let adminChatOpen = $state(false);
   function isTypingTarget(target: EventTarget | null) {
     return (
       target instanceof HTMLInputElement ||
@@ -161,8 +163,12 @@
       if (isTypingTarget(event.target)) return;
       if (event.key === "y" || event.key === "Y") {
         yiayiaOpen = true;
+      } else if (event.key === "a" || event.key === "A") {
+        adminChatOpen = true;
+        yiayiaOpen = false;
       } else if (event.key === "Escape") {
         yiayiaOpen = false;
+        adminChatOpen = false;
       }
     }
     window.addEventListener("keydown", onKeydown);
@@ -262,16 +268,27 @@
       </div>
     {/if}
   </main>
-  {#if !yiayiaOpen}
-    <button
-      type="button"
-      class="fixed bottom-4 right-4 z-40 grid size-10 place-items-center rounded-full border border-(--color-border) bg-(--color-bg) text-(--color-accent) shadow-lg transition hover:border-(--color-accent) hover:bg-(--color-surface-muted) focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 focus:ring-offset-(--color-bg) sm:bottom-6 sm:right-6"
-      title="Yiayia (Y)"
-      aria-label="Open Yiayia"
-      onclick={() => (yiayiaOpen = true)}
-    >
-      <BotMessageSquare size={18} aria-hidden="true" />
-    </button>
+  {#if !yiayiaOpen && !adminChatOpen}
+    <div class="fixed bottom-4 right-4 z-40 flex flex-col gap-2 sm:bottom-6 sm:right-6">
+      <button
+        type="button"
+        class="grid size-10 place-items-center rounded-full border border-(--color-border) bg-(--color-bg) text-amber-600 shadow-lg transition hover:border-amber-500 hover:bg-(--color-surface-muted) focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-(--color-bg)"
+        title="Admin chat (A)"
+        aria-label="Open admin chat"
+        onclick={() => (adminChatOpen = true)}
+      >
+        <Wand2 size={18} aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        class="grid size-10 place-items-center rounded-full border border-(--color-border) bg-(--color-bg) text-(--color-accent) shadow-lg transition hover:border-(--color-accent) hover:bg-(--color-surface-muted) focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 focus:ring-offset-(--color-bg)"
+        title="Yiayia (Y)"
+        aria-label="Open Yiayia"
+        onclick={() => (yiayiaOpen = true)}
+      >
+        <BotMessageSquare size={18} aria-hidden="true" />
+      </button>
+    </div>
   {/if}
   <YiayiaPanel
     open={yiayiaOpen}
@@ -281,5 +298,16 @@
     tab={yiayiaContext.tab}
     pathname={route.pathname}
     onClose={() => (yiayiaOpen = false)}
+  />
+  <YiayiaAdminPanel
+    open={adminChatOpen}
+    context={{
+      pathname: route.pathname,
+      courseId: yiayiaContext.courseId,
+      lessonId: yiayiaContext.lessonId,
+      planId: yiayiaContext.planId,
+      tab: yiayiaContext.tab,
+    }}
+    onClose={() => (adminChatOpen = false)}
   />
 </div>

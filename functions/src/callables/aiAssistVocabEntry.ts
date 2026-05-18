@@ -2,6 +2,7 @@ import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { z } from "genkit";
 import { getDecodingFor, getModelFor } from "../ai/configResolver.js";
 import { geminiApiKey, getAI } from "../ai/genkitClient.js";
+import { ALLOWED_ORIGINS } from "../cors.js";
 
 const AiAssistVocabEntryInputSchema = z.object({
   lemma: z.string().min(1).max(120),
@@ -54,7 +55,7 @@ Return JSON with:
   },
 );
 
-export const aiAssistVocabEntry = onCall({ secrets: [geminiApiKey] }, async (request) => {
+export const aiAssistVocabEntry = onCall({ secrets: [geminiApiKey], cors: ALLOWED_ORIGINS }, async (request) => {
   const parsed = AiAssistVocabEntryInputSchema.safeParse(request.data);
   if (!parsed.success) {
     throw new HttpsError("invalid-argument", parsed.error.issues.map((issue) => issue.message).join("; "));

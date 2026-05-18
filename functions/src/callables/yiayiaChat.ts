@@ -3,6 +3,7 @@ import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { z } from "genkit";
 import { getDecodingFor, getModelFor } from "../ai/configResolver.js";
 import { geminiApiKey, getAI } from "../ai/genkitClient.js";
+import { ALLOWED_ORIGINS } from "../cors.js";
 
 const MessageSchema = z.object({
   role: z.enum(["user", "assistant"]),
@@ -99,7 +100,7 @@ async function readContext(input: z.infer<typeof YiayiaInputSchema>) {
   return parts.filter(Boolean).join("\n\n---\n\n").slice(0, 12000);
 }
 
-export const yiayiaChat = onCall({ secrets: [geminiApiKey] }, async (request, response) => {
+export const yiayiaChat = onCall({ secrets: [geminiApiKey], cors: ALLOWED_ORIGINS }, async (request, response) => {
   const parsed = YiayiaInputSchema.safeParse(request.data);
   if (!parsed.success) {
     throw new HttpsError("invalid-argument", parsed.error.issues.map((issue) => issue.message).join("; "));

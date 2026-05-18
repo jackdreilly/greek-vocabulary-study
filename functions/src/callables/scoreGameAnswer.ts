@@ -2,6 +2,7 @@ import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { z } from "genkit";
 import { geminiApiKey, getAI } from "../ai/genkitClient.js";
 import { getDecodingFor, getModelFor } from "../ai/configResolver.js";
+import { ALLOWED_ORIGINS } from "../cors.js";
 
 const ExerciseSchema = z.object({
   id: z.string().optional(),
@@ -11,7 +12,7 @@ const ExerciseSchema = z.object({
   expectedAnswer: z.string().optional(),
   acceptableAnswers: z.array(z.string()).optional().default([]),
   requiredWords: z.array(z.string()).optional().default([]),
-  sourceEntryIds: z.array(z.string()).optional().default([]),
+  sourceEntryIds: z.array(z.union([z.string(), z.number()])).optional().default([]),
   direction: z.string().optional(),
   passage: z.string().optional(),
   question: z.string().optional(),
@@ -137,7 +138,7 @@ Rules:
   },
 );
 
-export const scoreGameAnswer = onCall({ secrets: [geminiApiKey] }, async (request) => {
+export const scoreGameAnswer = onCall({ secrets: [geminiApiKey], cors: ALLOWED_ORIGINS }, async (request) => {
   const parsed = ScoreGameAnswerInputSchema.safeParse(request.data);
   if (!parsed.success) {
     throw new HttpsError("invalid-argument", parsed.error.issues.map((issue) => issue.message).join("; "));

@@ -2,6 +2,7 @@ import { FieldValue, getFirestore, Timestamp } from "firebase-admin/firestore";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions";
 import { z } from "genkit";
+import { ALLOWED_ORIGINS } from "../cors.js";
 
 const RevertInputSchema = z.object({
   generationId: z.string().min(3).max(120),
@@ -92,7 +93,7 @@ async function rebuildCourseCounts(courseId: string) {
   });
 }
 
-export const revertGeneration = onCall(async (request) => {
+export const revertGeneration = onCall({ cors: ALLOWED_ORIGINS }, async (request) => {
   const parsed = RevertInputSchema.safeParse(request.data);
   if (!parsed.success) {
     throw new HttpsError(
