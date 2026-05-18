@@ -34,10 +34,10 @@ export async function scoreGameAnswer({
     lessonId: String(game.lessonId ?? lesson?.id ?? ""),
     lessonTitle: String(lesson?.title ?? game.lessonId ?? "Greek lesson"),
     exercise: {
-      id: game.id,
-      type: game.type,
+      id: String(game.id ?? ""),
+      type: String(game.type ?? "practice"),
       title: game.title ?? "",
-      prompt: game.prompt,
+      prompt: String(game.prompt ?? ""),
       expectedAnswer: game.expectedAnswer ?? "",
       acceptableAnswers: game.acceptableAnswers ?? [],
       requiredWords: game.requiredWords ?? [],

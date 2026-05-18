@@ -1,5 +1,12 @@
 <script lang="ts">
-  import { subscribeLesson } from "../lib/data/lessons.svelte";
+  import {
+    subscribeEntries,
+    subscribeGames,
+    subscribeLatestGameBatches,
+    subscribeLatestVocabBatches,
+    subscribeLesson,
+  } from "../lib/data/lessons.svelte";
+  import { subscribePlans } from "../lib/data/plans.svelte";
   import { linkClick, route } from "../lib/router.svelte";
   import VocabTab from "./lesson/VocabTab.svelte";
   import FlashcardsTab from "./lesson/FlashcardsTab.svelte";
@@ -13,11 +20,37 @@
   let { courseId, lessonId, tab }: { courseId: string; lessonId: string; tab: string } = $props();
 
   let sub = $state<ReturnType<typeof subscribeLesson>>();
+  let entriesSub = $state<ReturnType<typeof subscribeEntries>>();
+  let gamesSub = $state<ReturnType<typeof subscribeGames>>();
+  let plansSub = $state<ReturnType<typeof subscribePlans>>();
+  let vocabBatchSub = $state<ReturnType<typeof subscribeLatestVocabBatches>>();
+  let gameBatchSub = $state<ReturnType<typeof subscribeLatestGameBatches>>();
 
   $effect(() => {
     const next = subscribeLesson(courseId, lessonId);
     sub = next;
     return () => next.stop();
+  });
+
+  // Warm the likely next tabs while the user is reading the overview.
+  $effect(() => {
+    const nextEntries = subscribeEntries(courseId, lessonId);
+    const nextGames = subscribeGames(courseId, lessonId);
+    const nextPlans = subscribePlans(courseId, lessonId);
+    const nextVocabBatch = subscribeLatestVocabBatches(courseId, lessonId);
+    const nextGameBatch = subscribeLatestGameBatches(courseId, lessonId);
+    entriesSub = nextEntries;
+    gamesSub = nextGames;
+    plansSub = nextPlans;
+    vocabBatchSub = nextVocabBatch;
+    gameBatchSub = nextGameBatch;
+    return () => {
+      nextEntries.stop();
+      nextGames.stop();
+      nextPlans.stop();
+      nextVocabBatch.stop();
+      nextGameBatch.stop();
+    };
   });
 
   const tabs = [
@@ -102,13 +135,13 @@
     {#if tab === "overview"}
       <OverviewTab markdown={sub.lesson.description} />
     {:else if tab === "vocab"}
-      <VocabTab {courseId} {lessonId} />
+      <VocabTab {courseId} {lessonId} {entriesSub} {vocabBatchSub} />
     {:else if tab === "cards"}
-      <FlashcardsTab {courseId} {lessonId} />
+      <FlashcardsTab {courseId} {lessonId} {entriesSub} />
     {:else if tab === "games"}
-      <GamesTab {courseId} {lessonId} />
+      <GamesTab {courseId} {lessonId} {gamesSub} lessonSub={sub} {gameBatchSub} />
     {:else if tab === "plans"}
-      <PlansTab {courseId} {lessonId} />
+      <PlansTab {courseId} {lessonId} {plansSub} />
     {/if}
   {/if}
 </div>

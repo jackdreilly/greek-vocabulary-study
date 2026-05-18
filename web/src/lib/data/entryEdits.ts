@@ -22,12 +22,14 @@ export async function saveEntryEdit(input: {
   courseId: string;
   lessonId: string;
   entryId: string;
+  lemma: string;
   english: string;
   senses: string[];
   image?: EntryDoc["image"];
   audio?: EntryDoc["audio"];
 }) {
   await updateDoc(doc(db, "courses", input.courseId, "lessons", input.lessonId, "entries", input.entryId), {
+    lemma: input.lemma.trim(),
     english: input.english.trim(),
     senses: input.senses.map((s) => s.trim()).filter(Boolean),
     image: input.image ?? null,

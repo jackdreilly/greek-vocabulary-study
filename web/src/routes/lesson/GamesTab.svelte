@@ -6,7 +6,23 @@
   import { Check, ChevronLeft, ChevronRight, RefreshCw, Shuffle, Sparkles, X } from "lucide-svelte";
   import { yiayiaFocus, clearFocus } from "../../lib/data/yiayiaFocus.svelte";
 
-  let { courseId, lessonId }: { courseId: string; lessonId: string } = $props();
+  type GamesSub = ReturnType<typeof subscribeGames>;
+  type LessonSub = ReturnType<typeof subscribeLesson>;
+  type GameBatchSub = ReturnType<typeof subscribeLatestGameBatches>;
+
+  let {
+    courseId,
+    lessonId,
+    gamesSub: providedGamesSub,
+    lessonSub: providedLessonSub,
+    gameBatchSub: providedGameBatchSub,
+  }: {
+    courseId: string;
+    lessonId: string;
+    gamesSub?: GamesSub;
+    lessonSub?: LessonSub;
+    gameBatchSub?: GameBatchSub;
+  } = $props();
 
   // --- banner dismiss logic ---
   const DISMISS_KEY = "greekflash:dismissed-batches";
@@ -43,9 +59,9 @@
     return true;
   }
 
-  let sub = $state<ReturnType<typeof subscribeGames>>();
-  let lessonSub = $state<ReturnType<typeof subscribeLesson>>();
-  let batchSub = $state<ReturnType<typeof subscribeLatestGameBatches>>();
+  let sub = $state<GamesSub>();
+  let lessonSub = $state<LessonSub>();
+  let batchSub = $state<GameBatchSub>();
   let index = $state(0);
   let answer = $state("");
   let checked = $state(false);
@@ -58,6 +74,21 @@
   let submissionId = 0;
 
   $effect(() => {
+    if (providedGamesSub && providedLessonSub && providedGameBatchSub) {
+      sub = providedGamesSub;
+      lessonSub = providedLessonSub;
+      batchSub = providedGameBatchSub;
+      index = 0;
+      answer = "";
+      checked = false;
+      grading = false;
+      gradeResult = null;
+      gradeError = "";
+      generatingGames = false;
+      generateError = "";
+      return () => clearFocus();
+    }
+
     const next = subscribeGames(courseId, lessonId);
     const nextLesson = subscribeLesson(courseId, lessonId);
     const nextBatch = subscribeLatestGameBatches(courseId, lessonId);

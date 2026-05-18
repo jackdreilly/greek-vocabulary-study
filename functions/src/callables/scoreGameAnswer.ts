@@ -5,9 +5,9 @@ import { getDecodingFor, getModelFor } from "../ai/configResolver.js";
 
 const ExerciseSchema = z.object({
   id: z.string().optional(),
-  type: z.string(),
+  type: z.string().optional().default("practice"),
   title: z.string().optional(),
-  prompt: z.string(),
+  prompt: z.string().optional().default(""),
   expectedAnswer: z.string().optional(),
   acceptableAnswers: z.array(z.string()).optional().default([]),
   requiredWords: z.array(z.string()).optional().default([]),

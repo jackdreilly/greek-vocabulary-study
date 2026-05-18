@@ -5,14 +5,25 @@
   import { linkClick } from "../../lib/router.svelte";
   import { ChevronRight, Sparkles } from "lucide-svelte";
 
-  let { courseId, lessonId }: { courseId: string; lessonId: string } = $props();
+  type PlansSub = ReturnType<typeof subscribePlans>;
 
-  let sub = $state<ReturnType<typeof subscribePlans>>();
+  let {
+    courseId,
+    lessonId,
+    plansSub: providedPlansSub,
+  }: { courseId: string; lessonId: string; plansSub?: PlansSub } = $props();
+
+  let sub = $state<PlansSub>();
   let customFocus = $state("");
   let creating = $state(false);
   let createError = $state("");
 
   $effect(() => {
+    if (providedPlansSub) {
+      sub = providedPlansSub;
+      return;
+    }
+
     const next = subscribePlans(courseId, lessonId);
     sub = next;
     return () => next.stop();

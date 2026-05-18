@@ -4,9 +4,15 @@
   import AudioPlayButton from "../../lib/ui/AudioPlayButton.svelte";
   import { yiayiaFocus, clearFocus } from "../../lib/data/yiayiaFocus.svelte";
 
-  let { courseId, lessonId }: { courseId: string; lessonId: string } = $props();
+  type EntriesSub = ReturnType<typeof subscribeEntries>;
 
-  let sub = $state<ReturnType<typeof subscribeEntries>>();
+  let {
+    courseId,
+    lessonId,
+    entriesSub: providedEntriesSub,
+  }: { courseId: string; lessonId: string; entriesSub?: EntriesSub } = $props();
+
+  let sub = $state<EntriesSub>();
   let index = $state(0);
   let flipped = $state(false);
   let mode = $state<"gr-en" | "en-gr" | "mixed">("gr-en");
@@ -18,6 +24,13 @@
   let suppressNextClick = $state(false);
 
   $effect(() => {
+    if (providedEntriesSub) {
+      sub = providedEntriesSub;
+      index = 0;
+      flipped = false;
+      return () => clearFocus();
+    }
+
     const next = subscribeEntries(courseId, lessonId);
     sub = next;
     index = 0;

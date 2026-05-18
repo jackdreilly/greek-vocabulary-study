@@ -196,8 +196,16 @@
           e.preventDefault();
           navigate("/");
         }}
-        class="font-semibold tracking-tight text-(--color-text) shrink-0"
+        class="inline-flex items-center gap-2 font-semibold tracking-tight text-(--color-text) shrink-0"
       >
+        <img
+          src="/favicon.png"
+          alt=""
+          class="size-7 rounded-sm"
+          width="28"
+          height="28"
+          aria-hidden="true"
+        />
         Fanari Go
       </a>
       {#if crumbs.length > 1}

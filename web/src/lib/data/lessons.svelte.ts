@@ -71,36 +71,41 @@ export type LessonBatchDoc = DocumentData & {
 };
 
 export function subscribeLesson(courseId: string, lessonId: string) {
-  const state = $state({
-    lesson: null as LessonDoc | null,
-    loading: true,
-    error: null as Error | null,
-    stop: () => {},
-  });
+  let lesson = $state<LessonDoc | null>(null);
+  let loading = $state(true);
+  let error = $state<Error | null>(null);
 
   const unsubscribe = onSnapshot(
     doc(db, "courses", courseId, "lessons", lessonId),
     (snap) => {
-      state.lesson = snap.exists() ? ({ id: snap.id, ...(snap.data() as DocumentData) } as LessonDoc) : null;
-      state.loading = false;
+      lesson = snap.exists() ? ({ id: snap.id, ...(snap.data() as DocumentData) } as LessonDoc) : null;
+      loading = false;
+      error = null;
     },
     (err) => {
-      state.error = err;
-      state.loading = false;
+      error = err;
+      loading = false;
     }
   );
-  state.stop = unsubscribe;
 
-  return state;
+  return {
+    get lesson() {
+      return lesson;
+    },
+    get loading() {
+      return loading;
+    },
+    get error() {
+      return error;
+    },
+    stop: unsubscribe,
+  };
 }
 
 export function subscribeEntries(courseId: string, lessonId: string) {
-  const state = $state({
-    entries: [] as EntryDoc[],
-    loading: true,
-    error: null as Error | null,
-    stop: () => {},
-  });
+  let entries = $state<EntryDoc[]>([]);
+  let loading = $state(true);
+  let error = $state<Error | null>(null);
 
   const q = query(
     collection(db, "courses", courseId, "lessons", lessonId, "entries"),
@@ -109,26 +114,34 @@ export function subscribeEntries(courseId: string, lessonId: string) {
   const unsubscribe = onSnapshot(
     q,
     (snap) => {
-      state.entries = snap.docs.map((d) => ({ id: d.id, ...(d.data() as DocumentData) } as EntryDoc));
-      state.loading = false;
+      entries = snap.docs.map((d) => ({ id: d.id, ...(d.data() as DocumentData) } as EntryDoc));
+      loading = false;
+      error = null;
     },
     (err) => {
-      state.error = err;
-      state.loading = false;
+      error = err;
+      loading = false;
     }
   );
-  state.stop = unsubscribe;
 
-  return state;
+  return {
+    get entries() {
+      return entries;
+    },
+    get loading() {
+      return loading;
+    },
+    get error() {
+      return error;
+    },
+    stop: unsubscribe,
+  };
 }
 
 export function subscribeGames(courseId: string, lessonId: string) {
-  const state = $state({
-    games: [] as GameDoc[],
-    loading: true,
-    error: null as Error | null,
-    stop: () => {},
-  });
+  let games = $state<GameDoc[]>([]);
+  let loading = $state(true);
+  let error = $state<Error | null>(null);
 
   const q = query(
     collection(db, "courses", courseId, "lessons", lessonId, "games"),
@@ -137,29 +150,34 @@ export function subscribeGames(courseId: string, lessonId: string) {
   const unsubscribe = onSnapshot(
     q,
     (snap) => {
-      state.games = snap.docs.map((d) => ({ id: d.id, ...(d.data() as DocumentData) } as GameDoc));
-      state.loading = false;
+      games = snap.docs.map((d) => ({ id: d.id, ...(d.data() as DocumentData) } as GameDoc));
+      loading = false;
+      error = null;
     },
     (err) => {
-      state.error = err;
-      state.loading = false;
+      error = err;
+      loading = false;
     }
   );
-  state.stop = unsubscribe;
 
-  return state;
+  return {
+    get games() {
+      return games;
+    },
+    get loading() {
+      return loading;
+    },
+    get error() {
+      return error;
+    },
+    stop: unsubscribe,
+  };
 }
 
 function subscribeRecentLessonBatches(courseId: string, lessonId: string, collectionName: string) {
-  const state = $state({
-    batches: [] as LessonBatchDoc[],
-    loading: true,
-    error: null as Error | null,
-    get latest() {
-      return this.batches[0] ?? null;
-    },
-    stop: () => {},
-  });
+  let batches = $state<LessonBatchDoc[]>([]);
+  let loading = $state(true);
+  let error = $state<Error | null>(null);
 
   const q = query(
     collection(db, "courses", courseId, "lessons", lessonId, collectionName),
@@ -169,17 +187,31 @@ function subscribeRecentLessonBatches(courseId: string, lessonId: string, collec
   const unsubscribe = onSnapshot(
     q,
     (snap) => {
-      state.batches = snap.docs.map((d) => ({ id: d.id, ...(d.data() as DocumentData) } as LessonBatchDoc));
-      state.loading = false;
+      batches = snap.docs.map((d) => ({ id: d.id, ...(d.data() as DocumentData) } as LessonBatchDoc));
+      loading = false;
+      error = null;
     },
     (err) => {
-      state.error = err;
-      state.loading = false;
+      error = err;
+      loading = false;
     }
   );
-  state.stop = unsubscribe;
 
-  return state;
+  return {
+    get batches() {
+      return batches;
+    },
+    get latest() {
+      return batches[0] ?? null;
+    },
+    get loading() {
+      return loading;
+    },
+    get error() {
+      return error;
+    },
+    stop: unsubscribe,
+  };
 }
 
 export function subscribeLatestVocabBatches(courseId: string, lessonId: string) {

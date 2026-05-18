@@ -26,6 +26,12 @@ type StreamableCallable = ReturnType<typeof httpsCallable> & {
   stream: (data: unknown) => Promise<StreamResult>;
 };
 
+function shouldAttemptStreaming(): boolean {
+  const userAgent = globalThis.navigator?.userAgent ?? "";
+  const isSafari = /\bSafari\//.test(userAgent) && !/\b(?:Chrome|Chromium|CriOS|FxiOS|Edg)\//.test(userAgent);
+  return !isSafari;
+}
+
 export async function streamYiayia(
   input: YiayiaInput,
   onChunk: (accumulated: string) => void,
@@ -42,7 +48,7 @@ export async function streamYiayia(
 
   const callable = httpsCallable(functions, "yiayiaChat") as StreamableCallable;
 
-  if (typeof callable.stream === "function") {
+  if (shouldAttemptStreaming() && typeof callable.stream === "function") {
     try {
       // callable.stream() returns a Promise — must await before accessing .stream
       const result = await callable.stream(payload);

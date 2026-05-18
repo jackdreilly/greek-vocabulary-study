@@ -11,6 +11,7 @@ const AiAssistVocabEntryInputSchema = z.object({
 });
 
 const AiAssistVocabEntryOutputSchema = z.object({
+  lemma: z.string().min(1).max(120),
   english_senses: z.array(z.string()),
 });
 
@@ -33,7 +34,7 @@ const aiAssistVocabEntryFlow = getAI().defineFlow(
         ...decoding,
       },
       system:
-        "You are a Modern Greek vocabulary editor. Return concise, accurate English definitions as strict JSON.",
+        "You are a Modern Greek vocabulary editor. Return a corrected Greek lemma and concise, accurate English definitions as strict JSON.",
       prompt: `Greek word: ${articleDisplay}${input.lemma}
 Current English definitions: ${
         input.currentSenses.length
@@ -43,7 +44,9 @@ Current English definitions: ${
 
 User request: ${input.prompt}
 
-Return an updated english_senses array with 1-6 concise English definitions. Prefer useful learner-facing definitions over long dictionary prose.`,
+Return JSON with:
+- lemma: the corrected actual Greek word or phrase. Keep it unchanged unless the user request or obvious typo calls for an edit.
+- english_senses: 1-6 concise English definitions. Prefer useful learner-facing definitions over long dictionary prose.`,
     });
 
     if (!output) throw new Error("AI assist returned no output.");
@@ -63,4 +66,3 @@ export const aiAssistVocabEntry = onCall({ secrets: [geminiApiKey] }, async (req
     throw new HttpsError("internal", err instanceof Error ? err.message : String(err));
   }
 });
-

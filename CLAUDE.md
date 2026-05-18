@@ -26,6 +26,7 @@ This command (defined in the root `package.json`):
 1. Watches and rebuilds `functions/` on every change
 2. Watches and rebuilds `web/` on every change
 3. Starts Firebase emulators for hosting, functions, Firestore, and storage
+4. Imports and exports emulator state through `.emulator-data`, so local Firestore/storage data persists between runs
 
 The app is served at **`localhost:5002`** (Firebase hosting emulator). Firestore runs at `localhost:8080`, Functions at `localhost:5001`, and the emulator UI at `localhost:4000`.
 
@@ -37,7 +38,28 @@ preview_start("Full stack (emulators + build watch)")
 
 This is defined in `.claude/launch.json` and points at port 5002.
 
+**In Codex**, use that same local setup. Before browser testing, prefer starting or reusing the exact `.claude/launch.json` configuration:
+
+```json
+{
+  "name": "Full stack (emulators + build watch)",
+  "runtimeExecutable": "pnpm",
+  "runtimeArgs": ["run", "dev:emulators"],
+  "port": 5002
+}
+```
+
+If Codex cannot consume `.claude/launch.json` directly, run the equivalent root command:
+
+```bash
+pnpm run dev:emulators
+```
+
+Do not substitute `pnpm --filter ./web dev`, `vite dev`, Firebase Hosting without the Firestore emulator, or any production-backed setup when debugging UI state. The point is to use the same state-persisting, fully local emulator environment every time.
+
 **Never** run bare `firebase deploy` or test against production during development — every UI action hits live data if the emulator isn't running.
+
+When deploying from this repo, run the package script as `pnpm run deploy`. Do **not** use `pnpm deploy`; that invokes pnpm's own deploy command instead of this repo's Firebase deploy script.
 
 **For function-only changes** that need to reach production users, deploy just the changed function:
 ```bash

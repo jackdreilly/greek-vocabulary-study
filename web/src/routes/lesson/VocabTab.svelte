@@ -17,12 +17,31 @@
   import AudioPlayButton from "../../lib/ui/AudioPlayButton.svelte";
   import { Edit2, Loader2, Mic, MicOff, Plus, RefreshCw, Search, Sparkles, Trash2, Upload, Wand2, X } from "lucide-svelte";
 
-  let { courseId, lessonId }: { courseId: string; lessonId: string } = $props();
+  type EntriesSub = ReturnType<typeof subscribeEntries>;
+  type VocabBatchSub = ReturnType<typeof subscribeLatestVocabBatches>;
 
-  let sub = $state<ReturnType<typeof subscribeEntries>>();
-  let batchSub = $state<ReturnType<typeof subscribeLatestVocabBatches>>();
+  let {
+    courseId,
+    lessonId,
+    entriesSub: providedEntriesSub,
+    vocabBatchSub: providedVocabBatchSub,
+  }: {
+    courseId: string;
+    lessonId: string;
+    entriesSub?: EntriesSub;
+    vocabBatchSub?: VocabBatchSub;
+  } = $props();
+
+  let sub = $state<EntriesSub>();
+  let batchSub = $state<VocabBatchSub>();
 
   $effect(() => {
+    if (providedEntriesSub && providedVocabBatchSub) {
+      sub = providedEntriesSub;
+      batchSub = providedVocabBatchSub;
+      return;
+    }
+
     const next = subscribeEntries(courseId, lessonId);
     const nextBatch = subscribeLatestVocabBatches(courseId, lessonId);
     sub = next;
@@ -35,6 +54,7 @@
 
   let search = $state("");
   let editing = $state<EntryDoc | null>(null);
+  let draftLemma = $state("");
   let draftEnglish = $state("");
   let draftSenses = $state<string[]>([]);
   let draftImage = $state<EntryDoc["image"]>(null);
@@ -50,7 +70,7 @@
   let vocabPrompt = $state("");
   let generatingVocab = $state(false);
   let vocabError = $state<string | null>(null);
-  let assistPrompt = $state("Improve these definitions for a learner.");
+  let assistPrompt = $state("Improve this word and its definitions for a learner.");
   let assisting = $state(false);
   let assistError = $state<string | null>(null);
 
@@ -81,6 +101,7 @@
 
   function openEdit(entry: EntryDoc) {
     editing = entry;
+    draftLemma = entry.lemma ?? "";
     draftEnglish = entry.english ?? "";
     draftSenses = entry.senses?.length ? [...entry.senses] : [entry.english ?? ""];
     draftImage = entry.image ?? null;
@@ -89,7 +110,7 @@
     pexelsOpen = false;
     pexelsResults = [];
     pexelsError = null;
-    assistPrompt = "Improve these definitions for a learner.";
+    assistPrompt = "Improve this word and its definitions for a learner.";
     assistError = null;
     audioError = null;
   }
@@ -102,6 +123,11 @@
 
   async function saveEdit() {
     if (!editing) return;
+    if (!draftLemma.trim()) {
+      saved = false;
+      saveError = "Greek word is required.";
+      return;
+    }
     saving = true;
     saved = false;
     saveError = null;
@@ -110,6 +136,7 @@
         courseId,
         lessonId,
         entryId: editing.id,
+        lemma: draftLemma,
         english: draftEnglish,
         senses: draftSenses,
         image: draftImage,
@@ -147,7 +174,7 @@
   }
 
   function openPexels() {
-    pexelsQuery = draftEnglish.split(/[;,]/)[0]?.replace(/\(.*?\)/g, "").trim() || editing?.lemma || "";
+    pexelsQuery = draftEnglish.split(/[;,]/)[0]?.replace(/\(.*?\)/g, "").trim() || draftLemma || editing?.lemma || "";
     pexelsOpen = true;
     searchImages();
   }
@@ -265,12 +292,14 @@
     assisting = true;
     assistError = null;
     try {
-      const senses = await aiAssistVocabEntry({
+      const result = await aiAssistVocabEntry({
         entry: editing,
         prompt: assistPrompt,
+        currentLemma: draftLemma,
         currentSenses: draftSenses.filter((sense) => sense.trim()),
       });
-      draftSenses = senses.length ? senses : draftSenses;
+      draftLemma = result.lemma;
+      draftSenses = result.englishSenses.length ? result.englishSenses : draftSenses;
       draftEnglish = draftSenses[0] ?? draftEnglish;
       scheduleSave(0);
     } catch (err) {
@@ -436,7 +465,7 @@
               {#if editing.article}
                 <span class="text-sm text-(--color-muted)">{editing.article}</span>
               {/if}
-              <GreekText>{editing.lemma}</GreekText>
+              <GreekText>{draftLemma || editing.lemma}</GreekText>
             </div>
             <p class="mt-1 text-xs text-(--color-muted)">
               {saving ? "Saving..." : saved ? "Saved" : "Changes save automatically"}
@@ -454,6 +483,19 @@
         </header>
 
         <div class="space-y-5 px-5 py-4">
+          <label class="block">
+            <span class="mb-1 block text-sm font-medium">Greek word</span>
+            <input
+              type="text"
+              value={draftLemma}
+              oninput={(e) => {
+                draftLemma = (e.target as HTMLInputElement).value;
+                scheduleSave();
+              }}
+              class="w-full rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 font-serif text-lg"
+            />
+          </label>
+
           <label class="block">
             <span class="mb-1 block text-sm font-medium">Primary English</span>
             <input
@@ -514,7 +556,7 @@
 
           <div class="rounded-md border border-(--color-border) bg-(--color-surface-muted) p-3">
             <label class="block">
-              <span class="mb-1 block text-sm font-medium">AI definition assist</span>
+              <span class="mb-1 block text-sm font-medium">AI word assist</span>
               <input
                 type="text"
                 bind:value={assistPrompt}
@@ -528,7 +570,7 @@
               class="mt-2 inline-flex items-center gap-1.5 rounded-md bg-(--color-accent) px-3 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
             >
               <Wand2 size={14} aria-hidden="true" />
-              {assisting ? "Asking AI..." : "Update meanings"}
+              {assisting ? "Asking AI..." : "Update word and meanings"}
             </button>
             {#if assistError}
               <p class="mt-2 text-sm text-(--color-danger)">{assistError}</p>
