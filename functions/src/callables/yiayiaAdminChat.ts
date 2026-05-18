@@ -24,16 +24,21 @@ import { ALLOWED_ORIGINS } from "../cors.js";
 import { LineageRecorder } from "../admin/lineage.js";
 import { buildAdminTools } from "../admin/tools.js";
 
-const MessageSchema = z.object({
-  role: z.enum(["user", "assistant"]),
-  content: z.string().min(1).max(8000),
-});
-
 // Firebase callables serialize `undefined` as `null` on the wire — so each
 // field must accept null AND undefined, and coerce both to "".
 const nullableString = z
   .union([z.string(), z.null(), z.undefined()])
   .transform((v) => (typeof v === "string" ? v : ""));
+
+const MessageSchema = z.object({
+  role: z.enum(["user", "assistant"]),
+  content: z.string().min(1).max(8000),
+});
+
+const IncomingMessageSchema = z.object({
+  role: z.enum(["user", "assistant"]),
+  content: nullableString.transform((value) => value.trim()),
+});
 
 const ContextSchema = z
   .object({
@@ -47,9 +52,20 @@ const ContextSchema = z
   .default({});
 
 const InputSchema = z.object({
-  messages: z.array(MessageSchema).min(1).max(40),
+  messages: z
+    .array(IncomingMessageSchema)
+    .min(1)
+    .max(60)
+    .transform((messages) =>
+      messages.filter(
+        (message) => message.role !== "assistant" || message.content.length > 0,
+      ),
+    )
+    .pipe(z.array(MessageSchema).min(1).max(40)),
   context: ContextSchema,
 });
+
+const ADMIN_MAX_TOOL_TURNS = 16;
 
 type ToolCallRecord = {
   id: string;
@@ -201,6 +217,7 @@ export const yiayiaAdminChat = onCall(
         messages: history,
         prompt: latest.content,
         tools,
+        maxTurns: ADMIN_MAX_TOOL_TURNS,
       });
 
       let fullText = "";
@@ -263,7 +280,14 @@ export const yiayiaAdminChat = onCall(
     } catch (err) {
       logger.error("yiayiaAdminChat failed", err);
       const message = err instanceof Error ? err.message : String(err);
-      const errorEvent = { type: "error" as const, message };
+      await recorder.fail(message).catch((failErr) => {
+        logger.error("Failed to mark Yiayia admin generation as error", failErr);
+      });
+      const errorEvent = {
+        type: "error" as const,
+        message,
+        generationId: recorder.hasActivity() ? recorder.id : undefined,
+      };
       emit(errorEvent);
       throw new HttpsError("internal", message);
     }

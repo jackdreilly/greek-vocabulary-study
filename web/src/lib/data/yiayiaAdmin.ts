@@ -31,7 +31,7 @@ export type AdminChatEvent =
   | { type: "tool_call"; id: string; name: string; input: unknown }
   | { type: "tool_result"; id: string; name: string; output?: unknown; error?: string }
   | { type: "status"; message: string }
-  | { type: "error"; message: string }
+  | { type: "error"; message: string; generationId?: string }
   | {
       type: "done";
       message: string;

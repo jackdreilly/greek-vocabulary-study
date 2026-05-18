@@ -160,8 +160,28 @@ export class LineageRecorder {
       });
   }
 
+  async fail(message: string): Promise<void> {
+    if (!this.opened) return;
+    await getFirestore()
+      .doc(`generations/${this.id}`)
+      .update({
+        status: "error",
+        completedAt: Timestamp.now(),
+        latencyMs: Date.now() - this.startedAt,
+        statusLog: FieldValue.arrayUnion({
+          at: Timestamp.now(),
+          message: `Yiayia admin edit failed: ${message}`,
+          source: "system",
+        }),
+      });
+  }
+
   hasWrites(): boolean {
     return this.manifest.length > 0;
+  }
+
+  hasActivity(): boolean {
+    return this.opened;
   }
 
   manifestSummary(): { count: number; sample: string[] } {

@@ -65,6 +65,9 @@
     const content = draft.trim();
     if (!content || sending) return;
     const nextMessages: AdminChatMessage[] = [...messages, { role: "user", content }];
+    const requestMessages = nextMessages
+      .filter((message) => !message.error && message.content.trim().length > 0)
+      .map((message) => ({ role: message.role, content: message.content.trim() }));
     messages = nextMessages;
     draft = "";
     sending = true;
@@ -78,7 +81,7 @@
     try {
       const result = await streamAdminChat(
         {
-          messages: nextMessages.map((m) => ({ role: m.role, content: m.content })),
+          messages: requestMessages,
           context,
         },
         async (event) => {
@@ -120,7 +123,7 @@
         ...nextMessages,
         {
           role: "assistant",
-          content: result.message,
+          content: result.message || "(no response)",
           toolCalls: result.toolCalls,
           generationId: result.generationId,
         },
@@ -129,14 +132,22 @@
       streamingToolCalls = [];
       statusLine = "";
     } catch (err) {
-      error = err instanceof Error ? err.message : String(err);
+      const message = err instanceof Error ? err.message : String(err);
+      error = message;
+      const failedToolCalls = streamingToolCalls.map((call) =>
+        call.status === "running"
+          ? { ...call, status: "error" as const, error: message }
+          : call,
+      );
       messages = [
         ...nextMessages,
         {
           role: "assistant",
-          content: "",
-          toolCalls: streamingToolCalls,
-          error: err instanceof Error ? err.message : String(err),
+          content:
+            streamingText.trim() ||
+            "I couldn't finish that run. The failed turn will be skipped when you retry.",
+          toolCalls: failedToolCalls,
+          error: message,
         },
       ];
       streamingText = "";
