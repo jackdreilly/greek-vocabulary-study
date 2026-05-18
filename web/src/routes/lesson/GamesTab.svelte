@@ -360,9 +360,6 @@
             </span>
             <span class="text-[11px] font-bold text-(--color-muted)">{index + 1} / {games.length}</span>
           </div>
-          {#if current.direction}
-            <span class="text-xs text-(--color-muted)">{current.direction}</span>
-          {/if}
         </div>
 
         <!-- Passage (for reading comprehension) -->

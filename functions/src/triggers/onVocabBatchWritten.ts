@@ -3,7 +3,7 @@ import { logger } from "firebase-functions";
 import { onDocumentWritten } from "firebase-functions/v2/firestore";
 import { geminiApiKey } from "../ai/genkitClient.js";
 import { getModelFor } from "../ai/configResolver.js";
-import { generateVocabFlow, normalizeArticle, primaryEnglish } from "../ai/vocabGeneration.js";
+import { buildVocabPrompt, generateVocabFlow, normalizeArticle, primaryEnglish } from "../ai/vocabGeneration.js";
 
 function status(message: string) {
   return { at: Timestamp.now(), message, source: "system" };
@@ -26,6 +26,10 @@ function entryId(order: number, lemma: string) {
 
 function compact<T extends Record<string, unknown>>(value: T): T {
   return Object.fromEntries(Object.entries(value).filter(([, v]) => v !== undefined)) as T;
+}
+
+function persistable(value: unknown) {
+  return JSON.parse(JSON.stringify(value));
 }
 
 export const onVocabBatchWritten = onDocumentWritten(
@@ -78,6 +82,11 @@ export const onVocabBatchWritten = onDocumentWritten(
         kind: "entry_batch",
         parentDoc: batchRef.path,
         sourcePrompt: data.prompt ?? "",
+        prompts: {
+          originalCourse: typeof course.sourcePrompt === "string" ? course.sourcePrompt : "",
+          originalLesson: typeof lesson.sourcePrompt === "string" ? lesson.sourcePrompt : "",
+          originalVocab: String(data.prompt ?? "Add useful vocabulary for this lesson."),
+        },
         trigger: { kind: "user_action", description: `Vocabulary batch for ${lesson.title ?? lessonId}` },
         status: "streaming",
         statusLog: [status("Vocabulary batch generation started.")],
@@ -92,7 +101,7 @@ export const onVocabBatchWritten = onDocumentWritten(
         updatedAt: Timestamp.now(),
       });
 
-      const generated = await generateVocabFlow({
+      const vocabInput = {
         courseTitle: String(course.title ?? "Greek course"),
         courseDescription: typeof course.description === "string" ? course.description : "",
         courseSourcePrompt: typeof course.sourcePrompt === "string" ? course.sourcePrompt : "",
@@ -102,6 +111,21 @@ export const onVocabBatchWritten = onDocumentWritten(
         prompt: String(data.prompt ?? "Add useful vocabulary for this lesson."),
         count: Math.max(1, Math.min(80, Number(data.count ?? 20))),
         existingLemmas: existing.map((entry) => String(entry.lemma ?? "")).filter(Boolean),
+        chainContext: JSON.stringify({
+          lessonTitle: String(lesson.title ?? lessonId),
+          lessonOverview: typeof lesson.description === "string" ? lesson.description : "",
+          existingLemmaCount: existing.length,
+        }, null, 2),
+      };
+      await genRef.update({
+        "prompts.vocab": buildVocabPrompt(vocabInput),
+      });
+      const generated = await generateVocabFlow(vocabInput);
+      await genRef.update({
+        "stepOutputs.vocab": persistable({
+          count: generated.suggestions.length,
+          lemmas: generated.suggestions.map((suggestion) => suggestion.lemma),
+        }),
       });
 
       const manifest: Array<{ path: string; action: "create" }> = [];

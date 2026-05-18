@@ -3,12 +3,104 @@ import { logger } from "firebase-functions";
 import { onDocumentWritten } from "firebase-functions/v2/firestore";
 import { z } from "genkit";
 import { geminiApiKey, getAI } from "../ai/genkitClient.js";
-import { generateVocabFlow, normalizeArticle, primaryEnglish } from "../ai/vocabGeneration.js";
+import { buildVocabPrompt, generateVocabFlow, normalizeArticle, primaryEnglish } from "../ai/vocabGeneration.js";
 import { getModelFor, getDecodingFor } from "../ai/configResolver.js";
 
 const LessonOverviewSchema = z.object({
   overviewMarkdown: z.string(),
 });
+
+const LessonTitleSchema = z.object({
+  title: z.string().min(3).max(90),
+  subtitle: z.string().max(120).optional(),
+});
+
+function buildLessonTitlePrompt(input: {
+  courseTitle: string;
+  courseDescription?: string;
+  courseSourcePrompt?: string;
+  currentTitle: string;
+  lessonSourcePrompt?: string;
+}) {
+  return `Name this lesson inside a Modern Greek vocabulary course.
+
+Original course request:
+${input.courseSourcePrompt ?? ""}
+
+Course: ${input.courseTitle}
+Course description: ${input.courseDescription ?? ""}
+Current draft title: ${input.currentTitle}
+Original lesson focus request: ${input.lessonSourcePrompt ?? input.currentTitle}
+
+Requirements:
+- title must be concise, representative, and in English title case
+- do not leave the user's raw prompt as the title
+- omit trailing punctuation
+- prefer a concrete situation, theme, or skill over a generic label
+- subtitle should be sentence case and describe the learner-facing focus in a few words`;
+}
+
+function buildLessonOverviewPrompt(input: {
+  courseTitle: string;
+  courseDescription?: string;
+  courseSourcePrompt?: string;
+  lessonTitle: string;
+  lessonSubtitle?: string;
+  lessonSourcePrompt?: string;
+}) {
+  const previousTurn = {
+    lessonTitle: input.lessonTitle,
+    lessonSubtitle: input.lessonSubtitle ?? "",
+  };
+  return `Write a lesson overview in markdown for this Greek vocabulary lesson.
+
+Original course request:
+${input.courseSourcePrompt ?? ""}
+
+Original lesson focus request:
+${input.lessonSourcePrompt ?? input.lessonTitle}
+
+Use this previously generated lesson-title result as binding context:
+${JSON.stringify(previousTurn, null, 2)}
+
+Course: ${input.courseTitle}
+Course description: ${input.courseDescription ?? ""}
+
+Requirements:
+- Write an engaging markdown overview with 4-7 substantial paragraphs.
+- Use ## section headers, occasional **bold** emphasis, and a short bullet list only where it helps scanning.
+- Include what the learner will learn, what situations the vocabulary supports, and why this lesson fits the course arc.
+- Make it feel like a thoughtful textbook introduction, not a status blurb or admin summary.
+- Write in English. Do not include the lesson title as a heading (it's already shown above the overview).`;
+}
+
+const generateLessonTitleFlow = getAI().defineFlow(
+  {
+    name: "generateLessonTitle",
+    inputSchema: z.object({
+      courseTitle: z.string(),
+      courseDescription: z.string().optional(),
+      courseSourcePrompt: z.string().optional(),
+      currentTitle: z.string(),
+      lessonSourcePrompt: z.string().optional(),
+    }),
+    outputSchema: LessonTitleSchema,
+  },
+  async (input) => {
+    const model = await getModelFor("lessonGen");
+    const decoding = await getDecodingFor("lessonGen");
+    const { output } = await getAI().generate({
+      model,
+      output: { schema: LessonTitleSchema },
+      config: { maxOutputTokens: 500, ...decoding },
+      system:
+        "You name Modern Greek vocabulary lessons. Return strict JSON with a polished, representative lesson title and optional subtitle.",
+      prompt: buildLessonTitlePrompt(input),
+    });
+    if (!output) throw new Error("Lesson title generation returned no output.");
+    return output;
+  },
+);
 
 const generateLessonOverviewFlow = getAI().defineFlow(
   {
@@ -16,6 +108,7 @@ const generateLessonOverviewFlow = getAI().defineFlow(
     inputSchema: z.object({
       courseTitle: z.string(),
       courseDescription: z.string().optional(),
+      courseSourcePrompt: z.string().optional(),
       lessonTitle: z.string(),
       lessonSubtitle: z.string().optional(),
       lessonSourcePrompt: z.string().optional(),
@@ -30,19 +123,7 @@ const generateLessonOverviewFlow = getAI().defineFlow(
       output: { schema: LessonOverviewSchema },
       config: { maxOutputTokens: 1500, ...decoding },
       system: "You are a Modern Greek curriculum designer. Write concise, scannable lesson overviews in markdown.",
-      prompt: `Write a lesson overview in markdown for this Greek vocabulary lesson.
-
-Course: ${input.courseTitle}
-Course description: ${input.courseDescription ?? ""}
-Lesson: ${input.lessonTitle}
-Lesson subtitle: ${input.lessonSubtitle ?? ""}
-Lesson focus: ${input.lessonSourcePrompt ?? input.lessonTitle}
-
-Requirements:
-- Use ## section headers and bullet lists — NOT a wall of prose.
-- Sections to include: "## What you'll learn" (3-5 bullets of vocabulary areas or situations), "## You'll be able to" (3-4 practical outcomes in the learner's voice, e.g. "Order a coffee and ask for the bill").
-- Keep it under 150 words total.
-- Write in English. Do not include the lesson title as a heading (it's already shown above the overview).`,
+      prompt: buildLessonOverviewPrompt(input),
     });
     if (!output) throw new Error("Lesson overview generation returned no output.");
     return output;
@@ -70,6 +151,10 @@ function entryId(index: number, lemma: string) {
 
 function compact<T extends Record<string, unknown>>(value: T): T {
   return Object.fromEntries(Object.entries(value).filter(([, v]) => v !== undefined)) as T;
+}
+
+function persistable(value: unknown) {
+  return JSON.parse(JSON.stringify(value));
 }
 
 export const onLessonWritten = onDocumentWritten(
@@ -109,14 +194,26 @@ export const onLessonWritten = onDocumentWritten(
       const courseSnap = await courseRef.get();
       const course = courseSnap.data() ?? {};
       const modelUsed = await getModelFor("lessonGen");
+      const currentTitle = String(data.title ?? lessonId);
+      const courseSourcePrompt =
+        typeof course.sourcePrompt === "string"
+          ? course.sourcePrompt
+          : typeof data.courseSourcePrompt === "string"
+            ? data.courseSourcePrompt
+            : "";
+      const lessonSourcePrompt = typeof data.sourcePrompt === "string" ? data.sourcePrompt : "";
 
       await genRef.set({
         id: genId,
         kind: "lesson",
         parentDoc: lessonRef.path,
         parentGenerationId: data.parentGenerationId ?? course.generationId ?? "",
-        sourcePrompt: data.sourcePrompt ?? course.sourcePrompt ?? "",
-        trigger: { kind: "cascade", description: `Lesson generation for ${data.title ?? lessonId}` },
+        sourcePrompt: lessonSourcePrompt || courseSourcePrompt,
+        prompts: {
+          originalCourse: courseSourcePrompt,
+          originalLesson: lessonSourcePrompt,
+        },
+        trigger: { kind: "cascade", description: `Lesson generation for ${currentTitle}` },
         status: "streaming",
         statusLog: [status("Lesson generation started.")],
         modelUsed,
@@ -124,17 +221,38 @@ export const onLessonWritten = onDocumentWritten(
         createdAt: Timestamp.now(),
       });
 
+      const generatedTitle = await generateLessonTitleFlow({
+        courseTitle: String(course.title ?? "Greek course"),
+        courseDescription: typeof course.description === "string" ? course.description : "",
+        courseSourcePrompt,
+        currentTitle,
+        lessonSourcePrompt,
+      });
+      await genRef.update({
+        "trigger.description": `Lesson generation for ${generatedTitle.title}`,
+        "prompts.lessonTitle": buildLessonTitlePrompt({
+          courseTitle: String(course.title ?? "Greek course"),
+          courseDescription: typeof course.description === "string" ? course.description : "",
+          courseSourcePrompt,
+          currentTitle,
+          lessonSourcePrompt,
+        }),
+        "stepOutputs.lessonTitle": persistable(generatedTitle),
+      });
+
       await Promise.all([
         lessonRef.update({
-          statusLog: FieldValue.arrayUnion(status("Generating overview.")),
+          title: generatedTitle.title,
+          subtitle: generatedTitle.subtitle ?? "",
+          statusLog: FieldValue.arrayUnion(status("Lesson title ready."), status("Generating overview.")),
           generationId: genId,
           generationHistory: FieldValue.arrayUnion(genId),
           updatedAt: Timestamp.now(),
         }),
         courseRef.update({
           [`lessonSummaries.${lessonId}`]: {
-            title: data.title ?? lessonId,
-            subtitle: data.subtitle ?? "",
+            title: generatedTitle.title,
+            subtitle: generatedTitle.subtitle ?? "",
             order: Number(data.order ?? 999),
             status: "streaming",
             entryCount: 0,
@@ -149,9 +267,21 @@ export const onLessonWritten = onDocumentWritten(
       const generatedOverview = await generateLessonOverviewFlow({
         courseTitle: String(course.title ?? "Greek course"),
         courseDescription: typeof course.description === "string" ? course.description : "",
-        lessonTitle: String(data.title ?? lessonId),
-        lessonSubtitle: typeof data.subtitle === "string" ? data.subtitle : "",
-        lessonSourcePrompt: typeof data.sourcePrompt === "string" ? data.sourcePrompt : "",
+        courseSourcePrompt,
+        lessonTitle: generatedTitle.title,
+        lessonSubtitle: generatedTitle.subtitle ?? "",
+        lessonSourcePrompt,
+      });
+      await genRef.update({
+        "prompts.lessonOverview": buildLessonOverviewPrompt({
+          courseTitle: String(course.title ?? "Greek course"),
+          courseDescription: typeof course.description === "string" ? course.description : "",
+          courseSourcePrompt,
+          lessonTitle: generatedTitle.title,
+          lessonSubtitle: generatedTitle.subtitle ?? "",
+          lessonSourcePrompt,
+        }),
+        "stepOutputs.lessonOverview": persistable(generatedOverview),
       });
 
       await lessonRef.update({
@@ -159,7 +289,7 @@ export const onLessonWritten = onDocumentWritten(
         overview: {
           generationId: genId,
           widgets: [
-            { id: "overview-heading", type: "heading", level: 1, text: data.title ?? lessonId },
+            { id: "overview-heading", type: "heading", level: 1, text: generatedTitle.title },
             { id: "overview-prose", type: "markdown", markdown: generatedOverview.overviewMarkdown },
           ],
         },
@@ -167,16 +297,32 @@ export const onLessonWritten = onDocumentWritten(
         updatedAt: Timestamp.now(),
       });
 
-      const generated = await generateVocabFlow({
+      const vocabInput = {
         courseTitle: String(course.title ?? "Greek course"),
         courseDescription: typeof course.description === "string" ? course.description : "",
-        courseSourcePrompt: typeof course.sourcePrompt === "string" ? course.sourcePrompt : "",
-        lessonTitle: String(data.title ?? lessonId),
+        courseSourcePrompt,
+        lessonTitle: generatedTitle.title,
         lessonDescription: generatedOverview.overviewMarkdown,
-        lessonSourcePrompt: typeof data.sourcePrompt === "string" ? data.sourcePrompt : "",
-        prompt: typeof data.sourcePrompt === "string" ? data.sourcePrompt : String(data.title ?? lessonId),
+        lessonSourcePrompt,
+        prompt: lessonSourcePrompt || generatedTitle.title,
         count: Number(data.targetEntryCount ?? 30),
         existingLemmas: [],
+        chainContext: JSON.stringify({
+          courseTitle: String(course.title ?? "Greek course"),
+          courseDescription: typeof course.description === "string" ? course.description : "",
+          generatedLessonTitle: generatedTitle,
+          generatedLessonOverview: generatedOverview,
+        }, null, 2),
+      };
+      await genRef.update({
+        "prompts.vocab": buildVocabPrompt(vocabInput),
+      });
+      const generated = await generateVocabFlow(vocabInput);
+      await genRef.update({
+        "stepOutputs.vocab": persistable({
+          count: generated.suggestions.length,
+          lemmas: generated.suggestions.map((suggestion) => suggestion.lemma),
+        }),
       });
 
       const manifest: Array<{ path: string; action: "create" | "update" }> = [{ path: lessonRef.path, action: "update" }];

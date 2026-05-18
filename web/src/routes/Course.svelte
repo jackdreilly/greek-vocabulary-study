@@ -76,16 +76,35 @@
       {/if}
     </header>
 
-    {#if lead}
+    {#if description}
       <section class="mb-12">
-        <MarkdownBody markdown={expanded ? description : lead} />
-        {#if hasMore}
+        {#if expanded}
+          <MarkdownBody markdown={description} />
           <button
             type="button"
-            onclick={() => (expanded = !expanded)}
+            onclick={() => (expanded = false)}
             class="mt-4 text-sm font-medium text-(--color-accent) hover:text-(--color-accent-hover)"
           >
-            {expanded ? "Show less" : "Read full overview →"}
+            Show less
+          </button>
+        {:else if lead}
+          <MarkdownBody markdown={lead} />
+          {#if hasMore}
+            <button
+              type="button"
+              onclick={() => (expanded = true)}
+              class="mt-4 text-sm font-medium text-(--color-accent) hover:text-(--color-accent-hover)"
+            >
+              Read full overview →
+            </button>
+          {/if}
+        {:else}
+          <button
+            type="button"
+            onclick={() => (expanded = true)}
+            class="text-sm font-medium text-(--color-accent) hover:text-(--color-accent-hover)"
+          >
+            Read course overview →
           </button>
         {/if}
       </section>

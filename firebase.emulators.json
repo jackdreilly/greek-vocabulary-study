@@ -1,0 +1,50 @@
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs24",
+    "predeploy": ["pnpm --filter ./functions build"],
+    "ignore": [
+      "node_modules",
+      ".git",
+      "src",
+      "tsconfig.json",
+      "*.local"
+    ]
+  },
+  "hosting": {
+    "site": "fanari-b6bb4",
+    "public": "web/dist-emulator",
+    "ignore": ["firebase.emulators.json", "**/.*", "**/node_modules/**"],
+    "headers": [
+      {
+        "source": "/assets/**",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        ]
+      },
+      {
+        "source": "**",
+        "headers": [{ "key": "Cache-Control", "value": "no-store" }]
+      }
+    ],
+    "rewrites": [
+      { "source": "/api/pexels-search", "function": "searchPexelsImages" },
+      { "source": "**", "destination": "/index.html" }
+    ]
+  },
+  "emulators": {
+    "ui": { "enabled": true, "host": "0.0.0.0", "port": 4000 },
+    "hosting": { "host": "0.0.0.0", "port": 5002 },
+    "functions": { "host": "0.0.0.0", "port": 5001 },
+    "firestore": { "host": "0.0.0.0", "port": 8080 },
+    "storage": { "host": "0.0.0.0", "port": 9199 },
+    "singleProjectMode": true
+  }
+}

@@ -54,8 +54,9 @@
       prompt: (word: string) =>
         [
           `Word Architect: **${word}**`,
-          "Break down this Greek word: core meaning, useful forms, related Greek words, English cognates or durable root connections, and one practical example sentence.",
-          "Avoid silly mnemonic wordplay. Use markdown headings or a compact table when helpful.",
+          "Act as a linguistic archaeologist. Break down this Greek word with roots, etymology, English cognates, related Greek word families, root-language memory connections, modern usage, and a quick conjugation or declension table.",
+          "Structure the answer with: **Core Concept**, **The English Connection**, **Greek Relatives**, **Memory Network**, **Practical Usage**, and **Essential Forms**.",
+          "Keep it lively and learner-facing. Prefer durable root connections over fake-sound mnemonics or silly wordplay.",
         ].join("\n\n"),
     },
     {

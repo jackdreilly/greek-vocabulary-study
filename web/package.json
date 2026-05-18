@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
-    "build:watch": "vite build --watch --mode development",
+    "build:emulator": "vite build --mode development --outDir dist-emulator",
+    "build:watch": "vite build --watch --mode development --outDir dist-emulator",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json"
   },

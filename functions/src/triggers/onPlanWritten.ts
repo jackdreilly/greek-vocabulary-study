@@ -66,8 +66,10 @@ const GeneratedPlanSchema = z.object({
 const GeneratePlanInputSchema = z.object({
   courseTitle: z.string(),
   courseDescription: z.string().optional(),
+  courseSourcePrompt: z.string().optional(),
   lessonTitle: z.string(),
   lessonDescription: z.string().optional(),
+  lessonSourcePrompt: z.string().optional(),
   planNumber: z.number().int().min(1),
   customFocus: z.string().optional(),
   entries: z.array(
@@ -90,44 +92,40 @@ const GeneratePlanInputSchema = z.object({
   ),
 });
 
-const generatePlanFlow = getAI().defineFlow(
-  {
-    name: "generatePlan",
-    inputSchema: GeneratePlanInputSchema,
-    outputSchema: GeneratedPlanSchema,
-  },
-  async (input) => {
-    const model = await getModelFor("planGen");
-    const decoding = await getDecodingFor("planGen");
-    const previous = input.previousPlans.length
-      ? input.previousPlans
-          .map(
-            (plan) =>
-              `Plan ${plan.planNumber}: ${plan.title}; concepts: ${plan.coveredConcepts.join(", ")}; words: ${plan.coveredWords.join(", ")}`,
-          )
-          .join("\n")
-      : "(none)";
-    const vocab = input.entries
-      .slice(0, 80)
-      .map((entry) => `${entry.id}: ${entry.article ? `${entry.article} ` : ""}${entry.lemma} = ${entry.english}; ${entry.category ?? ""}`)
-      .join("\n");
+type GeneratePlanInput = z.infer<typeof GeneratePlanInputSchema>;
 
-    const { output } = await getAI().generate({
-      model,
-      output: { schema: GeneratedPlanSchema },
-      config: {
-        maxOutputTokens: 10000,
-        ...decoding,
-      },
-      system:
-        "You design polished Modern Greek textbook modules as strict JSON. Compose a widgets array — each widget is a typed object. Keep Greek natural, concise, and appropriate for adult learners.",
-      prompt: `Create Plan ${input.planNumber} for this Greek lesson.
+function buildPlanPrompt(input: GeneratePlanInput) {
+  const previous = input.previousPlans.length
+    ? input.previousPlans
+        .map(
+          (plan) =>
+            `Plan ${plan.planNumber}: ${plan.title}; concepts: ${plan.coveredConcepts.join(", ")}; words: ${plan.coveredWords.join(", ")}`,
+        )
+        .join("\n")
+    : "(none)";
+  const vocab = input.entries
+    .slice(0, 80)
+    .map((entry) => `${entry.id}: ${entry.article ? `${entry.article} ` : ""}${entry.lemma} = ${entry.english}; ${entry.category ?? ""}`)
+    .join("\n");
+
+  return `Create Plan ${input.planNumber} for this Greek lesson.
+
+Original course request:
+${input.courseSourcePrompt ?? ""}
+
+Original lesson request:
+${input.lessonSourcePrompt ?? ""}
 
 Course: ${input.courseTitle}
-Course description: ${input.courseDescription ?? ""}
+Course overview:
+${input.courseDescription ?? ""}
+
 Lesson: ${input.lessonTitle}
-Lesson description: ${input.lessonDescription ?? ""}
-Requested focus: ${input.customFocus?.trim() || "(choose a useful uncovered angle)"}
+Lesson overview:
+${input.lessonDescription ?? ""}
+
+Requested plan focus:
+${input.customFocus?.trim() || "(choose a useful uncovered angle)"}
 
 Previous plans to avoid repeating:
 ${previous}
@@ -151,12 +149,35 @@ Widget types you may use (discriminated by "type"):
   comparison_table  — { type, title?, headers[], rows:[[...]] }
 
 Composition rules:
+- Treat the original course request, original lesson request, lesson overview, and previous plans as prior chat turns. Build on them rather than starting fresh.
 - Default to ~8 widgets. Add more (up to 20) only when the requested focus genuinely calls for it (e.g. "10 examples" → add fill_in_blanks items or extra dialogue lines, not extra widgets).
 - Always open with a heading (level 1) and close with a markdown or callout wrap-up.
 - Pick one coherent angle; use 8-20 lesson words; do not invent vocabulary.
 - If the focus requests a specific count, honour it inside the relevant widget's items array.
 - Use markdown widgets for free-form content (cultural notes, extended phrase lists, grammar asides) that doesn't map cleanly to a structured widget.
-- Explanatory text in English; Greek target text stays Greek.`,
+- Explanatory text in English; Greek target text stays Greek.`;
+}
+
+const generatePlanFlow = getAI().defineFlow(
+  {
+    name: "generatePlan",
+    inputSchema: GeneratePlanInputSchema,
+    outputSchema: GeneratedPlanSchema,
+  },
+  async (input) => {
+    const model = await getModelFor("planGen");
+    const decoding = await getDecodingFor("planGen");
+
+    const { output } = await getAI().generate({
+      model,
+      output: { schema: GeneratedPlanSchema },
+      config: {
+        maxOutputTokens: 10000,
+        ...decoding,
+      },
+      system:
+        "You design polished Modern Greek textbook modules as strict JSON. Compose a widgets array — each widget is a typed object. Keep Greek natural, concise, and appropriate for adult learners.",
+      prompt: buildPlanPrompt(input),
     });
 
     if (!output) throw new Error("Plan generation returned no output.");
@@ -185,6 +206,10 @@ function prune<T>(value: T): T {
     return out as T;
   }
   return value;
+}
+
+function persistable(value: unknown) {
+  return JSON.parse(JSON.stringify(value));
 }
 
 async function appendStatus(path: string, message: string) {
@@ -247,6 +272,11 @@ export const onPlanWritten = onDocumentWritten(
         kind: "plan",
         parentDoc: planPath,
         sourcePrompt: typeof data.customFocus === "string" ? data.customFocus : "",
+        prompts: {
+          originalCourse: typeof course.sourcePrompt === "string" ? course.sourcePrompt : "",
+          originalLesson: typeof lesson.sourcePrompt === "string" ? lesson.sourcePrompt : "",
+          originalPlan: typeof data.customFocus === "string" ? data.customFocus : "",
+        },
         trigger: {
           kind: "user_action",
           description: `Plan generation for ${lesson.title ?? lessonId}`,
@@ -285,15 +315,30 @@ export const onPlanWritten = onDocumentWritten(
         });
 
       await appendStatus(planPath, "Asking AI for a new lesson angle.");
-      const generated = await generatePlanFlow({
+      const planInput = {
         courseTitle: String(course.title ?? "Greek course"),
         courseDescription: typeof course.description === "string" ? course.description : "",
+        courseSourcePrompt: typeof course.sourcePrompt === "string" ? course.sourcePrompt : "",
         lessonTitle: String(lesson.title ?? lessonId),
         lessonDescription: typeof lesson.description === "string" ? lesson.description : "",
+        lessonSourcePrompt: typeof lesson.sourcePrompt === "string" ? lesson.sourcePrompt : "",
         planNumber: requestedPlanNumber,
         customFocus: typeof data.customFocus === "string" ? data.customFocus : "",
         entries,
         previousPlans,
+      };
+      await genRef.update({
+        "prompts.plan": buildPlanPrompt(planInput),
+      });
+      const generated = await generatePlanFlow(planInput);
+      await genRef.update({
+        "stepOutputs.plan": persistable({
+          title: generated.title,
+          subtitle: generated.subtitle ?? "",
+          coveredWords: generated.coveredWords,
+          coveredConcepts: generated.coveredConcepts,
+          widgetCount: generated.widgets.length,
+        }),
       });
       const widgets = generated.widgets.map((w, i) => {
         const { exerciseItems, rootEl, rootEn, ...rest } = w;

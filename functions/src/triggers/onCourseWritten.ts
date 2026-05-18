@@ -39,13 +39,78 @@ const CourseOutlineSchema = z.object({
   ).min(2).max(8),
 });
 
+const CourseTitleSchema = z.object({
+  title: z.string().min(3).max(90),
+  subtitle: z.string().max(120).optional(),
+});
+
+function buildCourseTitlePrompt(sourcePrompt: string) {
+  return `Name this Modern Greek vocabulary course request:
+${sourcePrompt}
+
+Requirements:
+- title must be concise, representative, and in English title case
+- do not leave the user's raw prompt as the title
+- omit trailing punctuation
+- avoid generic titles like "Greek Course" unless the request is truly that broad
+- subtitle should be sentence case and describe the learner-facing focus in a few words`;
+}
+
+function buildCourseOutlinePrompt(input: { sourcePrompt: string; title?: string; subtitle?: string }) {
+  const titleResult = {
+    title: input.title ?? "",
+    subtitle: input.subtitle ?? "",
+  };
+  return `Design a Modern Greek vocabulary course from this original request:
+${input.sourcePrompt}
+
+Use this previously generated course-title result as binding context. Do not re-derive from scratch:
+${JSON.stringify(titleResult, null, 2)}
+
+Return:
+- a clear course title in English title case and a subtitle; use the generated title unless the outline reveals a clearly better representative title
+- a course description as an engaging markdown overview with 5-10 substantial paragraphs
+- structure the overview with ## section headers, occasional **bold** emphasis, and learner-facing detail; it should feel rich enough to introduce a real course, not like admin metadata
+- 3-6 lessons ordered from easier/foundational to richer/contextual
+- each lesson description should be 2-4 short bullet points (markdown) describing what vocabulary and situations it covers
+- each lesson needs a focused sourcePrompt that includes the original course request context and can independently generate vocabulary
+- each lesson targetEntryCount should usually be 24-36
+
+Do not include admin notes or implementation details.`;
+}
+
+const generateCourseTitleFlow = getAI().defineFlow(
+  {
+    name: "generateCourseTitle",
+    inputSchema: z.object({ sourcePrompt: z.string() }),
+    outputSchema: CourseTitleSchema,
+  },
+  async ({ sourcePrompt }) => {
+    const model = await getModelFor("courseGen");
+    const decoding = await getDecodingFor("courseGen");
+    const { output } = await getAI().generate({
+      model,
+      output: { schema: CourseTitleSchema },
+      config: {
+        maxOutputTokens: 500,
+        ...decoding,
+      },
+      system:
+        "You name Modern Greek vocabulary courses. Return strict JSON with a polished, representative title and optional subtitle.",
+      prompt: buildCourseTitlePrompt(sourcePrompt),
+    });
+    if (!output) throw new Error("Course title generation returned no output.");
+    return output;
+  },
+);
+
 const generateCourseFlow = getAI().defineFlow(
   {
     name: "generateCourseOutline",
-    inputSchema: z.object({ sourcePrompt: z.string() }),
+    inputSchema: z.object({ sourcePrompt: z.string(), title: z.string().optional(), subtitle: z.string().optional() }),
     outputSchema: CourseOutlineSchema,
   },
-  async ({ sourcePrompt }) => {
+  async ({ sourcePrompt, title, subtitle }) => {
     const model = await getModelFor("courseGen");
     const decoding = await getDecodingFor("courseGen");
     const { output } = await getAI().generate({
@@ -57,18 +122,7 @@ const generateCourseFlow = getAI().defineFlow(
       },
       system:
         "You are a Modern Greek curriculum designer. Create concise course outlines as strict JSON. Lessons should be specific, practical, and vocabulary-rich.",
-      prompt: `Design a Modern Greek vocabulary course from this request:
-${sourcePrompt}
-
-Return:
-- a clear course title and subtitle
-- a course description in markdown (150-250 words) structured with ## section headers and bullet lists — NOT a prose paragraph. Use sections like "## What you'll learn", "## Who this is for", "## How it's structured". Make it scannable, not a wall of text.
-- 3-6 lessons ordered from easier/foundational to richer/contextual
-- each lesson description should be 2-4 short bullet points (markdown) describing what vocabulary and situations it covers — NOT a prose paragraph
-- each lesson needs a focused sourcePrompt that can independently generate vocabulary
-- each lesson targetEntryCount should usually be 24-36
-
-Do not include admin notes or implementation details.`,
+      prompt: buildCourseOutlinePrompt({ sourcePrompt, title, subtitle }),
     });
     if (!output) throw new Error("Course generation returned no output.");
     return output;
@@ -235,6 +289,10 @@ function gameDocs(courseId: string, lesson: DebugLesson, generationId: string) {
   }));
 }
 
+function persistable(value: unknown) {
+  return JSON.parse(JSON.stringify(value));
+}
+
 async function generateDebugCourse(courseId: string, sourcePrompt: string, eventId: string) {
   const db = getFirestore();
   const coursePath = `courses/${courseId}`;
@@ -258,6 +316,9 @@ async function generateDebugCourse(courseId: string, sourcePrompt: string, event
     status: "streaming",
     statusLog: [logEntry("Debug generation started.")],
     modelUsed,
+    prompts: {
+      original: sourcePrompt,
+    },
     manifest: [],
     createdAt: now,
   });
@@ -385,12 +446,40 @@ async function generateAICourse(courseId: string, sourcePrompt: string, eventId:
     status: "streaming",
     statusLog: [logEntry("Course generation started.")],
     modelUsed,
+    prompts: {
+      original: sourcePrompt,
+    },
     manifest: [{ path: coursePath, action: "update" }],
     createdAt: Timestamp.now(),
   });
 
+  await appendStatus(coursePath, "Choosing a representative course title.");
+  const generatedTitle = await generateCourseTitleFlow({ sourcePrompt });
+  await db.doc(`generations/${generationId}`).update({
+    "prompts.courseTitle": buildCourseTitlePrompt(sourcePrompt),
+    "stepOutputs.courseTitle": persistable(generatedTitle),
+  });
+  await courseRef.update({
+    title: generatedTitle.title,
+    subtitle: generatedTitle.subtitle ?? "",
+    statusLog: FieldValue.arrayUnion(logEntry("Course title ready.")),
+    updatedAt: Timestamp.now(),
+  });
+
   await appendStatus(coursePath, "Designing course outline.");
-  const outline = await generateCourseFlow({ sourcePrompt });
+  const outline = await generateCourseFlow({
+    sourcePrompt,
+    title: generatedTitle.title,
+    subtitle: generatedTitle.subtitle,
+  });
+  await db.doc(`generations/${generationId}`).update({
+    "prompts.courseOutline": buildCourseOutlinePrompt({
+      sourcePrompt,
+      title: generatedTitle.title,
+      subtitle: generatedTitle.subtitle,
+    }),
+    "stepOutputs.courseOutline": persistable(outline),
+  });
   await appendStatus(coursePath, "Writing lesson stubs.");
 
   const lessonSummaries: Record<string, unknown> = {};
@@ -417,6 +506,13 @@ async function generateAICourse(courseId: string, sourcePrompt: string, eventId:
       subtitle: lesson.subtitle ?? "",
       description: lesson.description,
       sourcePrompt: lesson.sourcePrompt,
+      courseSourcePrompt: sourcePrompt,
+      courseGenerationContext: {
+        generationId,
+        title: outline.title,
+        subtitle: outline.subtitle ?? "",
+        description: outline.description,
+      },
       targetEntryCount: lesson.targetEntryCount,
       order: index + 1,
       status: "initializing",

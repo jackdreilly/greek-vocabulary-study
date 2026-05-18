@@ -7,14 +7,14 @@
     "node": "24"
   },
   "scripts": {
-    "dev": "export JAVA_HOME=/opt/homebrew/opt/openjdk@21 && export PATH=\"$JAVA_HOME/bin:$PATH\" && export VITE_USE_FIRESTORE_EMULATOR=1 && mkdir -p .emulator-data && pnpm --filter ./web build && pnpm --filter ./functions build && (pnpm --filter ./web build:watch & pnpm --filter ./functions build:watch & node scripts/firebase-tools-proxy.mjs emulators:start --only hosting,functions,firestore,storage --import=.emulator-data --export-on-exit=.emulator-data)",
-    "dev:emulators": "export JAVA_HOME=/opt/homebrew/opt/openjdk@21 && export PATH=\"$JAVA_HOME/bin:$PATH\" && export VITE_USE_FIRESTORE_EMULATOR=1 && mkdir -p .emulator-data && (pnpm --filter ./web build:watch & pnpm --filter ./functions build:watch & node scripts/firebase-tools-proxy.mjs emulators:start --only hosting,functions,firestore,storage --import=.emulator-data --export-on-exit=.emulator-data)",
+    "dev": "export JAVA_HOME=/opt/homebrew/opt/openjdk@21 && export PATH=\"$JAVA_HOME/bin:$PATH\" && export VITE_USE_FIRESTORE_EMULATOR=1 && mkdir -p .emulator-data && pnpm --filter ./web build:emulator && pnpm --filter ./functions build && (pnpm --filter ./web build:watch & pnpm --filter ./functions build:watch & node scripts/firebase-tools-proxy.mjs --config firebase.emulators.json emulators:start --only hosting,functions,firestore,storage --import=.emulator-data --export-on-exit=.emulator-data)",
+    "dev:emulators": "export JAVA_HOME=/opt/homebrew/opt/openjdk@21 && export PATH=\"$JAVA_HOME/bin:$PATH\" && export VITE_USE_FIRESTORE_EMULATOR=1 && mkdir -p .emulator-data && pnpm --filter ./web build:emulator && (pnpm --filter ./web build:watch & pnpm --filter ./functions build:watch & node scripts/firebase-tools-proxy.mjs --config firebase.emulators.json emulators:start --only hosting,functions,firestore,storage --import=.emulator-data --export-on-exit=.emulator-data)",
     "dev:firestore": "export JAVA_HOME=/opt/homebrew/opt/openjdk@21 && export PATH=\"$JAVA_HOME/bin:$PATH\" && mkdir -p .emulator-data && npx firebase-tools emulators:start --only firestore --project fanari-b6bb4 --import=.emulator-data --export-on-exit=.emulator-data",
     "dev:web": "pnpm --filter ./web dev",
     "build": "pnpm --filter ./web build && pnpm --filter ./functions build",
     "check": "pnpm --filter ./web check && pnpm --filter ./functions build",
     "deploy": "pnpm build && npx firebase-tools deploy --only hosting,functions,firestore:rules,firestore:indexes,storage --project fanari-b6bb4 --non-interactive --force",
-    "clean": "rm -rf web/dist functions/lib node_modules web/node_modules functions/node_modules .emulator-data"
+    "clean": "rm -rf web/dist web/dist-emulator functions/lib node_modules web/node_modules functions/node_modules .emulator-data"
   },
   "devDependencies": {
     "@google-cloud/firestore": "^8.6.0",

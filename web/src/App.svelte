@@ -14,7 +14,7 @@
   import Breadcrumb from "./lib/ui/Breadcrumb.svelte";
   import YiayiaPanel from "./lib/YiayiaPanel.svelte";
   import type { Crumb } from "./lib/ui/Breadcrumb.svelte";
-  import { Sparkles, ShieldCheck } from "lucide-svelte";
+  import { BotMessageSquare, ShieldCheck } from "lucide-svelte";
 
   // Route matching — recomputed reactively when route.pathname changes.
   const match = $derived.by(() => {
@@ -227,15 +227,6 @@
         <ShieldCheck size={14} aria-hidden="true" />
         Admin
       </a>
-      <button
-        type="button"
-        class="inline-flex items-center gap-1.5 text-sm text-(--color-muted) hover:text-(--color-text)"
-        title="Yiayia (Y)"
-        onclick={() => (yiayiaOpen = true)}
-      >
-        <Sparkles size={14} aria-hidden="true" />
-        Yiayia
-      </button>
     </div>
   </header>
 
@@ -271,6 +262,17 @@
       </div>
     {/if}
   </main>
+  {#if !yiayiaOpen}
+    <button
+      type="button"
+      class="fixed bottom-4 right-4 z-40 grid size-10 place-items-center rounded-full border border-(--color-border) bg-(--color-bg) text-(--color-accent) shadow-lg transition hover:border-(--color-accent) hover:bg-(--color-surface-muted) focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 focus:ring-offset-(--color-bg) sm:bottom-6 sm:right-6"
+      title="Yiayia (Y)"
+      aria-label="Open Yiayia"
+      onclick={() => (yiayiaOpen = true)}
+    >
+      <BotMessageSquare size={18} aria-hidden="true" />
+    </button>
+  {/if}
   <YiayiaPanel
     open={yiayiaOpen}
     courseId={yiayiaContext.courseId}
