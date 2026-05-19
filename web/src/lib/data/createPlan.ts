@@ -1,5 +1,6 @@
 import { collection, doc, getDocs, orderBy, query, serverTimestamp, setDoc, Timestamp } from "firebase/firestore";
 import { db } from "../firebase";
+import type { SkillLevel } from "../skillLevel";
 
 function nextPlanNumber(existing: Array<{ planNumber?: number }>) {
   return existing.reduce((max, plan) => Math.max(max, Number(plan.planNumber ?? 0)), 0) + 1;
@@ -10,11 +11,13 @@ export async function createPlanStub({
   lessonId,
   existingPlans,
   customFocus = "",
+  skillLevel,
 }: {
   courseId: string;
   lessonId: string;
   existingPlans?: Array<{ planNumber?: number }>;
   customFocus?: string;
+  skillLevel?: SkillLevel;
 }) {
   let plans = existingPlans;
   if (!plans) {
@@ -25,7 +28,7 @@ export async function createPlanStub({
   const planNumber = nextPlanNumber(plans);
   const planId = `${lessonId}-plan-${planNumber}`;
 
-  await setDoc(doc(db, "courses", courseId, "lessons", lessonId, "plans", planId), {
+  const payload: Record<string, unknown> = {
     id: planId,
     courseId,
     lessonId,
@@ -47,7 +50,10 @@ export async function createPlanStub({
     ],
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
-  });
+  };
+  if (skillLevel) payload.skillLevel = skillLevel;
+
+  await setDoc(doc(db, "courses", courseId, "lessons", lessonId, "plans", planId), payload);
 
   return planId;
 }

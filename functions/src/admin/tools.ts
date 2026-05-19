@@ -16,6 +16,7 @@ import { FieldValue, getFirestore, Timestamp } from "firebase-admin/firestore";
 import { z } from "genkit";
 import type { ToolAction } from "genkit";
 import { getAI } from "../ai/genkitClient.js";
+import { SkillLevelSchema } from "../schemas/common.js";
 import {
   CascadeCounts,
   deleteCourseCascade,
@@ -633,11 +634,12 @@ function createPlanTool(recorder: LineageRecorder) {
     {
       name: "createPlan",
       description:
-        "Add a new AI-generated plan (textbook module) to a lesson. Writes a stub plan with status='initializing' so onPlanWritten generates the widgets. Optionally take a customFocus to bias the angle (e.g. 'noun gender drill', 'taverna dialogue', 'verb conjugation').",
+        "Add a new AI-generated plan (textbook module) to a lesson. Writes a stub plan with status='initializing' so onPlanWritten generates the widgets. Optionally take customFocus to bias the angle (e.g. 'noun gender drill', 'taverna dialogue', 'verb conjugation') and skillLevel to override the lesson/course default.",
       inputSchema: z.object({
         courseId: z.string(),
         lessonId: z.string(),
         customFocus: z.string().optional().default(""),
+        skillLevel: SkillLevelSchema.optional(),
       }),
       outputSchema: z.object({
         courseId: z.string(),
@@ -649,7 +651,7 @@ function createPlanTool(recorder: LineageRecorder) {
         generationId: z.string(),
       }),
     },
-    async ({ courseId, lessonId, customFocus }) => {
+    async ({ courseId, lessonId, customFocus, skillLevel }) => {
       const focus = (customFocus ?? "").trim();
       const lessonRef = getFirestore().doc(`courses/${courseId}/lessons/${lessonId}`);
       const existing = await lessonRef.collection("plans").get();
@@ -668,6 +670,7 @@ function createPlanTool(recorder: LineageRecorder) {
         coveredConcepts: [],
         widgets: [],
         customFocus: focus,
+        ...(skillLevel ? { skillLevel } : {}),
         status: "initializing",
         statusLog: [status("Plan request created by Yiayia admin.")],
         createdAt: Timestamp.now(),

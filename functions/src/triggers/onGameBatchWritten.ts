@@ -24,26 +24,30 @@ const GeneratedGameSchema = z.object({
   title: z.string(),
   prompt: z.string(),
   expectedAnswer: z.string().optional(),
-  acceptableAnswers: z.array(z.string()).optional(),
-  requiredWords: z.array(z.string()).optional(),
-  sourceEntryIds: z.array(z.string()).optional(),
+  acceptableAnswers: z.array(z.string()),
+  requiredWords: z.array(z.string()),
+  sourceEntryIds: z.array(z.string()),
   direction: z.enum(["el_to_en", "en_to_el"]).optional(),
   passage: z.string().optional(),
   question: z.string().optional(),
   rubric: z.string().optional(),
 });
 
-const GenerateGamesOutputSchema = z.object({
-  games: z.array(GeneratedGameSchema).min(1).max(30),
+const PreviousGameSchema = z.object({
+  type: z.string(),
+  prompt: z.string(),
+  expectedAnswer: z.string().optional(),
+  requiredWords: z.array(z.string()).optional(),
 });
 
-const GenerateGamesInputSchema = z.object({
+const GenerateGameInputSchema = z.object({
   lessonTitle: z.string(),
   lessonDescription: z.string().optional(),
   skillLevel: SkillLevelSchema.optional(),
   customFocus: z.string().optional().default(""),
   requestedType: z.union([GameTypeSchema, z.literal("mixed")]),
-  count: z.number().int().min(1).max(30),
+  count: z.number().int().min(10).max(30),
+  gameNumber: z.number().int().min(1).max(30),
   entries: z.array(
     z.object({
       id: z.string(),
@@ -52,21 +56,14 @@ const GenerateGamesInputSchema = z.object({
       category: z.string().optional(),
     }),
   ),
-  previousGames: z.array(
-    z.object({
-      type: z.string(),
-      prompt: z.string(),
-      expectedAnswer: z.string().optional(),
-      requiredWords: z.array(z.string()).optional(),
-    }),
-  ),
+  previousGames: z.array(PreviousGameSchema),
 });
 
-const generateGamesFlow = getAI().defineFlow(
+const generateGameFlow = getAI().defineFlow(
   {
-    name: "generateGames",
-    inputSchema: GenerateGamesInputSchema,
-    outputSchema: GenerateGamesOutputSchema,
+    name: "generateGame",
+    inputSchema: GenerateGameInputSchema,
+    outputSchema: GeneratedGameSchema,
   },
   async (input) => {
     const model = await getModelFor("lessonGen");
@@ -84,14 +81,14 @@ const generateGamesFlow = getAI().defineFlow(
 
     const { output } = await getAI().generate({
       model,
-      output: { schema: GenerateGamesOutputSchema },
+      output: { schema: GeneratedGameSchema },
       config: {
-        maxOutputTokens: 6000,
+        maxOutputTokens: 1600,
         ...decoding,
       },
       system:
         "You create compact Modern Greek practice games as strict JSON. Use only the supplied lesson vocabulary as target vocabulary.",
-      prompt: `Generate ${input.count} practice game(s) for this lesson.
+      prompt: `Generate game ${input.gameNumber} of ${input.count} for this lesson. Return exactly one game object.
 
 Lesson: ${input.lessonTitle}
 Lesson description: ${input.lessonDescription ?? ""}
@@ -112,7 +109,8 @@ Game type rules:
 - reading_comprehension: short Greek passage plus one question. Include rubric and a concise expectedAnswer.
 - story_prompt: ask learner to write 2-3 Greek sentences using requiredWords. Include rubric.
 
-Keep prompts short. For mixed, vary the types. Every game must include requiredWords and sourceEntryIds when possible.`,
+Keep prompts short. For mixed batches, choose a type that adds variety against the previous games.
+Every game must include acceptableAnswers, requiredWords, and sourceEntryIds arrays. Use [] only when a field is not relevant or no source entry is available.`,
     });
 
     if (!output) throw new Error("Game generation returned no output.");
@@ -231,11 +229,6 @@ export const onGameBatchWritten = onDocumentWritten(
         };
       });
 
-      await batchRef.update({
-        statusLog: FieldValue.arrayUnion(status("Asking AI for practice games.")),
-        updatedAt: Timestamp.now(),
-      });
-
       const courseSnap = await courseRef.get();
       const courseData = courseSnap.data() ?? {};
       const batchLevelParse = SkillLevelSchema.safeParse(data.skillLevel);
@@ -246,24 +239,36 @@ export const onGameBatchWritten = onDocumentWritten(
         (lessonLevelParse.success ? lessonLevelParse.data : undefined) ??
         (courseLevelParse.success ? courseLevelParse.data : undefined);
 
-      const generated = await generateGamesFlow({
-        lessonTitle: String(lesson.title ?? lessonId),
-        lessonDescription: typeof lesson.description === "string" ? lesson.description : "",
-        skillLevel,
-        customFocus,
-        requestedType: GameTypeSchema.safeParse(requestedType).success ? requestedType as z.infer<typeof GameTypeSchema> : "mixed",
-        count,
-        entries,
-        previousGames,
-      });
+      const createdGameIds: string[] = [];
+      const generatedForPrompt = [...previousGames];
+      const normalizedRequestedType = GameTypeSchema.safeParse(requestedType).success
+        ? requestedType as z.infer<typeof GameTypeSchema>
+        : "mixed";
 
-      const writer = db.batch();
-      const manifest: Array<{ path: string; action: "create" }> = [];
-      generated.games.forEach((game, index) => {
+      for (let index = 0; index < count; index += 1) {
+        await batchRef.update({
+          statusLog: FieldValue.arrayUnion(status(`Asking AI for game ${index + 1} of ${count}.`)),
+          updatedAt: Timestamp.now(),
+        });
+
+        const game = await generateGameFlow({
+          lessonTitle: String(lesson.title ?? lessonId),
+          lessonDescription: typeof lesson.description === "string" ? lesson.description : "",
+          skillLevel,
+          customFocus,
+          requestedType: normalizedRequestedType,
+          count,
+          gameNumber: index + 1,
+          entries,
+          previousGames: generatedForPrompt,
+        });
+
         const gameId = `${batchId}-${String(index + 1).padStart(2, "0")}-${slug(game.type) || "game"}`;
         const gameRef = lessonRef.collection("games").doc(gameId);
-        manifest.push({ path: gameRef.path, action: "create" });
-        writer.set(gameRef, compact({
+        const manifestEntry = { path: gameRef.path, action: "create" as const };
+        createdGameIds.push(gameId);
+
+        await gameRef.set(compact({
           id: gameId,
           courseId,
           lessonId,
@@ -275,32 +280,51 @@ export const onGameBatchWritten = onDocumentWritten(
           createdAt: Timestamp.now(),
           updatedAt: Timestamp.now(),
         }));
-      });
 
-      const nextGameCount = gameSnap.docs.length + generated.games.length;
-      writer.update(batchRef, {
-        status: "ready",
-        createdGameIds: manifest.map((item) => item.path.split("/").pop()),
-        statusLog: FieldValue.arrayUnion(status(`Generated ${generated.games.length} games.`)),
-        updatedAt: Timestamp.now(),
-      });
-      writer.update(lessonRef, {
-        "counts.games": nextGameCount,
-        updatedAt: Timestamp.now(),
-      });
-      writer.update(courseRef, {
-        [`lessonSummaries.${lessonId}.gameCount`]: nextGameCount,
-        "counts.games": FieldValue.increment(generated.games.length),
-        updatedAt: Timestamp.now(),
-      });
-      writer.update(genRef, {
-        status: "done",
-        manifest,
-        completedAt: Timestamp.now(),
-        latencyMs: Date.now() - startedAt,
-        statusLog: FieldValue.arrayUnion(status("Game batch generation complete.")),
-      });
-      await writer.commit();
+        generatedForPrompt.push({
+          type: game.type,
+          prompt: game.prompt,
+          expectedAnswer: game.expectedAnswer,
+          requiredWords: game.requiredWords,
+        });
+
+        await Promise.all([
+          batchRef.update({
+            createdGameIds: FieldValue.arrayUnion(gameId),
+            statusLog: FieldValue.arrayUnion(status(`Generated game ${index + 1} of ${count}.`)),
+            updatedAt: Timestamp.now(),
+          }),
+          genRef.update({
+            manifest: FieldValue.arrayUnion(manifestEntry),
+            statusLog: FieldValue.arrayUnion(status(`Generated game ${index + 1} of ${count}.`)),
+          }),
+        ]);
+      }
+
+      const nextGameCount = gameSnap.docs.length + createdGameIds.length;
+      await Promise.all([
+        batchRef.update({
+          status: "ready",
+          createdGameIds,
+          statusLog: FieldValue.arrayUnion(status(`Generated ${createdGameIds.length} games.`)),
+          updatedAt: Timestamp.now(),
+        }),
+        lessonRef.update({
+          "counts.games": nextGameCount,
+          updatedAt: Timestamp.now(),
+        }),
+        courseRef.update({
+          [`lessonSummaries.${lessonId}.gameCount`]: nextGameCount,
+          "counts.games": FieldValue.increment(createdGameIds.length),
+          updatedAt: Timestamp.now(),
+        }),
+        genRef.update({
+          status: "done",
+          completedAt: Timestamp.now(),
+          latencyMs: Date.now() - startedAt,
+          statusLog: FieldValue.arrayUnion(status("Game batch generation complete.")),
+        }),
+      ]);
     } catch (err) {
       logger.error("onGameBatchWritten failed", { courseId, lessonId, batchId, err });
       await Promise.all([
@@ -318,7 +342,6 @@ export const onGameBatchWritten = onDocumentWritten(
             status: "error",
             error: err instanceof Error ? err.message : String(err),
             statusLog: FieldValue.arrayUnion(status("Game generation failed.")),
-            manifest: [],
             createdAt: Timestamp.now(),
           },
           { merge: true },

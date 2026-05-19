@@ -65,7 +65,9 @@ const InputSchema = z.object({
   context: ContextSchema,
 });
 
-const ADMIN_MAX_TOOL_TURNS = 16;
+// Genkit defaults to 5 turns when this is omitted. Use the largest safe integer
+// so Yiayia can keep chaining tools until the model is done or the callable times out.
+const ADMIN_MAX_TOOL_TURNS = Number.MAX_SAFE_INTEGER;
 
 type ToolCallRecord = {
   id: string;

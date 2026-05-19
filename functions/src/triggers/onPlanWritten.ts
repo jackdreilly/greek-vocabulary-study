@@ -46,7 +46,7 @@ const GeneratableWidgetSchema = z.object({
   instructions: z.string().optional(),
   exerciseItems: z.array(z.object({
     sentence: z.string().optional(),
-    answer: z.string().optional(),
+    answer: z.string(),
     hint: z.string().optional(),
     english: z.string().optional(),
     q: z.string().optional(),
@@ -152,7 +152,7 @@ Widget types you may use (discriminated by "type"):
   reading_passage — { type, title?, el, en, glossary?: [{el,en}] }
   dialogue      — { type, title?, lines: [{speaker, el, en}] }
   fill_in_blanks — { type, title?, instructions?, exerciseItems: [{sentence (contains ___), answer, hint?, english?}] }
-  mini_quiz     — { type, title?, exerciseItems: [{q, options[], correctIndex, explanation?}] }
+  mini_quiz     — { type, title?, exerciseItems: [{q, options[], correctIndex, answer, explanation?}] }
   word_tree     — { type, root:{el,en}, branches:[{el,en,relation}] }
   conjugation_table — { type, title?, headers[], rows:[{form, cells[]}], interactivePractice? }
   comparison_table  — { type, title?, headers[], rows:[[...]] }
@@ -163,6 +163,7 @@ Composition rules:
 - Always open with a heading (level 1) and close with a markdown or callout wrap-up.
 - Pick one coherent angle; use 8-20 lesson words; do not invent vocabulary.
 - If the focus requests a specific count, honour it inside the relevant widget's items array.
+- Every exerciseItems entry must include an answer string. For fill_in_blanks, answer is the exact missing Greek word or phrase that replaces ___. For mini_quiz, answer is the correct option text matching correctIndex.
 - Use markdown widgets for free-form content (cultural notes, extended phrase lists, grammar asides) that doesn't map cleanly to a structured widget.
 - Explanatory text in English; Greek target text stays Greek.`;
 }
@@ -324,9 +325,11 @@ export const onPlanWritten = onDocumentWritten(
         });
 
       await appendStatus(planPath, "Asking AI for a new lesson angle.");
+      const planLevelParse = SkillLevelSchema.safeParse(data.skillLevel);
       const lessonLevelParse = SkillLevelSchema.safeParse(lesson.skillLevel);
       const courseLevelParse = SkillLevelSchema.safeParse(course.skillLevel);
       const skillLevel: SkillLevel | undefined =
+        (planLevelParse.success ? planLevelParse.data : undefined) ??
         (lessonLevelParse.success ? lessonLevelParse.data : undefined) ??
         (courseLevelParse.success ? courseLevelParse.data : undefined);
       const planInput = {

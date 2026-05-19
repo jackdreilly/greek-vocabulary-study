@@ -1,7 +1,13 @@
 <script lang="ts">
   import GreekText from "../../ui/GreekText.svelte";
 
-  type Item = { sentence: string; answer: string; hint?: string; english?: string };
+  type Item = {
+    sentence: string;
+    answer?: string;
+    acceptableAnswers?: string[];
+    hint?: string;
+    english?: string;
+  };
   let {
     items,
     blankItems,
@@ -16,7 +22,7 @@
     blanks.filter((_, idx) => (answers[idx] ?? "").trim().length > 0).length
   );
   const correctCount = $derived(
-    blanks.filter((item, idx) => normalize(answers[idx] ?? "") === normalize(item.answer)).length
+    blanks.filter((item, idx) => isCorrect(item, answers[idx] ?? "")).length
   );
 
   function normalize(s: string) {
@@ -25,6 +31,21 @@
       .replace(/[̀-ͯ]/g, "")
       .toLowerCase()
       .trim();
+  }
+
+  function expectedAnswers(item: Item) {
+    return [item.answer, ...(item.acceptableAnswers ?? [])].filter(
+      (answer): answer is string => typeof answer === "string" && answer.trim().length > 0,
+    );
+  }
+
+  function isCorrect(item: Item, userAnswer: string) {
+    const normalizedAnswer = normalize(userAnswer);
+    return normalizedAnswer.length > 0 && expectedAnswers(item).some((answer) => normalize(answer) === normalizedAnswer);
+  }
+
+  function checkAnswers() {
+    submitted = true;
   }
 </script>
 
@@ -38,7 +59,8 @@
   {#each blanks as item, idx}
     {@const parts = item.sentence.split("___")}
     {@const userAnswer = answers[idx] ?? ""}
-    {@const correct = submitted && normalize(userAnswer) === normalize(item.answer)}
+    {@const correct = submitted && isCorrect(item, userAnswer)}
+    {@const expected = expectedAnswers(item)}
     <li class="leading-loose">
       <span class="font-serif text-lg">
         {parts[0]}
@@ -65,9 +87,13 @@
       {#if item.english}
         <span class="block text-xs text-(--color-muted) mt-0.5">{item.english}</span>
       {/if}
-      {#if submitted && !correct}
+      {#if submitted && !correct && expected.length > 0}
         <span class="block text-xs text-(--color-muted) mt-0.5">
-          Answer: <GreekText>{item.answer}</GreekText>
+          Answer: <GreekText>{expected[0]}</GreekText>
+        </span>
+      {:else if submitted && expected.length === 0}
+        <span class="block text-xs text-(--color-danger) mt-0.5">
+          This item is missing an answer key.
         </span>
       {/if}
     </li>
@@ -77,15 +103,15 @@
 <div class="mt-3 flex flex-wrap items-center gap-3">
   <button
     type="button"
-    onclick={() => (submitted = true)}
-    disabled={answeredCount === 0}
+    onclick={checkAnswers}
+    disabled={blanks.length === 0}
     class="rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
   >
     Check answers
   </button>
   {#if submitted}
     <span class="text-sm text-(--color-muted)">
-      {correctCount} / {blanks.length} correct
+      {correctCount} / {blanks.length} correct{answeredCount < blanks.length ? ` · ${blanks.length - answeredCount} unanswered` : ""}
     </span>
   {/if}
 </div>

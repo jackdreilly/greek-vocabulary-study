@@ -1,11 +1,17 @@
 <script lang="ts">
+  import { subscribeCourse } from "../../lib/data/courses.svelte";
   import { createPlanStub } from "../../lib/data/createPlan";
+  import { subscribeLesson } from "../../lib/data/lessons.svelte";
   import { subscribePlans } from "../../lib/data/plans.svelte";
   import { navigate } from "../../lib/router.svelte";
   import { linkClick } from "../../lib/router.svelte";
+  import { inferSkillLevel, SKILL_LEVEL_LABEL, type SkillLevel } from "../../lib/skillLevel";
+  import SkillLevelPicker from "../../lib/ui/SkillLevelPicker.svelte";
   import { ChevronRight, Sparkles } from "lucide-svelte";
 
   type PlansSub = ReturnType<typeof subscribePlans>;
+  type CourseSub = ReturnType<typeof subscribeCourse>;
+  type LessonSub = ReturnType<typeof subscribeLesson>;
 
   let {
     courseId,
@@ -14,7 +20,10 @@
   }: { courseId: string; lessonId: string; plansSub?: PlansSub } = $props();
 
   let sub = $state<PlansSub>();
+  let courseSub = $state<CourseSub>();
+  let lessonSub = $state<LessonSub>();
   let customFocus = $state("");
+  let planSkillLevel = $state<SkillLevel | "">("");
   let creating = $state(false);
   let createError = $state("");
 
@@ -29,18 +38,39 @@
     return () => next.stop();
   });
 
+  $effect(() => {
+    const nextCourse = subscribeCourse(courseId);
+    const nextLesson = subscribeLesson(courseId, lessonId);
+    courseSub = nextCourse;
+    lessonSub = nextLesson;
+    return () => {
+      nextCourse.stop();
+      nextLesson.stop();
+    };
+  });
+
+  const inheritedLevel = $derived<SkillLevel | undefined>(
+    (lessonSub?.lesson?.skillLevel as SkillLevel | undefined) ??
+      (courseSub?.course?.skillLevel as SkillLevel | undefined) ??
+      undefined,
+  );
+
   async function generatePlan() {
     if (creating) return;
     creating = true;
     createError = "";
     try {
+      const resolved: SkillLevel | undefined =
+        planSkillLevel || inferSkillLevel(customFocus) || inheritedLevel;
       const planId = await createPlanStub({
         courseId,
         lessonId,
         existingPlans: sub?.plans ?? [],
         customFocus,
+        skillLevel: resolved,
       });
       customFocus = "";
+      planSkillLevel = "";
       navigate(`/c/${courseId}/l/${lessonId}/plans/${planId}`);
     } catch (err) {
       createError = err instanceof Error ? err.message : String(err);
@@ -73,6 +103,10 @@
             }
           }}
         />
+        <SkillLevelPicker
+          bind:value={planSkillLevel}
+          autoLabel={inheritedLevel ? `Inherit from lesson/course (${SKILL_LEVEL_LABEL[inheritedLevel]})` : "Auto-detect from focus"}
+        />
         <button
           type="button"
           onclick={() => void generatePlan()}
@@ -101,6 +135,10 @@
               void generatePlan();
             }
           }}
+        />
+        <SkillLevelPicker
+          bind:value={planSkillLevel}
+          autoLabel={inheritedLevel ? `Inherit from lesson/course (${SKILL_LEVEL_LABEL[inheritedLevel]})` : "Auto-detect from focus"}
         />
         <button
           type="button"
