@@ -31,7 +31,7 @@ Prompt: ${game.prompt ?? ""}
 ${game.passage ? `Passage: ${game.passage}` : ""}
 ${game.question ? `Question: ${game.question}` : ""}
 Expected answer: ${game.expectedAnswer ?? ""}
-${game.requiredWords?.length ? `Target words: ${(game.requiredWords as string[]).join(", ")}` : ""}
+${Array.isArray(game.requiredWords) && game.requiredWords.length ? `Target words: ${(game.requiredWords as string[]).join(", ")}` : ""}
 ${game.rubric ? `Rubric: ${game.rubric}` : ""}
 
 Rules:
