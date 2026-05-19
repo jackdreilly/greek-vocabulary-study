@@ -16,7 +16,7 @@
   import YiayiaAdminPanel from "./lib/YiayiaAdminPanel.svelte";
   import { yiayiaFocus } from "./lib/data/yiayiaFocus.svelte";
   import type { Crumb } from "./lib/ui/Breadcrumb.svelte";
-  import { BotMessageSquare, ShieldCheck, Wand2 } from "lucide-svelte";
+  import { BotMessageSquare, Wand2 } from "lucide-svelte";
 
   // Route matching — recomputed reactively when route.pathname changes.
   const match = $derived.by(() => {
@@ -222,18 +222,6 @@
         </div>
       {/if}
       <span class="grow"></span>
-      <a
-        href="/admin"
-        onclick={(e) => {
-          if (e.metaKey || e.ctrlKey || e.shiftKey) return;
-          e.preventDefault();
-          navigate("/admin");
-        }}
-        class="inline-flex items-center gap-1.5 text-sm text-(--color-muted) hover:text-(--color-text)"
-      >
-        <ShieldCheck size={14} aria-hidden="true" />
-        Admin
-      </a>
     </div>
   </header>
 
