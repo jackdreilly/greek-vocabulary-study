@@ -20,6 +20,7 @@ import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { z } from "genkit";
 import { getDecodingFor, getModelFor } from "../ai/configResolver.js";
 import { geminiApiKey, getAI } from "../ai/genkitClient.js";
+import { FLASH_MODEL } from "../ai/models.js";
 import { ALLOWED_ORIGINS } from "../cors.js";
 import { LineageRecorder } from "../admin/lineage.js";
 import { buildAdminTools } from "../admin/tools.js";
@@ -203,7 +204,7 @@ export const yiayiaAdminChat = onCall(
         getDecodingFor("yiayiaAdmin"),
         buildContextBlock(context),
       ]);
-      const model = aiModel === "flash" ? "googleai/gemini-3-flash-preview" : configModel;
+      const model = aiModel === "flash" ? FLASH_MODEL : configModel;
 
       const tools = buildAdminTools(recorder);
 

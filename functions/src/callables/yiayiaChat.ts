@@ -3,6 +3,7 @@ import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { z } from "genkit";
 import { getDecodingFor, getModelFor } from "../ai/configResolver.js";
 import { geminiApiKey, getAI } from "../ai/genkitClient.js";
+import { FLASH_MODEL } from "../ai/models.js";
 import { ALLOWED_ORIGINS } from "../cors.js";
 import { SKILL_LEVEL_LABELS, SkillLevelSchema, type SkillLevel } from "../schemas/common.js";
 import { buildFocusContext, FocusContextSchema } from "./focusContext.js";
@@ -140,7 +141,7 @@ export const yiayiaChat = onCall({ secrets: [geminiApiKey], cors: ALLOWED_ORIGIN
       getDecodingFor("yiayiaChat"),
       readContext(input),
     ]);
-    const model = input.aiModel === "flash" ? "googleai/gemini-3-flash-preview" : configModel;
+    const model = input.aiModel === "flash" ? FLASH_MODEL : configModel;
 
     const history = input.messages.slice(0, -1).map((message) => ({
       role: message.role === "assistant" ? ("model" as const) : ("user" as const),
