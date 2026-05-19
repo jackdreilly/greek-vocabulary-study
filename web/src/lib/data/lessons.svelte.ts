@@ -39,6 +39,16 @@ export type EntryDoc = DocumentData & {
   order: number;
 };
 
+/** Primary English gloss, falling back to senses[0] when english is empty. */
+export function entryPrimaryEnglish(entry: Pick<EntryDoc, "english" | "senses">): string {
+  return entry.english || entry.senses?.[0] || "";
+}
+
+/** All senses beyond the primary. */
+export function entryAdditionalSenses(entry: Pick<EntryDoc, "senses">): string[] {
+  return entry.senses?.slice(1) ?? [];
+}
+
 export type GameDoc = DocumentData & {
   id: string;
   lessonId: string;

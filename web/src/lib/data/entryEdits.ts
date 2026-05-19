@@ -28,10 +28,12 @@ export async function saveEntryEdit(input: {
   image?: EntryDoc["image"];
   audio?: EntryDoc["audio"];
 }) {
+  const sensesClean = input.senses.map((s) => s.trim()).filter(Boolean);
+  const englishClean = input.english.trim() || sensesClean[0] || "";
   await updateDoc(doc(db, "courses", input.courseId, "lessons", input.lessonId, "entries", input.entryId), {
     lemma: input.lemma.trim(),
-    english: input.english.trim(),
-    senses: input.senses.map((s) => s.trim()).filter(Boolean),
+    english: englishClean,
+    senses: sensesClean,
     image: input.image ?? null,
     audio: input.audio ?? null,
     updatedAt: serverTimestamp(),

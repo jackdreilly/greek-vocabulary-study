@@ -58,6 +58,7 @@ export const searchPexelsImages = onRequest({ cors: true, secrets: [pexelsApiKey
 });
 
 export { onAIConfigWritten } from "./triggers/onAIConfigWritten.js";
+export { onEntryWritten } from "./triggers/onEntryWritten.js";
 export { onCourseWritten } from "./triggers/onCourseWritten.js";
 export { onGameBatchWritten } from "./triggers/onGameBatchWritten.js";
 export { onLessonWritten } from "./triggers/onLessonWritten.js";

@@ -112,7 +112,7 @@ function buildPlanPrompt(input: GeneratePlanInput) {
     : "(none)";
   const vocab = input.entries
     .slice(0, 80)
-    .map((entry) => `${entry.id}: ${entry.article ? `${entry.article} ` : ""}${entry.lemma} = ${entry.english}; ${entry.category ?? ""}`)
+    .map((entry) => `${entry.id}: ${entry.article ? `${entry.article} ` : ""}${entry.lemma} = ${entry.english || entry.senses?.[0] || ""}; ${entry.category ?? ""}`)
     .join("\n");
 
   return `Create Plan ${input.planNumber} for this Greek lesson.
@@ -302,12 +302,14 @@ export const onPlanWritten = onDocumentWritten(
 
       const entries = entrySnap.docs.map((doc) => {
         const entry = doc.data();
+        const senses: string[] = Array.isArray(entry.senses) ? entry.senses.map(String) : [];
+        const english = String(entry.english ?? "") || senses[0] || "";
         return {
           id: doc.id,
           lemma: String(entry.lemma ?? ""),
           article: typeof entry.article === "string" ? entry.article : undefined,
-          english: String(entry.english ?? ""),
-          senses: Array.isArray(entry.senses) ? entry.senses.map(String) : [],
+          english,
+          senses,
           category: typeof entry.category === "string" ? entry.category : undefined,
         };
       }).filter((entry) => entry.lemma && entry.english);

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { subscribeEntries } from "../../lib/data/lessons.svelte";
+  import { subscribeEntries, entryPrimaryEnglish } from "../../lib/data/lessons.svelte";
   import GreekText from "../../lib/ui/GreekText.svelte";
   import AudioPlayButton from "../../lib/ui/AudioPlayButton.svelte";
   import { yiayiaFocus, clearFocus } from "../../lib/data/yiayiaFocus.svelte";
@@ -134,7 +134,7 @@
 
   function senses(entry: typeof current) {
     if (!entry) return [];
-    return entry.senses?.length ? entry.senses : [entry.english];
+    return entry.senses?.length ? entry.senses : [entryPrimaryEnglish(entry)];
   }
 
   function primarySense(entry: typeof current) {

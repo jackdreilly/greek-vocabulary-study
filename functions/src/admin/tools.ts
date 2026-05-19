@@ -46,6 +46,53 @@ function slugify(input: string, fallback = "item"): string {
   return slug || fallback;
 }
 
+function entrySlug(lemma: string): string {
+  return lemma
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-zA-Z0-9α-ωΑ-Ω]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 36);
+}
+
+type EntryDraft = {
+  lemma: string;
+  english: string;
+  article?: string;
+  senses?: string[];
+  category?: string;
+  notes?: string;
+};
+
+function buildEntryData(
+  courseId: string,
+  lessonId: string,
+  entryId: string,
+  order: number,
+  input: EntryDraft,
+): Record<string, unknown> {
+  const sensesClean = (input.senses ?? []).map((s) => String(s).trim()).filter(Boolean);
+  const data: Record<string, unknown> = {
+    id: entryId,
+    courseId,
+    lessonId,
+    lemma: input.lemma.trim(),
+    english: input.english.trim(),
+    senses: sensesClean.length > 0 ? sensesClean : [input.english.trim()],
+    order,
+    createdAt: Timestamp.now(),
+    updatedAt: Timestamp.now(),
+  };
+  const articleClean = (input.article ?? "").trim();
+  if (articleClean) data.article = articleClean;
+  const categoryClean = (input.category ?? "").trim();
+  if (categoryClean) data.category = categoryClean;
+  const notesClean = (input.notes ?? "").trim();
+  if (notesClean) data.notes = notesClean;
+  return data;
+}
+
 function status(message: string) {
   return { at: Timestamp.now(), message, source: "system" };
 }
@@ -720,13 +767,7 @@ function addEntryTool(recorder: LineageRecorder) {
       if (!lessonSnap.exists) {
         throw new Error(`Lesson ${courseId}/${lessonId} not found.`);
       }
-      const lemmaSlug = lemma
-        .normalize("NFKD")
-        .replace(/[̀-ͯ]/g, "")
-        .toLowerCase()
-        .replace(/[^a-zA-Z0-9α-ωΑ-Ω]+/g, "-")
-        .replace(/^-+|-+$/g, "")
-        .slice(0, 36);
+      const lemmaSlug = entrySlug(lemma);
       // Find the next free index by reading existing ids of form "e###".
       const entriesSnap = await lessonRef.collection("entries").get();
       let maxIndex = 0;
@@ -742,30 +783,279 @@ function addEntryTool(recorder: LineageRecorder) {
       const path = `courses/${courseId}/lessons/${lessonId}/entries/${entryId}`;
       const url = `/c/${courseId}/l/${lessonId}/vocab`;
 
-      const sensesClean = (senses ?? []).map((s) => String(s).trim()).filter(Boolean);
-      const data: Record<string, unknown> = {
-        id: entryId,
-        courseId,
-        lessonId,
-        lemma: lemma.trim(),
-        english: english.trim(),
-        senses: sensesClean.length > 0 ? sensesClean : [english.trim()],
-        order: maxOrder + 1,
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now(),
-      };
-      const articleClean = (article ?? "").trim();
-      if (articleClean) data.article = articleClean;
-      const categoryClean = (category ?? "").trim();
-      if (categoryClean) data.category = categoryClean;
-      const notesClean = (notes ?? "").trim();
-      if (notesClean) data.notes = notesClean;
+      const data = buildEntryData(courseId, lessonId, entryId, maxOrder + 1, {
+        lemma,
+        english,
+        article,
+        senses,
+        category,
+        notes,
+      });
 
       await recorder.recordSet(path, data, "create");
       await rebuildLessonCounts(courseId, lessonId).catch(() => undefined);
       await rebuildCourseCounts(courseId).catch(() => undefined);
 
       return { courseId, lessonId, entryId, path, url, generationId: recorder.id };
+    },
+  );
+}
+
+function bulkAddEntriesTool(recorder: LineageRecorder) {
+  return getAI().dynamicTool(
+    {
+      name: "bulkAddEntries",
+      description:
+        "Add many vocabulary entries to one lesson in a single call. Each entry gets a unique e### id; all share the same generationId so a single revert removes the whole batch. Prefer this over repeated addEntry calls when the user lists several words at once.",
+      inputSchema: z.object({
+        courseId: z.string(),
+        lessonId: z.string(),
+        entries: z
+          .array(
+            z.object({
+              lemma: z.string().min(1).max(80),
+              english: z.string().min(1).max(240),
+              article: z.string().optional().default(""),
+              senses: z.array(z.string()).optional().default([]),
+              category: z.string().optional().default(""),
+              notes: z.string().optional().default(""),
+            }),
+          )
+          .min(1)
+          .max(80),
+      }),
+      outputSchema: z.object({
+        courseId: z.string(),
+        lessonId: z.string(),
+        count: z.number(),
+        url: z.string(),
+        entries: z.array(
+          z.object({
+            entryId: z.string(),
+            path: z.string(),
+            lemma: z.string(),
+          }),
+        ),
+        generationId: z.string(),
+      }),
+    },
+    async ({ courseId, lessonId, entries }) => {
+      const lessonRef = getFirestore().doc(`courses/${courseId}/lessons/${lessonId}`);
+      const lessonSnap = await lessonRef.get();
+      if (!lessonSnap.exists) {
+        throw new Error(`Lesson ${courseId}/${lessonId} not found.`);
+      }
+      const entriesSnap = await lessonRef.collection("entries").get();
+      let maxIndex = 0;
+      let maxOrder = 0;
+      for (const doc of entriesSnap.docs) {
+        const m = /^e(\d{3})/.exec(doc.id);
+        if (m) maxIndex = Math.max(maxIndex, Number(m[1]));
+        const order = Number(doc.data().order ?? 0);
+        if (Number.isFinite(order)) maxOrder = Math.max(maxOrder, order);
+      }
+      const url = `/c/${courseId}/l/${lessonId}/vocab`;
+      const results: Array<{ entryId: string; path: string; lemma: string }> = [];
+      for (const input of entries) {
+        maxIndex += 1;
+        maxOrder += 1;
+        const slug = entrySlug(input.lemma);
+        const entryId = `e${String(maxIndex).padStart(3, "0")}${slug ? `-${slug}` : ""}`;
+        const path = `courses/${courseId}/lessons/${lessonId}/entries/${entryId}`;
+        const data = buildEntryData(courseId, lessonId, entryId, maxOrder, input);
+        await recorder.recordSet(path, data, "create");
+        results.push({ entryId, path, lemma: input.lemma.trim() });
+      }
+      await rebuildLessonCounts(courseId, lessonId).catch(() => undefined);
+      await rebuildCourseCounts(courseId).catch(() => undefined);
+      return {
+        courseId,
+        lessonId,
+        count: results.length,
+        url,
+        entries: results,
+        generationId: recorder.id,
+      };
+    },
+  );
+}
+
+function bulkUpdateEntriesTool(recorder: LineageRecorder) {
+  return getAI().dynamicTool(
+    {
+      name: "bulkUpdateEntries",
+      description:
+        "Patch many vocabulary entries in one call. Each item targets an entry by id and lists the fields to change (lemma, article, english, senses, category, notes). All share one generationId. Missing entries are reported per-item rather than aborting the batch. IMPORTANT: `english` must always equal `senses[0]`. When changing either field, pass both together.",
+      inputSchema: z.object({
+        courseId: z.string(),
+        lessonId: z.string(),
+        updates: z
+          .array(
+            z.object({
+              entryId: z.string(),
+              lemma: z.string().optional(),
+              article: z.string().optional(),
+              english: z.string().optional(),
+              senses: z.array(z.string()).optional(),
+              category: z.string().optional(),
+              notes: z.string().optional(),
+            }),
+          )
+          .min(1)
+          .max(100),
+      }),
+      outputSchema: z.object({
+        courseId: z.string(),
+        lessonId: z.string(),
+        count: z.number(),
+        updatedCount: z.number(),
+        results: z.array(
+          z.object({
+            entryId: z.string(),
+            path: z.string(),
+            updated: z.array(z.string()),
+            error: z.string().optional(),
+          }),
+        ),
+        generationId: z.string(),
+      }),
+    },
+    async ({ courseId, lessonId, updates }) => {
+      const db = getFirestore();
+      const results: Array<{
+        entryId: string;
+        path: string;
+        updated: string[];
+        error?: string;
+      }> = [];
+      let updatedCount = 0;
+      for (const input of updates) {
+        const path = `courses/${courseId}/lessons/${lessonId}/entries/${input.entryId}`;
+        try {
+          const ref = db.doc(path);
+          const snap = await ref.get();
+          if (!snap.exists) {
+            results.push({
+              entryId: input.entryId,
+              path,
+              updated: [],
+              error: "entry not found",
+            });
+            continue;
+          }
+          const patch: Record<string, unknown> = { updatedAt: Timestamp.now() };
+          const updated: string[] = [];
+          const apply = (name: string, value: unknown) => {
+            if (value === undefined) return;
+            patch[name] = value;
+            updated.push(name);
+          };
+          apply("lemma", input.lemma);
+          apply("article", input.article);
+          apply("english", input.english);
+          apply("senses", input.senses);
+          apply("category", input.category);
+          apply("notes", input.notes);
+          // Coerce: keep english === senses[0] when either is missing.
+          const pEnglish = (patch.english as string | undefined) ?? String(snap.data()?.english ?? "");
+          const pSenses = (patch.senses as string[] | undefined) ?? (snap.data()?.senses as string[] | undefined) ?? [];
+          if (!pEnglish && pSenses.length > 0) { patch.english = pSenses[0]; updated.push("english"); }
+          else if (pEnglish && pSenses.length === 0) { patch.senses = [pEnglish]; updated.push("senses"); }
+          if (updated.length === 0) {
+            results.push({ entryId: input.entryId, path, updated: [] });
+            continue;
+          }
+          await recorder.recordUpdate(path, patch);
+          updatedCount += 1;
+          results.push({ entryId: input.entryId, path, updated });
+        } catch (err) {
+          results.push({
+            entryId: input.entryId,
+            path,
+            updated: [],
+            error: err instanceof Error ? err.message : String(err),
+          });
+        }
+      }
+      return {
+        courseId,
+        lessonId,
+        count: results.length,
+        updatedCount,
+        results,
+        generationId: recorder.id,
+      };
+    },
+  );
+}
+
+function bulkDeleteEntriesTool(recorder: LineageRecorder) {
+  return getAI().dynamicTool(
+    {
+      name: "bulkDeleteEntries",
+      description:
+        "Permanently delete multiple vocabulary entries from a lesson. Not undoable via revert. Pass an array of entryIds; missing ids are reported per-item. Counts on the parent lesson/course are rebuilt once at the end.",
+      inputSchema: z.object({
+        courseId: z.string(),
+        lessonId: z.string(),
+        entryIds: z.array(z.string().min(1)).min(1).max(200),
+      }),
+      outputSchema: z.object({
+        courseId: z.string(),
+        lessonId: z.string(),
+        count: z.number(),
+        deleted: z.number(),
+        results: z.array(
+          z.object({
+            entryId: z.string(),
+            path: z.string(),
+            deleted: z.boolean(),
+            error: z.string().optional(),
+          }),
+        ),
+        generationId: z.string(),
+      }),
+    },
+    async ({ courseId, lessonId, entryIds }) => {
+      const results: Array<{
+        entryId: string;
+        path: string;
+        deleted: boolean;
+        error?: string;
+      }> = [];
+      let deleted = 0;
+      for (const entryId of entryIds) {
+        const path = `courses/${courseId}/lessons/${lessonId}/entries/${entryId}`;
+        try {
+          const removed = await deleteEntryDoc(courseId, lessonId, entryId);
+          if (removed.entries > 0) {
+            deleted += removed.entries;
+            await recorder.noteDelete(path);
+            results.push({ entryId, path, deleted: true });
+          } else {
+            results.push({ entryId, path, deleted: false, error: "entry not found" });
+          }
+        } catch (err) {
+          results.push({
+            entryId,
+            path,
+            deleted: false,
+            error: err instanceof Error ? err.message : String(err),
+          });
+        }
+      }
+      if (deleted > 0) {
+        await rebuildLessonCounts(courseId, lessonId).catch(() => undefined);
+        await rebuildCourseCounts(courseId).catch(() => undefined);
+      }
+      return {
+        courseId,
+        lessonId,
+        count: entryIds.length,
+        deleted,
+        results,
+        generationId: recorder.id,
+      };
     },
   );
 }
@@ -881,7 +1171,7 @@ function updateEntryTool(recorder: LineageRecorder) {
     {
       name: "updateEntry",
       description:
-        "Patch a vocabulary entry's editable fields (lemma, article, english, senses, category, notes).",
+        "Patch a vocabulary entry's editable fields (lemma, article, english, senses, category, notes). IMPORTANT: `english` and `senses` must always be consistent — `english` should equal `senses[0]`. When updating `senses`, also pass `english: senses[0]`. When updating `english`, also pass `senses` with `english` as the first item followed by any additional meanings.",
       inputSchema: z.object({
         courseId: z.string(),
         lessonId: z.string(),
@@ -919,6 +1209,11 @@ function updateEntryTool(recorder: LineageRecorder) {
       apply("senses", senses);
       apply("category", category);
       apply("notes", notes);
+      // Coerce: keep english === senses[0] when either is missing.
+      const pEnglish = (patch.english as string | undefined) ?? String(prior.english ?? "");
+      const pSenses = (patch.senses as string[] | undefined) ?? (prior.senses as string[] | undefined) ?? [];
+      if (!pEnglish && pSenses.length > 0) { patch.english = pSenses[0]; updated.push("english"); }
+      else if (pEnglish && pSenses.length === 0) { patch.senses = [pEnglish]; updated.push("senses"); }
       await recorder.recordUpdate(path, patch);
       return { path, updated, previousValues, generationId: recorder.id };
     },
@@ -1394,14 +1689,17 @@ export function buildAdminTools(recorder: LineageRecorder): AdminToolSet {
     createLessonTool(recorder),
     createPlanTool(recorder),
     addEntryTool(recorder),
+    bulkAddEntriesTool(recorder),
     updateCourseTool(recorder),
     updateLessonTool(recorder),
     updateEntryTool(recorder),
+    bulkUpdateEntriesTool(recorder),
     updatePlanTool(recorder),
     updateGameTool(recorder),
     addLessonOverviewWidgetTool(recorder),
     addPlanWidgetTool(recorder),
     deleteEntryTool(recorder),
+    bulkDeleteEntriesTool(recorder),
     deleteGameTool(recorder),
     deletePlanTool(recorder),
     deleteLessonTool(recorder),

@@ -210,10 +210,12 @@ export const onGameBatchWritten = onDocumentWritten(
       const entries = entrySnap.docs
         .map((doc) => {
           const entry = doc.data();
+          const senses: string[] = Array.isArray(entry.senses) ? entry.senses.map(String) : [];
           return {
             id: doc.id,
             lemma: String(entry.lemma ?? ""),
-            english: String(entry.english ?? ""),
+            english: String(entry.english ?? "") || senses[0] || "",
+            senses,
             category: typeof entry.category === "string" ? entry.category : undefined,
           };
         })

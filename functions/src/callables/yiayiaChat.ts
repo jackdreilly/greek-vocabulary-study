@@ -19,6 +19,7 @@ const YiayiaInputSchema = z.object({
   pathname: z.string().optional().default(""),
   messages: z.array(MessageSchema).min(1).max(20),
   focusedWords: z.array(z.string()).optional().default([]),
+  aiModel: z.enum(["lite", "flash"]).optional().default("lite"),
 });
 
 async function readContext(input: z.infer<typeof YiayiaInputSchema>) {
@@ -70,7 +71,8 @@ async function readContext(input: z.infer<typeof YiayiaInputSchema>) {
     const entries = entrySnap.docs
       .map((doc) => {
         const entry = doc.data();
-        return `${entry.article ? `${entry.article} ` : ""}${entry.lemma} = ${entry.english}`;
+        const primary = String(entry.english || (Array.isArray(entry.senses) ? entry.senses[0] : "") || "");
+        return `${entry.article ? `${entry.article} ` : ""}${entry.lemma} = ${primary}`;
       })
       .join("\n");
     if (entries) parts.push(`Current lesson vocabulary:\n${entries}`);
@@ -126,11 +128,12 @@ export const yiayiaChat = onCall({ secrets: [geminiApiKey], cors: ALLOWED_ORIGIN
   }
 
   try {
-    const [model, decoding, context] = await Promise.all([
+    const [configModel, decoding, context] = await Promise.all([
       getModelFor("yiayiaChat"),
       getDecodingFor("yiayiaChat"),
       readContext(input),
     ]);
+    const model = input.aiModel === "flash" ? "googleai/gemini-3-flash-preview" : configModel;
 
     const history = input.messages.slice(0, -1).map((message) => ({
       role: message.role === "assistant" ? ("model" as const) : ("user" as const),

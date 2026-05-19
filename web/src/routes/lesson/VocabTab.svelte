@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createVocabBatch } from "../../lib/data/createVocabBatch";
   import { aiAssistVocabEntry } from "../../lib/data/vocabAssist";
-  import { subscribeEntries, subscribeLatestVocabBatches } from "../../lib/data/lessons.svelte";
+  import { subscribeEntries, subscribeLatestVocabBatches, entryPrimaryEnglish, entryAdditionalSenses } from "../../lib/data/lessons.svelte";
   import type { EntryDoc } from "../../lib/data/lessons.svelte";
   import {
     imageFromPexels,
@@ -102,8 +102,8 @@
   function openEdit(entry: EntryDoc) {
     editing = entry;
     draftLemma = entry.lemma ?? "";
-    draftEnglish = entry.english ?? "";
-    draftSenses = entry.senses?.length ? [...entry.senses] : [entry.english ?? ""];
+    draftEnglish = entryPrimaryEnglish(entry);
+    draftSenses = entry.senses?.length ? [...entry.senses] : [entryPrimaryEnglish(entry)];
     draftImage = entry.image ?? null;
     draftAudio = entry.audio ?? null;
     saveError = null;
@@ -439,10 +439,10 @@
             />
           {/if}
           <div class="text-(--color-text) min-w-0">
-            <div class="leading-snug">{entry.english}</div>
-            {#if entry.senses && entry.senses.length > 1}
+            <div class="leading-snug">{entryPrimaryEnglish(entry)}</div>
+            {#if entryAdditionalSenses(entry).length > 0}
               <div class="text-xs text-(--color-muted) mt-1 line-clamp-2">
-                {entry.senses.slice(1).join("; ")}
+                {entryAdditionalSenses(entry).join("; ")}
               </div>
             {/if}
           </div>
