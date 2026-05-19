@@ -1,5 +1,5 @@
 /**
- * Admin chat tools — Genkit `defineTool` registrations consumed by
+ * Admin chat tools — Genkit dynamic tools consumed by
  * `yiayiaAdminChat`. Each tool either reads slim views of the Firestore
  * tree, kicks off a stub doc that the existing triggers pick up, or
  * patches/deletes content with cascade-aware helpers and lineage tracking.
@@ -9,7 +9,7 @@
  *     one-click revert.
  *   - Input/output schemas stay flat-ish to keep Gemini's
  *     legacyResponseSchema happy.
- *   - Read tools cap returned data aggressively to avoid blowing the
+ *   - Read tools cap returned data to avoid blowing the
  *     model's context window.
  */
 import { FieldValue, getFirestore, Timestamp } from "firebase-admin/firestore";
@@ -83,7 +83,7 @@ function counts(cc: CascadeCounts): Record<string, number> {
 // ----------------------------------------------------------------------------
 
 const listCoursesTool = () =>
-  getAI().defineTool(
+  getAI().dynamicTool(
     {
       name: "listCourses",
       description:
@@ -139,7 +139,7 @@ const listCoursesTool = () =>
   );
 
 const listLessonsTool = () =>
-  getAI().defineTool(
+  getAI().dynamicTool(
     {
       name: "listLessons",
       description:
@@ -190,7 +190,7 @@ const listLessonsTool = () =>
   );
 
 const getCourseTool = () =>
-  getAI().defineTool(
+  getAI().dynamicTool(
     {
       name: "getCourse",
       description:
@@ -209,7 +209,7 @@ const getCourseTool = () =>
   );
 
 const getLessonTool = () =>
-  getAI().defineTool(
+  getAI().dynamicTool(
     {
       name: "getLesson",
       description:
@@ -230,16 +230,16 @@ const getLessonTool = () =>
   );
 
 const listEntriesTool = () =>
-  getAI().defineTool(
+  getAI().dynamicTool(
     {
       name: "listEntries",
       description:
-        "List vocabulary entries for a lesson, optionally filtered by query against lemma/english/category.",
+        "List vocabulary entries for a lesson, optionally filtered by query against lemma/english/category. Use limit=200 when the admin asks to inspect all terms in a lesson.",
       inputSchema: z.object({
         courseId: z.string(),
         lessonId: z.string(),
         query: z.string().optional().default(""),
-        limit: z.number().int().min(1).max(80).optional().default(40),
+        limit: z.number().int().min(1).max(200).optional().default(40),
       }),
       outputSchema: z.object({
         count: z.number(),
@@ -286,7 +286,7 @@ const listEntriesTool = () =>
   );
 
 const listGamesTool = () =>
-  getAI().defineTool(
+  getAI().dynamicTool(
     {
       name: "listGames",
       description: "List practice games for a lesson with type and prompt previews.",
@@ -335,7 +335,7 @@ const listGamesTool = () =>
   );
 
 const listPlansTool = () =>
-  getAI().defineTool(
+  getAI().dynamicTool(
     {
       name: "listPlans",
       description: "List plans (textbook modules) for a lesson.",
@@ -389,7 +389,7 @@ const listPlansTool = () =>
   );
 
 const getPlanTool = () =>
-  getAI().defineTool(
+  getAI().dynamicTool(
     {
       name: "getPlan",
       description:
@@ -430,7 +430,7 @@ const getPlanTool = () =>
   );
 
 const listRecentGenerationsTool = () =>
-  getAI().defineTool(
+  getAI().dynamicTool(
     {
       name: "listRecentGenerations",
       description:
@@ -481,7 +481,7 @@ const listRecentGenerationsTool = () =>
   );
 
 const previewGenerationTool = () =>
-  getAI().defineTool(
+  getAI().dynamicTool(
     {
       name: "previewGeneration",
       description:
@@ -540,7 +540,7 @@ const previewGenerationTool = () =>
 // ----------------------------------------------------------------------------
 
 function createCourseTool(recorder: LineageRecorder) {
-  return getAI().defineTool(
+  return getAI().dynamicTool(
     {
       name: "createCourse",
       description:
@@ -585,7 +585,7 @@ function createCourseTool(recorder: LineageRecorder) {
 }
 
 function createLessonTool(recorder: LineageRecorder) {
-  return getAI().defineTool(
+  return getAI().dynamicTool(
     {
       name: "createLesson",
       description:
@@ -629,7 +629,7 @@ function createLessonTool(recorder: LineageRecorder) {
 }
 
 function createPlanTool(recorder: LineageRecorder) {
-  return getAI().defineTool(
+  return getAI().dynamicTool(
     {
       name: "createPlan",
       description:
@@ -679,7 +679,7 @@ function createPlanTool(recorder: LineageRecorder) {
 }
 
 function addEntryTool(recorder: LineageRecorder) {
-  return getAI().defineTool(
+  return getAI().dynamicTool(
     {
       name: "addEntry",
       description:
@@ -768,7 +768,7 @@ function addEntryTool(recorder: LineageRecorder) {
 }
 
 function updateCourseTool(recorder: LineageRecorder) {
-  return getAI().defineTool(
+  return getAI().dynamicTool(
     {
       name: "updateCourse",
       description:
@@ -813,7 +813,7 @@ function updateCourseTool(recorder: LineageRecorder) {
 }
 
 function updateLessonTool(recorder: LineageRecorder) {
-  return getAI().defineTool(
+  return getAI().dynamicTool(
     {
       name: "updateLesson",
       description:
@@ -874,7 +874,7 @@ function updateLessonTool(recorder: LineageRecorder) {
 }
 
 function updateEntryTool(recorder: LineageRecorder) {
-  return getAI().defineTool(
+  return getAI().dynamicTool(
     {
       name: "updateEntry",
       description:
@@ -923,7 +923,7 @@ function updateEntryTool(recorder: LineageRecorder) {
 }
 
 function updatePlanTool(recorder: LineageRecorder) {
-  return getAI().defineTool(
+  return getAI().dynamicTool(
     {
       name: "updatePlan",
       description:
@@ -968,7 +968,7 @@ function updatePlanTool(recorder: LineageRecorder) {
 }
 
 function updateGameTool(recorder: LineageRecorder) {
-  return getAI().defineTool(
+  return getAI().dynamicTool(
     {
       name: "updateGame",
       description: "Patch a game's editable fields (prompt, expectedAnswer, rubric, etc.).",
@@ -1018,7 +1018,7 @@ function updateGameTool(recorder: LineageRecorder) {
 }
 
 function addLessonOverviewWidgetTool(recorder: LineageRecorder) {
-  return getAI().defineTool(
+  return getAI().dynamicTool(
     {
       name: "addLessonOverviewWidget",
       description:
@@ -1062,7 +1062,7 @@ function addLessonOverviewWidgetTool(recorder: LineageRecorder) {
 }
 
 function addPlanWidgetTool(recorder: LineageRecorder) {
-  return getAI().defineTool(
+  return getAI().dynamicTool(
     {
       name: "addPlanWidget",
       description:
@@ -1093,7 +1093,7 @@ function addPlanWidgetTool(recorder: LineageRecorder) {
 }
 
 function deleteEntryTool(recorder: LineageRecorder) {
-  return getAI().defineTool(
+  return getAI().dynamicTool(
     {
       name: "deleteEntry",
       description: "Permanently delete a vocabulary entry. Not undoable via revert.",
@@ -1120,7 +1120,7 @@ function deleteEntryTool(recorder: LineageRecorder) {
 }
 
 function deleteGameTool(recorder: LineageRecorder) {
-  return getAI().defineTool(
+  return getAI().dynamicTool(
     {
       name: "deleteGame",
       description: "Permanently delete a single game.",
@@ -1147,7 +1147,7 @@ function deleteGameTool(recorder: LineageRecorder) {
 }
 
 function deletePlanTool(recorder: LineageRecorder) {
-  return getAI().defineTool(
+  return getAI().dynamicTool(
     {
       name: "deletePlan",
       description: "Permanently delete a single plan.",
@@ -1174,7 +1174,7 @@ function deletePlanTool(recorder: LineageRecorder) {
 }
 
 function deleteLessonTool(recorder: LineageRecorder) {
-  return getAI().defineTool(
+  return getAI().dynamicTool(
     {
       name: "deleteLesson",
       description:
@@ -1202,7 +1202,7 @@ function deleteLessonTool(recorder: LineageRecorder) {
 }
 
 function deleteCourseTool(recorder: LineageRecorder) {
-  return getAI().defineTool(
+  return getAI().dynamicTool(
     {
       name: "deleteCourse",
       description:
@@ -1227,7 +1227,7 @@ function deleteCourseTool(recorder: LineageRecorder) {
 }
 
 function revertGenerationTool(_recorder: LineageRecorder) {
-  return getAI().defineTool(
+  return getAI().dynamicTool(
     {
       name: "revertGeneration",
       description:
