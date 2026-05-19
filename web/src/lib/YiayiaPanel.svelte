@@ -177,6 +177,7 @@
           tab,
           pathname,
           focusedWords: yiayiaFocus.words.length ? yiayiaFocus.words : undefined,
+          focus: yiayiaFocus.item,
           messages: nextMessages.map((m) => ({
             role: m.role,
             content: m.requestContent ?? m.content,

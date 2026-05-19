@@ -6,7 +6,7 @@
   import { linkClick } from "../lib/router.svelte";
   import WidgetRenderer from "../lib/widgets/WidgetRenderer.svelte";
   import { ArrowLeft, RefreshCw } from "lucide-svelte";
-  import { yiayiaFocus, clearFocus } from "../lib/data/yiayiaFocus.svelte";
+  import { clearFocus, setFocus } from "../lib/data/yiayiaFocus.svelte";
 
   type PlanDoc = DocumentData & { id: string };
 
@@ -47,8 +47,18 @@
   $effect(() => {
     if (plan) {
       const words: string[] = plan.coveredWords ?? [];
-      yiayiaFocus.words = words;
-      yiayiaFocus.label = `Plan: ${plan.title ?? ""}`;
+      setFocus({
+        kind: "plan",
+        label: `Plan: ${plan.title ?? ""}`,
+        courseId,
+        lessonId,
+        tab: "plans",
+        planId,
+        words,
+        title: plan.title ?? "",
+        summary: [plan.subtitle, (plan.coveredConcepts ?? []).join(", ")].filter(Boolean).join("\n"),
+        index: typeof plan.planNumber === "number" ? plan.planNumber : undefined,
+      });
     }
     return () => clearFocus();
   });

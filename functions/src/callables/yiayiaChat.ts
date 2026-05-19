@@ -5,6 +5,7 @@ import { getDecodingFor, getModelFor } from "../ai/configResolver.js";
 import { geminiApiKey, getAI } from "../ai/genkitClient.js";
 import { ALLOWED_ORIGINS } from "../cors.js";
 import { SKILL_LEVEL_LABELS, SkillLevelSchema, type SkillLevel } from "../schemas/common.js";
+import { buildFocusContext, FocusContextSchema } from "./focusContext.js";
 
 const MessageSchema = z.object({
   role: z.enum(["user", "assistant"]),
@@ -19,12 +20,18 @@ const YiayiaInputSchema = z.object({
   pathname: z.string().optional().default(""),
   messages: z.array(MessageSchema).min(1).max(20),
   focusedWords: z.array(z.string()).optional().default([]),
+  focus: FocusContextSchema.default(null),
   aiModel: z.enum(["lite", "flash"]).optional().default("lite"),
 });
 
 async function readContext(input: z.infer<typeof YiayiaInputSchema>) {
   const db = getFirestore();
   const parts: string[] = [`Current app path: ${input.pathname || "(unknown)"}`];
+
+  const focusContext = await buildFocusContext(input.focus);
+  if (focusContext) {
+    parts.push(focusContext);
+  }
 
   // Focal words — the specific item the user is looking at right now.
   // Must appear before generic lesson vocab so the AI treats it as highest priority.
@@ -181,4 +188,3 @@ ${context}`;
     throw new HttpsError("internal", err instanceof Error ? err.message : String(err));
   }
 });
-

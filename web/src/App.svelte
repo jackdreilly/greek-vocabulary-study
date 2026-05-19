@@ -14,6 +14,7 @@
   import Breadcrumb from "./lib/ui/Breadcrumb.svelte";
   import YiayiaPanel from "./lib/YiayiaPanel.svelte";
   import YiayiaAdminPanel from "./lib/YiayiaAdminPanel.svelte";
+  import { yiayiaFocus } from "./lib/data/yiayiaFocus.svelte";
   import type { Crumb } from "./lib/ui/Breadcrumb.svelte";
   import { BotMessageSquare, ShieldCheck, Wand2 } from "lucide-svelte";
 
@@ -307,6 +308,7 @@
       lessonId: yiayiaContext.lessonId,
       planId: yiayiaContext.planId,
       tab: yiayiaContext.tab,
+      focus: yiayiaFocus.item,
     }}
     onClose={() => (adminChatOpen = false)}
   />

@@ -1,5 +1,6 @@
 import { httpsCallable } from "firebase/functions";
 import { functions } from "../firebase";
+import type { YiayiaFocusItem } from "./yiayiaFocus.svelte";
 
 export type YiayiaMessage = {
   role: "user" | "assistant";
@@ -58,6 +59,8 @@ type YiayiaInput = {
   messages: YiayiaMessage[];
   /** Greek words currently in focus in the UI (current card, game required words, plan vocab). */
   focusedWords?: string[];
+  /** Structured UI focus for the exact selected/visible item. */
+  focus?: YiayiaFocusItem | null;
   aiModel?: "lite" | "flash";
 };
 
@@ -88,6 +91,7 @@ export async function streamYiayia(
     pathname: input.pathname,
     messages: input.messages,
     focusedWords: input.focusedWords ?? [],
+    focus: input.focus ?? null,
     aiModel: input.aiModel ?? "lite",
   };
 

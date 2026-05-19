@@ -23,6 +23,7 @@ import { geminiApiKey, getAI } from "../ai/genkitClient.js";
 import { ALLOWED_ORIGINS } from "../cors.js";
 import { LineageRecorder } from "../admin/lineage.js";
 import { buildAdminTools } from "../admin/tools.js";
+import { buildFocusContext, FocusContextSchema } from "./focusContext.js";
 
 // Firebase callables serialize `undefined` as `null` on the wire — so each
 // field must accept null AND undefined, and coerce both to "".
@@ -47,6 +48,7 @@ const ContextSchema = z
     lessonId: nullableString,
     planId: nullableString,
     tab: nullableString,
+    focus: FocusContextSchema.default(null),
   })
   .partial()
   .default({});
@@ -86,6 +88,8 @@ async function buildContextBlock(ctx: z.infer<typeof ContextSchema>): Promise<st
   if (ctx.lessonId) parts.push(`Current lessonId: ${ctx.lessonId}`);
   if (ctx.planId) parts.push(`Current planId: ${ctx.planId}`);
   if (ctx.tab) parts.push(`Active tab: ${ctx.tab}`);
+  const focusContext = await buildFocusContext(ctx.focus ?? null);
+  if (focusContext) parts.push(focusContext);
 
   if (ctx.courseId) {
     try {
@@ -142,6 +146,7 @@ OPERATING RULES
 - For createCourse / createLesson / createPlan: kick off the stub immediately; the tool result includes a "url" field — quote it back to the user as the place to go.
 - After a tool runs, briefly summarize what changed and any next step. The UI shows tool cards inline, so you do not need to re-paste tool output.
 - When the user gives a fuzzy reference ("this lesson", "the second course", "Tomatoes", "ksipnaw"), resolve it against the current context and/or via a list tool — the listEntries / listCourses query parameter supports Greeklish (e.g. "ksipnaw" matches "ξυπνάω"). Don't ask for an id unless ambiguous.
+- When the current context includes a focused UI item, resolve "this card", "this game", "this plan", or "the clicked vocab card" to that exact entryId/gameId/planId.
 
 UNDO STRATEGY — IMPORTANT
 - "Undo that" or "revert" does NOT automatically mean call revertGeneration.

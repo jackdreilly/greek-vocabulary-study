@@ -15,6 +15,7 @@
   import { textMatchesSearch } from "../../lib/search";
   import GreekText from "../../lib/ui/GreekText.svelte";
   import AudioPlayButton from "../../lib/ui/AudioPlayButton.svelte";
+  import { clearFocus, setFocus } from "../../lib/data/yiayiaFocus.svelte";
   import { Edit2, Loader2, Mic, MicOff, Plus, RefreshCw, Search, Sparkles, Trash2, Upload, Wand2, X } from "lucide-svelte";
 
   type EntriesSub = ReturnType<typeof subscribeEntries>;
@@ -39,7 +40,7 @@
     if (providedEntriesSub && providedVocabBatchSub) {
       sub = providedEntriesSub;
       batchSub = providedVocabBatchSub;
-      return;
+      return () => clearFocus();
     }
 
     const next = subscribeEntries(courseId, lessonId);
@@ -49,6 +50,7 @@
     return () => {
       next.stop();
       nextBatch.stop();
+      clearFocus();
     };
   });
 
@@ -73,6 +75,7 @@
   let assistPrompt = $state("Improve this word and its definitions for a learner.");
   let assisting = $state(false);
   let assistError = $state<string | null>(null);
+  let selectedEntryId = $state("");
 
   // Audio state
   let draftAudio = $state<EntryDoc["audio"]>(null);
@@ -98,6 +101,38 @@
   const audioStopping = $derived(audioCaptureState === "stopping");
   const audioUploading = $derived(audioCaptureState === "uploading");
   const audioBusy = $derived(audioCaptureState !== "idle");
+
+  $effect(() => {
+    if (!selectedEntryId) return;
+    const selected = filtered.find((entry) => entry.id === selectedEntryId);
+    if (!selected) {
+      selectedEntryId = "";
+      clearFocus();
+      return;
+    }
+    publishEntryFocus(selected);
+  });
+
+  function publishEntryFocus(entry: EntryDoc) {
+    const senses = entry.senses?.length ? entry.senses : [entryPrimaryEnglish(entry)];
+    setFocus({
+      kind: "vocab",
+      label: `Vocab: ${entry.lemma}`,
+      courseId,
+      lessonId,
+      tab: "vocab",
+      entryId: entry.id,
+      words: [entry.lemma],
+      title: [entry.article, entry.lemma].filter(Boolean).join(" "),
+      summary: senses.filter(Boolean).join("; "),
+      index: filtered.findIndex((item) => item.id === entry.id) + 1,
+      total: filtered.length,
+    });
+  }
+
+  function selectEntry(entry: EntryDoc) {
+    selectedEntryId = entry.id;
+  }
 
   function openEdit(entry: EntryDoc) {
     editing = entry;
@@ -403,14 +438,24 @@
     <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       {#each filtered as entry (entry.id)}
         <li
-          class="min-h-32 border border-(--color-border) rounded-lg bg-(--color-surface) px-4 py-3 flex flex-col gap-3"
+          class="min-h-32 rounded-lg border px-4 py-3 flex flex-col gap-3 transition-colors
+            {selectedEntryId === entry.id
+              ? 'border-(--color-accent)/70 bg-(--color-accent)/4 ring-1 ring-(--color-accent)/15'
+              : 'border-(--color-border) bg-(--color-surface) hover:border-(--color-border-strong)'}"
         >
           <div class="flex items-start justify-between gap-3">
-            <div class="flex items-baseline gap-2 min-w-0">
+            <button
+              type="button"
+              aria-pressed={selectedEntryId === entry.id}
+              onclick={() => selectEntry(entry)}
+              class="flex min-w-0 flex-1 cursor-pointer items-baseline gap-2 rounded-sm text-left focus:outline-none"
+            >
               {#if entry.article}
                 <span class="text-(--color-muted) text-sm shrink-0">{entry.article}</span>
               {/if}
               <GreekText>{entry.lemma}</GreekText>
+            </button>
+            <div class="flex shrink-0 items-center gap-1.5">
               {#if entry.audio?.url}
                 <AudioPlayButton
                   url={entry.audio.url}
@@ -419,33 +464,40 @@
                   class="shrink-0 inline-flex h-7 w-7 items-center justify-center rounded-full text-(--color-muted) hover:bg-(--color-surface-muted) hover:text-(--color-accent) disabled:opacity-70"
                 />
               {/if}
+              <button
+                type="button"
+                onclick={() => openEdit(entry)}
+                class="inline-flex items-center gap-1 text-xs text-(--color-muted) hover:text-(--color-text)"
+                title="Edit"
+              >
+                <Edit2 size={12} aria-hidden="true" />
+                Edit
+              </button>
             </div>
-            <button
-              type="button"
-              onclick={() => openEdit(entry)}
-              class="inline-flex items-center gap-1 text-xs text-(--color-muted) hover:text-(--color-text)"
-              title="Edit"
-            >
-              <Edit2 size={12} aria-hidden="true" />
-              Edit
-            </button>
           </div>
-          {#if entry.image}
-            <img
-              src={entry.image.thumbnail ?? entry.image.url}
-              alt=""
-              class="aspect-video w-full rounded-md border border-(--color-border) object-cover"
-              style="object-position: {entry.image.position ?? 'center'}"
-            />
-          {/if}
-          <div class="text-(--color-text) min-w-0">
-            <div class="leading-snug">{entryPrimaryEnglish(entry)}</div>
-            {#if entryAdditionalSenses(entry).length > 0}
-              <div class="text-xs text-(--color-muted) mt-1 line-clamp-2">
-                {entryAdditionalSenses(entry).join("; ")}
-              </div>
+          <button
+            type="button"
+            aria-pressed={selectedEntryId === entry.id}
+            onclick={() => selectEntry(entry)}
+            class="block w-full cursor-pointer rounded-sm text-left focus:outline-none"
+          >
+            {#if entry.image}
+              <img
+                src={entry.image.thumbnail ?? entry.image.url}
+                alt=""
+                class="mb-3 aspect-video w-full rounded-md border border-(--color-border) object-cover"
+                style="object-position: {entry.image.position ?? 'center'}"
+              />
             {/if}
-          </div>
+            <span class="block text-(--color-text) min-w-0">
+              <span class="block leading-snug">{entryPrimaryEnglish(entry)}</span>
+              {#if entryAdditionalSenses(entry).length > 0}
+                <span class="mt-1 block text-xs text-(--color-muted) line-clamp-2">
+                  {entryAdditionalSenses(entry).join("; ")}
+                </span>
+              {/if}
+            </span>
+          </button>
         </li>
       {/each}
     </ul>

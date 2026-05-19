@@ -1,5 +1,6 @@
 import { httpsCallable } from "firebase/functions";
 import { functions } from "../firebase";
+import type { YiayiaFocusItem } from "./yiayiaFocus.svelte";
 
 export type AdminChatMessage = {
   role: "user" | "assistant";
@@ -24,6 +25,7 @@ export type AdminChatContext = {
   lessonId?: string;
   planId?: string;
   tab?: string;
+  focus?: YiayiaFocusItem | null;
 };
 
 export type AdminChatEvent =

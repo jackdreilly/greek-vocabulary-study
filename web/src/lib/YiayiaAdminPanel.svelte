@@ -251,6 +251,11 @@
             {/if}
           </span>
         {/if}
+        {#if context.focus?.label}
+          <span class="truncate rounded bg-(--color-surface-muted) px-2 py-0.5 text-[10px] font-bold text-(--color-muted)">
+            {context.focus.label}
+          </span>
+        {/if}
       </div>
       <div class="flex items-center gap-1">
         <button

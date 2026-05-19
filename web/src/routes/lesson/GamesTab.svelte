@@ -8,7 +8,7 @@
   import SkillLevelPicker from "../../lib/ui/SkillLevelPicker.svelte";
   import { inferSkillLevel, SKILL_LEVEL_LABEL, type SkillLevel } from "../../lib/skillLevel";
   import { Check, ChevronLeft, ChevronRight, RefreshCw, Shuffle, Sparkles, X } from "lucide-svelte";
-  import { yiayiaFocus, clearFocus } from "../../lib/data/yiayiaFocus.svelte";
+  import { clearFocus, setFocus } from "../../lib/data/yiayiaFocus.svelte";
 
   type GamesSub = ReturnType<typeof subscribeGames>;
   type LessonSub = ReturnType<typeof subscribeLesson>;
@@ -157,13 +157,23 @@
   // Keep yiayiaFocus in sync with the current game's target words.
   $effect(() => {
     if (current) {
-      const words = current.requiredWords?.length
-        ? current.requiredWords
-        : current.prompt
-          ? [current.prompt]
-          : [];
-      yiayiaFocus.words = words;
-      yiayiaFocus.label = `Game: ${label(current.type)}`;
+      const words = current.requiredWords?.length ? current.requiredWords : [];
+      setFocus({
+        kind: "game",
+        label: `Game: ${label(current.type)}`,
+        courseId,
+        lessonId,
+        tab: "games",
+        gameId: current.id,
+        type: current.type,
+        title: current.title || label(current.type),
+        prompt: current.prompt,
+        summary: [current.passage, current.question, current.rubric].filter(Boolean).join("\n\n"),
+        expectedAnswer: current.expectedAnswer,
+        words,
+        index: index + 1,
+        total: games.length,
+      });
     } else {
       clearFocus();
     }

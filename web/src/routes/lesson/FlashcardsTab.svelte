@@ -2,7 +2,7 @@
   import { subscribeEntries, entryPrimaryEnglish } from "../../lib/data/lessons.svelte";
   import GreekText from "../../lib/ui/GreekText.svelte";
   import AudioPlayButton from "../../lib/ui/AudioPlayButton.svelte";
-  import { yiayiaFocus, clearFocus } from "../../lib/data/yiayiaFocus.svelte";
+  import { clearFocus, setFocus } from "../../lib/data/yiayiaFocus.svelte";
 
   type EntriesSub = ReturnType<typeof subscribeEntries>;
   type Mode = "gr-en" | "en-gr" | "mixed";
@@ -93,8 +93,19 @@
   // Keep yiayiaFocus in sync with the current card.
   $effect(() => {
     if (current) {
-      yiayiaFocus.words = [current.lemma];
-      yiayiaFocus.label = `Flashcard: ${current.lemma}`;
+      setFocus({
+        kind: "flashcard",
+        label: `Flashcard: ${current.lemma}`,
+        courseId,
+        lessonId,
+        tab: "cards",
+        entryId: current.id,
+        words: [current.lemma],
+        title: [current.article, current.lemma].filter(Boolean).join(" "),
+        summary: senses(current).filter(Boolean).join("; "),
+        index: index + 1,
+        total: entries.length,
+      });
     } else {
       clearFocus();
     }
