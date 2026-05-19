@@ -58,6 +58,7 @@ type YiayiaInput = {
   messages: YiayiaMessage[];
   /** Greek words currently in focus in the UI (current card, game required words, plan vocab). */
   focusedWords?: string[];
+  aiModel?: "lite" | "flash";
 };
 
 type StreamResult = {
@@ -87,6 +88,7 @@ export async function streamYiayia(
     pathname: input.pathname,
     messages: input.messages,
     focusedWords: input.focusedWords ?? [],
+    aiModel: input.aiModel ?? "lite",
   };
 
   const callable = httpsCallable(functions, "yiayiaChat") as StreamableCallable;

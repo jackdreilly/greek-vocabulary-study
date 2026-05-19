@@ -31,6 +31,11 @@
     onClose: () => void;
   } = $props();
 
+  let aiModel = $state<"lite" | "flash">(
+    (localStorage.getItem("greekflash:admin-ai-model") as "lite" | "flash") ?? "lite",
+  );
+  $effect(() => { localStorage.setItem("greekflash:admin-ai-model", aiModel); });
+
   let messages = $state<AdminChatMessage[]>([]);
   let draft = $state("");
   let sending = $state(false);
@@ -83,6 +88,7 @@
         {
           messages: requestMessages,
           context,
+          aiModel,
         },
         async (event) => {
           if (event.type === "text") {
@@ -205,14 +211,18 @@
     "createCourse",
     "createLesson",
     "createPlan",
+    "addEntry",
+    "bulkAddEntries",
     "updateCourse",
     "updateLesson",
     "updateEntry",
+    "bulkUpdateEntries",
     "updatePlan",
     "updateGame",
     "addLessonOverviewWidget",
     "addPlanWidget",
     "deleteEntry",
+    "bulkDeleteEntries",
     "deleteGame",
     "deletePlan",
     "deleteLesson",
@@ -243,6 +253,18 @@
         {/if}
       </div>
       <div class="flex items-center gap-1">
+        <button
+          type="button"
+          onclick={() => (aiModel = aiModel === "lite" ? "flash" : "lite")}
+          class="grid h-7 w-7 place-items-center rounded border text-xs transition-colors"
+          class:border-transparent={aiModel === "lite"}
+          class:text-(--color-muted)={aiModel === "lite"}
+          class:hover:border-(--color-border)={aiModel === "lite"}
+          class:border-amber-400={aiModel === "flash"}
+          class:text-amber-600={aiModel === "flash"}
+          class:bg-amber-50={aiModel === "flash"}
+          title={aiModel === "flash" ? "Using Flash — click for Lite" : "Using Lite — click for Flash"}
+        >{aiModel === "flash" ? "⚡" : "·"}</button>
         {#if messages.length > 0}
           <button
             type="button"

@@ -68,6 +68,7 @@ export async function streamAdminChat(
   input: {
     messages: { role: "user" | "assistant"; content: string }[];
     context: AdminChatContext;
+    aiModel?: "lite" | "flash";
   },
   onEvent: (event: AdminChatEvent) => void,
 ): Promise<{ message: string; toolCalls: AdminToolCall[]; generationId?: string }> {
@@ -75,6 +76,7 @@ export async function streamAdminChat(
   const payload = {
     messages: input.messages,
     context: input.context,
+    aiModel: input.aiModel ?? "lite",
   };
 
   let lastDone: { message: string; toolCalls: AdminToolCall[]; generationId?: string } | null =

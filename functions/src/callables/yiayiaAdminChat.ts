@@ -63,6 +63,7 @@ const InputSchema = z.object({
     )
     .pipe(z.array(MessageSchema).min(1).max(40)),
   context: ContextSchema,
+  aiModel: z.enum(["lite", "flash"]).optional().default("lite"),
 });
 
 // Genkit defaults to 5 turns when this is omitted. Use the largest safe integer
@@ -176,7 +177,7 @@ export const yiayiaAdminChat = onCall(
         parsed.error.issues.map((issue) => issue.message).join("; "),
       );
     }
-    const { messages, context } = parsed.data;
+    const { messages, context, aiModel } = parsed.data;
     const latest = messages[messages.length - 1];
     if (!latest || latest.role !== "user") {
       throw new HttpsError("invalid-argument", "Last message must be from the user.");
@@ -192,11 +193,12 @@ export const yiayiaAdminChat = onCall(
     }
 
     try {
-      const [model, decoding, contextBlock] = await Promise.all([
+      const [configModel, decoding, contextBlock] = await Promise.all([
         getModelFor("yiayiaAdmin"),
         getDecodingFor("yiayiaAdmin"),
         buildContextBlock(context),
       ]);
+      const model = aiModel === "flash" ? "googleai/gemini-3-flash-preview" : configModel;
 
       const tools = buildAdminTools(recorder);
 

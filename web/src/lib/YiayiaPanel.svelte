@@ -37,6 +37,11 @@
     greekCorrection?: GreekCorrection | null;
   };
 
+  let aiModel = $state<"lite" | "flash">(
+    (localStorage.getItem("greekflash:ai-model") as "lite" | "flash") ?? "lite",
+  );
+  $effect(() => { localStorage.setItem("greekflash:ai-model", aiModel); });
+
   let messages = $state<DisplayMessage[]>([]);
   let draft = $state("");
   let sending = $state(false);
@@ -176,6 +181,7 @@
             role: m.role,
             content: m.requestContent ?? m.content,
           })),
+          aiModel,
         },
         async (accumulated) => {
           streamingText = accumulated;
@@ -243,6 +249,18 @@
           {/if}
         </div>
         <div class="flex items-center gap-1">
+          <button
+            type="button"
+            onclick={() => (aiModel = aiModel === "lite" ? "flash" : "lite")}
+            class="grid h-7 w-7 place-items-center rounded border text-xs transition-colors"
+            class:border-transparent={aiModel === "lite"}
+            class:text-(--color-muted)={aiModel === "lite"}
+            class:hover:border-(--color-border)={aiModel === "lite"}
+            class:border-amber-400={aiModel === "flash"}
+            class:text-amber-600={aiModel === "flash"}
+            class:bg-amber-50={aiModel === "flash"}
+            title={aiModel === "flash" ? "Using Flash — click for Lite" : "Using Lite — click for Flash"}
+          >{aiModel === "flash" ? "⚡" : "·"}</button>
           {#if messages.length > 0}
             <button
               type="button"
