@@ -7,7 +7,7 @@
  *   2. Add a render branch in web/src/routes/.../PlanReader.svelte.
  *   3. Update docs/rewrite/06-ui-and-design-system.md if it needs new patterns.
  */
-import { z } from "zod";
+import { z } from "genkit";
 import { StatusLogEntrySchema, StatusSchema, TimestampSchema } from "./common.js";
 
 export const CalloutKindSchema = z.enum([

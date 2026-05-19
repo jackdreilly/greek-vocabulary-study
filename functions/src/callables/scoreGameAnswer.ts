@@ -1,8 +1,10 @@
+import { getFirestore } from "firebase-admin/firestore";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { z } from "genkit";
 import { geminiApiKey, getAI } from "../ai/genkitClient.js";
 import { getDecodingFor, getModelFor } from "../ai/configResolver.js";
 import { ALLOWED_ORIGINS } from "../cors.js";
+import { SKILL_LEVEL_LABELS, SkillLevelSchema, type SkillLevel } from "../schemas/common.js";
 
 const ExerciseSchema = z.object({
   id: z.string().optional(),
@@ -20,6 +22,7 @@ const ExerciseSchema = z.object({
 });
 
 const ScoreGameAnswerInputSchema = z.object({
+  courseId: z.string().optional().default(""),
   lessonId: z.string(),
   lessonTitle: z.string(),
   exercise: ExerciseSchema,
@@ -35,6 +38,7 @@ const ScoreGameAnswerInputSchema = z.object({
 
 const ScoreGameAnswerFlowInputSchema = ScoreGameAnswerInputSchema.extend({
   exact: z.boolean(),
+  skillLevel: SkillLevelSchema.optional(),
 });
 
 const GameAttemptResultSchema = z.object({
@@ -53,6 +57,13 @@ const GameAttemptResultSchema = z.object({
           original: z.string(),
           corrected: z.string(),
           explanation: z.string(),
+        }),
+      ),
+      naturalPhrasings: z.array(
+        z.object({
+          greek: z.string(),
+          english: z.string(),
+          why: z.string(),
         }),
       ),
     })
@@ -104,6 +115,7 @@ const scoreGameAnswerFlow = getAI().defineFlow(
       prompt: `Lesson: ${input.lessonTitle}
 Lesson id: ${input.lessonId}
 Learner preferences: response language ${input.preferences.responseLanguage}, level ${input.preferences.cefrLevel}
+${input.skillLevel ? `Learner skill level (binding): ${input.skillLevel} — ${SKILL_LEVEL_LABELS[input.skillLevel]}` : ""}
 Exercise type: ${input.exercise.type}
 Direction: ${input.exercise.direction ?? ""}
 Title: ${input.exercise.title ?? ""}
@@ -122,6 +134,9 @@ Rules:
 - For story or open-ended prompts, grade relevance, use of target words, and understandable Greek rather than demanding one exact sentence.
 - For reading questions, accept short answers if they show comprehension.
 - Include greekCorrection only when the learner wrote Greek; otherwise use null.
+- When greekCorrection is present:
+  - tips: up to 5 specific issues (spelling | grammar | accent | vocabulary | word_order), each with the exact "original" fragment, the "corrected" Greek, and a one-sentence English "explanation".
+  - naturalPhrasings: up to 3 alternative ways a native speaker might more naturally phrase the same intent — even when the learner's Greek is technically correct. Each item has greek, english (rough meaning), and why (one sentence). Return an empty array if there really isn't a more natural alternative.
 - Feedback, shortReason, and betterAnswer commentary should follow the learner response language preference. Keep betterAnswer itself in the target answer language.`,
     });
 
@@ -138,6 +153,27 @@ Rules:
   },
 );
 
+async function resolveSkillLevel(courseId: string, lessonId: string): Promise<SkillLevel | undefined> {
+  if (!courseId) return undefined;
+  const db = getFirestore();
+  const courseSnap = await db.doc(`courses/${courseId}`).get();
+  const course = courseSnap.data();
+  let level: SkillLevel | undefined;
+  if (course) {
+    const parsed = SkillLevelSchema.safeParse(course.skillLevel);
+    if (parsed.success) level = parsed.data;
+  }
+  if (lessonId) {
+    const lessonSnap = await db.doc(`courses/${courseId}/lessons/${lessonId}`).get();
+    const lesson = lessonSnap.data();
+    if (lesson) {
+      const parsed = SkillLevelSchema.safeParse(lesson.skillLevel);
+      if (parsed.success) level = parsed.data;
+    }
+  }
+  return level;
+}
+
 export const scoreGameAnswer = onCall({ secrets: [geminiApiKey], cors: ALLOWED_ORIGINS }, async (request) => {
   const parsed = ScoreGameAnswerInputSchema.safeParse(request.data);
   if (!parsed.success) {
@@ -151,9 +187,11 @@ export const scoreGameAnswer = onCall({ secrets: [geminiApiKey], cors: ALLOWED_O
   ].filter(Boolean) as string[];
 
   try {
+    const skillLevel = await resolveSkillLevel(input.courseId, input.lessonId);
     return await scoreGameAnswerFlow({
       ...input,
       exact: deterministicMatch(input.answer, expected),
+      skillLevel,
     });
   } catch (err) {
     throw new HttpsError("internal", err instanceof Error ? err.message : String(err));

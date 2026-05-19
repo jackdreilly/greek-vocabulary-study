@@ -1,8 +1,8 @@
 /**
  * `/courses/{courseId}/lessons/{lessonId}` document schema.
  */
-import { z } from "zod";
-import { CountsSchema, StatusLogEntrySchema, StatusSchema, TimestampSchema } from "./common.js";
+import { z } from "genkit";
+import { CountsSchema, SkillLevelSchema, StatusLogEntrySchema, StatusSchema, TimestampSchema } from "./common.js";
 import { WidgetSchema } from "./plan.js";
 
 export const LessonOverviewSchema = z.object({
@@ -18,6 +18,7 @@ export const LessonSchema = z.object({
   subtitle: z.string().optional(),
   description: z.string().optional(),
   sourcePrompt: z.string().optional(),
+  skillLevel: SkillLevelSchema.optional(),
   order: z.number().int().nonnegative(),
 
   status: StatusSchema,

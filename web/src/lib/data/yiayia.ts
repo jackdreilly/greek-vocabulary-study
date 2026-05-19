@@ -6,6 +6,49 @@ export type YiayiaMessage = {
   content: string;
 };
 
+export type GreekTip = {
+  type: "spelling" | "grammar" | "accent" | "vocabulary" | "word_order";
+  original: string;
+  corrected: string;
+  explanation: string;
+};
+
+export type NaturalPhrasing = {
+  greek: string;
+  english: string;
+  why: string;
+};
+
+export type GreekCorrection = {
+  correctedText: string;
+  tips: GreekTip[];
+  /** Optional — older payloads may omit this. */
+  naturalPhrasings?: NaturalPhrasing[];
+};
+
+/** Returns true iff `text` contains at least one Greek character. */
+export function hasGreek(text: string): boolean {
+  return /[Ͱ-Ͽἀ-῿]/.test(text);
+}
+
+export async function correctGreekText(input: {
+  courseId?: string;
+  lessonId?: string;
+  text: string;
+}): Promise<GreekCorrection | null> {
+  if (!hasGreek(input.text)) return null;
+  const callable = httpsCallable<
+    { courseId: string; lessonId: string; text: string },
+    { correction: GreekCorrection | null }
+  >(functions, "yiayiaCorrection");
+  const result = await callable({
+    courseId: input.courseId ?? "",
+    lessonId: input.lessonId ?? "",
+    text: input.text,
+  });
+  return result.data?.correction ?? null;
+}
+
 type YiayiaInput = {
   courseId?: string;
   lessonId?: string;

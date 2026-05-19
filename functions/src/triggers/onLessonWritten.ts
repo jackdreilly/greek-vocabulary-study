@@ -5,10 +5,17 @@ import { z } from "genkit";
 import { geminiApiKey, getAI } from "../ai/genkitClient.js";
 import { buildVocabPrompt, generateVocabFlow, normalizeArticle, primaryEnglish } from "../ai/vocabGeneration.js";
 import { getModelFor, getDecodingFor } from "../ai/configResolver.js";
+import { SKILL_LEVEL_LABELS, SkillLevelSchema, type SkillLevel } from "../schemas/common.js";
 
 const LessonOverviewSchema = z.object({
   overviewMarkdown: z.string(),
+  embeddedGreekWords: z.array(z.string()).min(0).max(40),
 });
+
+function skillLevelLine(level: SkillLevel | undefined): string {
+  if (!level) return "Skill level: not specified — default to A1-style content.";
+  return `Skill level: ${level} — ${SKILL_LEVEL_LABELS[level]}. Calibrate every word and phrase to this level; do not introduce content above it.`;
+}
 
 const LessonTitleSchema = z.object({
   title: z.string().min(3).max(90),
@@ -47,6 +54,7 @@ function buildLessonOverviewPrompt(input: {
   lessonTitle: string;
   lessonSubtitle?: string;
   lessonSourcePrompt?: string;
+  skillLevel?: SkillLevel;
 }) {
   const previousTurn = {
     lessonTitle: input.lessonTitle,
@@ -60,6 +68,8 @@ ${input.courseSourcePrompt ?? ""}
 Original lesson focus request:
 ${input.lessonSourcePrompt ?? input.lessonTitle}
 
+${skillLevelLine(input.skillLevel)}
+
 Use this previously generated lesson-title result as binding context:
 ${JSON.stringify(previousTurn, null, 2)}
 
@@ -71,7 +81,14 @@ Requirements:
 - Use ## section headers, occasional **bold** emphasis, and a short bullet list only where it helps scanning.
 - Include what the learner will learn, what situations the vocabulary supports, and why this lesson fits the course arc.
 - Make it feel like a thoughtful textbook introduction, not a status blurb or admin summary.
-- Write in English. Do not include the lesson title as a heading (it's already shown above the overview).`;
+- Write in English. Do not include the lesson title as a heading (it's already shown above the overview).
+
+VOCABULARY EMBEDDING (IMPORTANT):
+- You MUST organically embed 20-30 target Greek words/phrases throughout the overview body, written inline in Greek with a short English gloss in parentheses, e.g. "η αγορά (the market)" or "θα ήθελα (I would like)".
+- Pick concrete, useful words that fit this lesson and the learner's skill level. Prefer nouns, verbs, and short phrases the learner will use.
+- Distribute them naturally inside sentences — do NOT dump them in a list or a glossary section. The overview should read as prose with Greek woven in.
+- Each embedded word must appear at least once in its dictionary form (nominative singular for nouns, first-person singular present for verbs, or a fixed phrase).
+- Also return embeddedGreekWords: a clean array of the 20-30 Greek dictionary-form lemmas/phrases you embedded, in the order they appear. These are binding for the subsequent vocabulary generation step.`;
 }
 
 const generateLessonTitleFlow = getAI().defineFlow(
@@ -112,6 +129,7 @@ const generateLessonOverviewFlow = getAI().defineFlow(
       lessonTitle: z.string(),
       lessonSubtitle: z.string().optional(),
       lessonSourcePrompt: z.string().optional(),
+      skillLevel: SkillLevelSchema.optional(),
     }),
     outputSchema: LessonOverviewSchema,
   },
@@ -121,8 +139,9 @@ const generateLessonOverviewFlow = getAI().defineFlow(
     const { output } = await getAI().generate({
       model,
       output: { schema: LessonOverviewSchema },
-      config: { maxOutputTokens: 1500, ...decoding },
-      system: "You are a Modern Greek curriculum designer. Write concise, scannable lesson overviews in markdown.",
+      config: { maxOutputTokens: 2200, ...decoding },
+      system:
+        "You are a Modern Greek curriculum designer. Write concise, scannable lesson overviews in markdown with 20-30 target Greek words woven naturally into the prose. Calibrate everything to the learner's skill level.",
       prompt: buildLessonOverviewPrompt(input),
     });
     if (!output) throw new Error("Lesson overview generation returned no output.");
@@ -202,6 +221,11 @@ export const onLessonWritten = onDocumentWritten(
             ? data.courseSourcePrompt
             : "";
       const lessonSourcePrompt = typeof data.sourcePrompt === "string" ? data.sourcePrompt : "";
+      const lessonLevelParse = SkillLevelSchema.safeParse(data.skillLevel);
+      const courseLevelParse = SkillLevelSchema.safeParse(course.skillLevel);
+      const skillLevel: SkillLevel | undefined =
+        (lessonLevelParse.success ? lessonLevelParse.data : undefined) ??
+        (courseLevelParse.success ? courseLevelParse.data : undefined);
 
       await genRef.set({
         id: genId,
@@ -271,7 +295,11 @@ export const onLessonWritten = onDocumentWritten(
         lessonTitle: generatedTitle.title,
         lessonSubtitle: generatedTitle.subtitle ?? "",
         lessonSourcePrompt,
+        skillLevel,
       });
+      const embeddedGreekWords = (generatedOverview.embeddedGreekWords ?? [])
+        .map((w) => String(w ?? "").trim())
+        .filter(Boolean);
       await genRef.update({
         "prompts.lessonOverview": buildLessonOverviewPrompt({
           courseTitle: String(course.title ?? "Greek course"),
@@ -280,8 +308,12 @@ export const onLessonWritten = onDocumentWritten(
           lessonTitle: generatedTitle.title,
           lessonSubtitle: generatedTitle.subtitle ?? "",
           lessonSourcePrompt,
+          skillLevel,
         }),
-        "stepOutputs.lessonOverview": persistable(generatedOverview),
+        "stepOutputs.lessonOverview": persistable({
+          overviewMarkdown: generatedOverview.overviewMarkdown,
+          embeddedGreekWords,
+        }),
       });
 
       await lessonRef.update({
@@ -293,10 +325,13 @@ export const onLessonWritten = onDocumentWritten(
             { id: "overview-prose", type: "markdown", markdown: generatedOverview.overviewMarkdown },
           ],
         },
+        ...(skillLevel ? { skillLevel } : {}),
         statusLog: FieldValue.arrayUnion(status("Overview ready. Generating vocabulary.")),
         updatedAt: Timestamp.now(),
       });
 
+      const targetEntries = Number(data.targetEntryCount ?? 30);
+      const cappedTarget = Math.max(targetEntries, Math.min(80, embeddedGreekWords.length || targetEntries));
       const vocabInput = {
         courseTitle: String(course.title ?? "Greek course"),
         courseDescription: typeof course.description === "string" ? course.description : "",
@@ -305,8 +340,10 @@ export const onLessonWritten = onDocumentWritten(
         lessonDescription: generatedOverview.overviewMarkdown,
         lessonSourcePrompt,
         prompt: lessonSourcePrompt || generatedTitle.title,
-        count: Number(data.targetEntryCount ?? 30),
+        count: cappedTarget,
         existingLemmas: [],
+        skillLevel,
+        requiredLemmas: embeddedGreekWords,
         chainContext: JSON.stringify({
           courseTitle: String(course.title ?? "Greek course"),
           courseDescription: typeof course.description === "string" ? course.description : "",

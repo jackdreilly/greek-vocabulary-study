@@ -2,7 +2,7 @@
  * `/courses/{courseId}/lessons/{lessonId}/games/{gameId}` document schema.
  * One AI-generated practice exercise.
  */
-import { z } from "zod";
+import { z } from "genkit";
 import { TimestampSchema } from "./common.js";
 
 export const GameTypeSchema = z.enum([

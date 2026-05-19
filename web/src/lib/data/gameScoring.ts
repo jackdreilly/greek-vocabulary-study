@@ -1,5 +1,6 @@
 import { httpsCallable } from "firebase/functions";
 import { functions } from "../firebase";
+import type { GreekCorrection } from "./yiayia";
 import type { GameDoc, LessonDoc } from "./lessons.svelte";
 
 export type GameScoreResult = {
@@ -9,28 +10,23 @@ export type GameScoreResult = {
   feedback: string;
   betterAnswer: string;
   shortReason: string;
-  greekCorrection: null | {
-    correctedText: string;
-    tips: Array<{
-      type: "spelling" | "grammar" | "accent" | "vocabulary" | "word_order";
-      original: string;
-      corrected: string;
-      explanation: string;
-    }>;
-  };
+  greekCorrection: GreekCorrection | null;
 };
 
 export async function scoreGameAnswer({
   lesson,
   game,
   answer,
+  courseId,
 }: {
   lesson: LessonDoc | null | undefined;
   game: GameDoc;
   answer: string;
+  courseId?: string;
 }): Promise<GameScoreResult> {
   const callable = httpsCallable(functions, "scoreGameAnswer");
   const result = await callable({
+    courseId: courseId ?? String(game.courseId ?? ""),
     lessonId: String(game.lessonId ?? lesson?.id ?? ""),
     lessonTitle: String(lesson?.title ?? game.lessonId ?? "Greek lesson"),
     exercise: {

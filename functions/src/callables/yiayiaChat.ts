@@ -4,6 +4,7 @@ import { z } from "genkit";
 import { getDecodingFor, getModelFor } from "../ai/configResolver.js";
 import { geminiApiKey, getAI } from "../ai/genkitClient.js";
 import { ALLOWED_ORIGINS } from "../cors.js";
+import { SKILL_LEVEL_LABELS, SkillLevelSchema, type SkillLevel } from "../schemas/common.js";
 
 const MessageSchema = z.object({
   role: z.enum(["user", "assistant"]),
@@ -32,10 +33,14 @@ async function readContext(input: z.infer<typeof YiayiaInputSchema>) {
     );
   }
 
+  let skillLevel: SkillLevel | undefined;
+
   if (input.courseId) {
     const courseSnap = await db.doc(`courses/${input.courseId}`).get();
     const course = courseSnap.data();
     if (course) {
+      const courseLevel = SkillLevelSchema.safeParse(course.skillLevel);
+      if (courseLevel.success) skillLevel = courseLevel.data;
       parts.push(`Course: ${course.title ?? input.courseId}\n${course.subtitle ?? ""}\n${String(course.description ?? "").slice(0, 2500)}`);
       const summaries = Object.entries(course.lessonSummaries ?? {})
         .slice(0, 12)
@@ -58,6 +63,8 @@ async function readContext(input: z.infer<typeof YiayiaInputSchema>) {
     ]);
     const lesson = lessonSnap.data();
     if (lesson) {
+      const lessonLevel = SkillLevelSchema.safeParse(lesson.skillLevel);
+      if (lessonLevel.success) skillLevel = lessonLevel.data;
       parts.push(`Current lesson: ${lesson.title ?? input.lessonId}\n${lesson.subtitle ?? ""}\n${String(lesson.description ?? "").slice(0, 2500)}`);
     }
     const entries = entrySnap.docs
@@ -97,6 +104,12 @@ async function readContext(input: z.infer<typeof YiayiaInputSchema>) {
     }
   }
 
+  if (skillLevel) {
+    parts.unshift(
+      `Learner skill level: ${skillLevel} — ${SKILL_LEVEL_LABELS[skillLevel]}\nCalibrate your explanations, vocabulary, and Greek examples to this exact level. Do not exceed it unless the learner asks.`,
+    );
+  }
+
   return parts.filter(Boolean).join("\n\n---\n\n").slice(0, 12000);
 }
 
@@ -124,10 +137,19 @@ export const yiayiaChat = onCall({ secrets: [geminiApiKey], cors: ALLOWED_ORIGIN
       content: [{ text: message.content }],
     }));
 
+    const isFirstTurn = history.length === 0;
+    const continuityRule = isFirstTurn
+      ? "This is the first turn — a brief warm opener is fine, but skip it if the learner asked a direct question."
+      : "This is a mid-conversation turn. DO NOT start with greetings, welcomes, or re-introductions (no \"Welcome back\", \"Hello again\", \"Of course!\", \"Great question!\", or similar fresh-start openers). Just continue the conversation naturally — answer as if the previous turn happened seconds ago, because it did. Pick up where you left off; reference earlier turns when relevant.";
+
     const systemPrompt = `You are Yiayia, a warm, precise Modern Greek tutor inside GreekFlash.
 Use the provided app context first. Explain Greek clearly, with transliteration only when useful.
 For learner questions, give direct help, a short example, and a tiny practice prompt when helpful.
 Do not claim a feature is saved or changed unless the user explicitly asks and a tool/function actually did it.
+
+CONVERSATIONAL CONTINUITY: ${continuityRule}
+
+When the learner writes in Greek, treat it as practice. Acknowledge their intent and answer their question — any grammar / spelling / phrasing corrections are shown to them separately in a structured correction widget, so do NOT duplicate that work in your reply. Keep the tone warm and encouraging.
 
 APP CONTEXT:
 ${context}`;

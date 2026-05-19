@@ -5,6 +5,8 @@
   import { navigate } from "../lib/router.svelte";
   import { retryCourseGeneration } from "../lib/data/retryGeneration";
   import { extractLead, hasMoreThanLead } from "../lib/markdown";
+  import { inferSkillLevel, SKILL_LEVEL_LABEL, type SkillLevel } from "../lib/skillLevel";
+  import SkillLevelPicker from "../lib/ui/SkillLevelPicker.svelte";
   import StatusPill from "../lib/ui/StatusPill.svelte";
   import MarkdownBody from "../lib/ui/MarkdownBody.svelte";
   import { BookOpen, ChevronRight, RefreshCw, Sparkles } from "lucide-svelte";
@@ -31,24 +33,34 @@
 
   let expanded = $state(false);
   let lessonPrompt = $state("");
+  let lessonSkillLevel = $state<SkillLevel | "">("");
   let creatingLesson = $state(false);
   let lessonError = $state<string | null>(null);
   // Reset expander whenever we change courses
   $effect(() => {
     courseId;
     expanded = false;
+    lessonSkillLevel = "";
   });
+
+  const courseSkillLevel = $derived<SkillLevel | undefined>(
+    (sub?.course?.skillLevel as SkillLevel | undefined) ?? undefined,
+  );
 
   async function createLesson() {
     creatingLesson = true;
     lessonError = null;
     try {
+      const resolved: SkillLevel | undefined =
+        lessonSkillLevel || inferSkillLevel(lessonPrompt) || courseSkillLevel;
       const lessonId = await createLessonStub({
         courseId,
         prompt: lessonPrompt,
         order: lessons.length + 1,
+        skillLevel: resolved,
       });
       lessonPrompt = "";
+      lessonSkillLevel = "";
       navigate(`/c/${courseId}/l/${lessonId}/overview`);
     } catch (err) {
       lessonError = err instanceof Error ? err.message : String(err);
@@ -73,6 +85,11 @@
       </div>
       {#if sub.course.subtitle}
         <p class="mt-2 text-base text-(--color-muted)">{sub.course.subtitle}</p>
+      {/if}
+      {#if courseSkillLevel}
+        <p class="mt-3 inline-flex items-center gap-1.5 rounded-full border border-(--color-border) bg-(--color-surface-muted) px-2.5 py-0.5 text-xs font-medium text-(--color-muted)">
+          Skill level: {SKILL_LEVEL_LABEL[courseSkillLevel]}
+        </p>
       {/if}
     </header>
 
@@ -165,6 +182,14 @@
             <Sparkles size={14} aria-hidden="true" />
             {creatingLesson ? "Starting..." : "Generate lesson"}
           </button>
+        </div>
+        <div class="mt-2 max-w-md">
+          <SkillLevelPicker
+            bind:value={lessonSkillLevel}
+            autoLabel={courseSkillLevel
+              ? `Inherit from course (${SKILL_LEVEL_LABEL[courseSkillLevel]})`
+              : "Auto-detect from prompt"}
+          />
         </div>
         {#if lessonError}
           <p class="mt-2 text-sm text-(--color-danger)">{lessonError}</p>

@@ -4,7 +4,9 @@
   import { createCourseStub } from "../lib/data/createCourse";
   import { navigate } from "../lib/router.svelte";
   import { textMatchesSearch } from "../lib/search";
+  import { inferSkillLevel, type SkillLevel } from "../lib/skillLevel";
   import Card from "../lib/ui/Card.svelte";
+  import SkillLevelPicker from "../lib/ui/SkillLevelPicker.svelte";
   import StatusPill from "../lib/ui/StatusPill.svelte";
   import { BookOpen, GraduationCap, Hash, Search, Sparkles } from "lucide-svelte";
 
@@ -12,6 +14,7 @@
   onDestroy(sub.stop);
 
   let sourcePrompt = $state("");
+  let skillLevel = $state<SkillLevel | "">("");
   let courseSearch = $state("");
   let creating = $state(false);
   let createError = $state<string | null>(null);
@@ -28,8 +31,11 @@
     creating = true;
     createError = null;
     try {
-      const courseId = await createCourseStub(sourcePrompt);
+      const resolvedLevel: SkillLevel | undefined =
+        skillLevel || inferSkillLevel(sourcePrompt) || undefined;
+      const courseId = await createCourseStub(sourcePrompt, { skillLevel: resolvedLevel });
       sourcePrompt = "";
+      skillLevel = "";
       navigate(`/c/${courseId}`);
     } catch (err) {
       createError = err instanceof Error ? err.message : String(err);
@@ -85,6 +91,9 @@
         <Sparkles size={14} aria-hidden="true" />
         {creating ? "Starting" : "Generate"}
       </button>
+    </div>
+    <div class="mt-2 max-w-md">
+      <SkillLevelPicker bind:value={skillLevel} />
     </div>
     {#if createError}
       <p class="mt-2 text-sm text-(--color-danger)">{createError}</p>

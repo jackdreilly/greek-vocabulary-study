@@ -1,8 +1,15 @@
 <script lang="ts">
   import { tick } from "svelte";
-  import { streamYiayia, type YiayiaMessage } from "./data/yiayia";
+  import {
+    correctGreekText,
+    hasGreek,
+    streamYiayia,
+    type GreekCorrection,
+    type YiayiaMessage,
+  } from "./data/yiayia";
   import { yiayiaFocus } from "./data/yiayiaFocus.svelte";
   import { renderMarkdown } from "./markdown";
+  import GreekCorrectionCard from "./ui/GreekCorrectionCard.svelte";
   import { BotMessageSquare, BookOpen, ChevronDown, Send, Sparkles, Trash2, Type, X } from "lucide-svelte";
 
   let {
@@ -23,11 +30,21 @@
     onClose: () => void;
   } = $props();
 
-  let messages = $state<YiayiaMessage[]>([]);
+  type DisplayMessage = YiayiaMessage & {
+    requestContent?: string;
+    templateLabel?: string;
+    greekUserText?: string;
+    greekCorrection?: GreekCorrection | null;
+  };
+
+  let messages = $state<DisplayMessage[]>([]);
   let draft = $state("");
   let sending = $state(false);
   let error = $state("");
   let streamingText = $state("");
+  let streamingGreekUserText = $state("");
+  let streamingCorrection = $state<GreekCorrection | null>(null);
+  let correctionPending = $state(false);
   let messagesEl = $state<HTMLElement | null>(null);
 
   // --- template prompt system ---
@@ -54,9 +71,15 @@
       prompt: (word: string) =>
         [
           `Word Architect: **${word}**`,
-          "Act as a linguistic archaeologist. Break down this Greek word with roots, etymology, English cognates, related Greek word families, root-language memory connections, modern usage, and a quick conjugation or declension table.",
-          "Structure the answer with: **Core Concept**, **The English Connection**, **Greek Relatives**, **Memory Network**, **Practical Usage**, and **Essential Forms**.",
-          "Keep it lively and learner-facing. Prefer durable root connections over fake-sound mnemonics or silly wordplay.",
+          "Act as a linguistic archaeologist for this Greek word. The answer is INCOMPLETE unless it covers all four of the following — treat them as required sections, not optional flourishes:",
+          [
+            "1. **English cognates** — REQUIRED. List 3-6 inherited English words (technical, literary, scientific, or everyday) that share this Greek root. Show the shared root form (e.g. -graph-, -phon-, -log-) and give a one-line meaning bridge for each. If you cannot find at least three, explicitly say so and explain why the root is rare in English — do not pad with weak guesses.",
+            "2. **Fun etymology** — REQUIRED. A short, vivid origin story: where the root came from (Ancient Greek, Proto-Indo-European, Byzantine, Turkish, Italian, Slavic — whatever applies), what it originally meant, how the meaning drifted to today's sense. Include the surprising or memorable detail (a metaphor, a historical scene, a meaning shift) — make it actually fun, not a dry timeline.",
+            "3. **Grounded memory tricks** — REQUIRED. Concrete ways to remember the word that are anchored in real linguistic structure: the shared Greek root, sibling Greek words built from it (prefixes, suffixes, compounds), and the English cognates from section 1. STRICTLY FORBIDDEN: silly fake-sound mnemonics (\"sounds like…\"), pun-style hooks, invented backstories, or any trick that relies on accidental phonetic resemblance rather than real etymology.",
+            "4. **Conjugation or declension table** — REQUIRED. ALWAYS include a real morphology table, never just \"this is a regular verb\" or a one-line summary. Pick the form that fits the word: verbs → a present-tense paradigm across all six persons (εγώ, εσύ, αυτός/αυτή/αυτό, εμείς, εσείς, αυτοί/ές/ά), plus the simple-past (αόριστος) 1st-person singular and the simple-future 1st-person singular for orientation. Nouns → full singular and plural across nominative, genitive, and accusative (and vocative if it's commonly used). Adjectives → masculine/feminine/neuter singular AND plural in nominative + accusative. Show the table inline as a markdown table with clear headers; do not omit columns to save space.",
+          ].join("\n"),
+          "Structure the answer as: **Core Concept**, **English Cognates**, **Fun Etymology**, **Greek Relatives** (sibling words from the same root), **Memory Anchors** (the grounded tricks from §3), **Practical Usage** (1 example sentence + a common idiom or phrase), **Forms** (the full table from §4).",
+          "Keep it lively and learner-facing. Every memory hook must trace back to a real root connection — if you can't ground it, leave it out. Never skip the morphology table.",
         ].join("\n\n"),
     },
     {
@@ -105,10 +128,16 @@
     const requestContent = [pendingTemplate?.prompt, userContent].filter(Boolean).join("\n\n");
     const displayContent = userContent || pendingTemplate!.label;
     const templateLabel = pendingTemplate?.label ?? "";
+    const shouldCheckGreek = hasGreek(userContent);
 
-    const nextMessages: (YiayiaMessage & { templateLabel?: string })[] = [
+    const nextMessages: DisplayMessage[] = [
       ...messages,
-      { role: "user", content: displayContent, templateLabel },
+      {
+        role: "user",
+        content: displayContent,
+        templateLabel,
+        greekUserText: shouldCheckGreek ? userContent : undefined,
+      },
     ];
     messages = nextMessages;
     draft = "";
@@ -116,8 +145,23 @@
     sending = true;
     error = "";
     streamingText = "";
+    streamingGreekUserText = shouldCheckGreek ? userContent : "";
+    streamingCorrection = null;
+    correctionPending = shouldCheckGreek;
     await tick();
     scrollToBottom();
+
+    // Fire correction call in parallel with the streamed assistant reply.
+    const correctionPromise = shouldCheckGreek
+      ? correctGreekText({ courseId, lessonId, text: userContent })
+          .catch(() => null)
+          .finally(() => {
+            correctionPending = false;
+          })
+      : Promise.resolve<GreekCorrection | null>(null);
+    correctionPromise.then((result) => {
+      streamingCorrection = result;
+    });
 
     try {
       const reply = await streamYiayia(
@@ -130,7 +174,7 @@
           focusedWords: yiayiaFocus.words.length ? yiayiaFocus.words : undefined,
           messages: nextMessages.map((m) => ({
             role: m.role,
-            content: (m as { requestContent?: string }).requestContent ?? m.content,
+            content: m.requestContent ?? m.content,
           })),
         },
         async (accumulated) => {
@@ -139,15 +183,31 @@
           scrollToBottom();
         },
       );
+
+      const correction = await correctionPromise;
+
       // Replace with actual request content for future turns
       const withRequest = [...nextMessages];
       const last = { ...withRequest[withRequest.length - 1], requestContent };
       withRequest[withRequest.length - 1] = last;
-      messages = [...withRequest, { role: "assistant", content: reply }];
+      messages = [
+        ...withRequest,
+        {
+          role: "assistant",
+          content: reply,
+          greekUserText: shouldCheckGreek ? userContent : undefined,
+          greekCorrection: correction,
+        },
+      ];
       streamingText = "";
+      streamingCorrection = null;
+      streamingGreekUserText = "";
     } catch (err) {
       error = err instanceof Error ? err.message : String(err);
       streamingText = "";
+      streamingCorrection = null;
+      streamingGreekUserText = "";
+      correctionPending = false;
     } finally {
       sending = false;
       await tick();
@@ -158,6 +218,9 @@
   function clearChat() {
     messages = [];
     streamingText = "";
+    streamingGreekUserText = "";
+    streamingCorrection = null;
+    correctionPending = false;
     error = "";
     pendingTemplate = null;
     wordMode = false;
@@ -215,25 +278,42 @@
         {#each messages as message}
           {#if message.role === "user"}
             <div class="ml-8 self-end rounded-xl rounded-br-sm bg-(--color-accent) px-3 py-2 text-sm text-white">
-              {#if (message as { templateLabel?: string }).templateLabel}
-                <span class="mb-1 block rounded bg-white/15 px-1.5 py-0.5 text-[10px] font-bold">{(message as { templateLabel?: string }).templateLabel}</span>
+              {#if message.templateLabel}
+                <span class="mb-1 block rounded bg-white/15 px-1.5 py-0.5 text-[10px] font-bold">{message.templateLabel}</span>
               {/if}
-              {#if message.content !== (message as { templateLabel?: string }).templateLabel}
+              {#if message.content !== message.templateLabel}
                 <p class="whitespace-pre-wrap">{message.content}</p>
               {/if}
             </div>
           {:else}
             <div class="yiayia-assistant mr-8 self-start rounded-xl rounded-bl-sm border border-(--color-border) bg-(--color-surface-muted) px-3 py-2 text-sm text-(--color-text)">
+              {#if message.greekCorrection || message.greekUserText}
+                <GreekCorrectionCard
+                  correction={message.greekCorrection ?? null}
+                  userText={message.greekUserText ?? ""}
+                />
+              {/if}
               <!-- eslint-disable-next-line svelte/no-at-html-tags -->
               {@html renderMarkdown(message.content)}
             </div>
           {/if}
         {/each}
 
-        {#if sending && streamingText}
+        {#if sending && (streamingText || correctionPending || streamingCorrection)}
           <div class="yiayia-assistant mr-8 self-start rounded-xl rounded-bl-sm border border-(--color-border) bg-(--color-surface-muted) px-3 py-2 text-sm text-(--color-text)">
-            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-            {@html renderMarkdown(streamingText)}<span class="animate-pulse">▍</span>
+            {#if correctionPending || streamingCorrection}
+              <GreekCorrectionCard
+                correction={streamingCorrection}
+                pending={correctionPending}
+                userText={streamingGreekUserText}
+              />
+            {/if}
+            {#if streamingText}
+              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+              {@html renderMarkdown(streamingText)}<span class="animate-pulse">▍</span>
+            {:else}
+              <span class="text-(--color-muted)">Yiayia is thinking<span class="animate-pulse">…</span></span>
+            {/if}
           </div>
         {:else if sending}
           <div class="mr-8 self-start rounded-xl rounded-bl-sm border border-(--color-border) bg-(--color-surface-muted) px-3 py-2 text-sm text-(--color-muted)">

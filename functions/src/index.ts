@@ -67,4 +67,5 @@ export { aiAssistVocabEntry } from "./callables/aiAssistVocabEntry.js";
 export { revertGeneration } from "./callables/revertGeneration.js";
 export { scoreGameAnswer } from "./callables/scoreGameAnswer.js";
 export { yiayiaChat } from "./callables/yiayiaChat.js";
+export { yiayiaCorrection } from "./callables/yiayiaCorrection.js";
 export { yiayiaAdminChat } from "./callables/yiayiaAdminChat.js";

@@ -4,6 +4,12 @@ import { onDocumentWritten } from "firebase-functions/v2/firestore";
 import { z } from "genkit";
 import { getAI, geminiApiKey } from "../ai/genkitClient.js";
 import { getDecodingFor, getModelFor } from "../ai/configResolver.js";
+import { SKILL_LEVEL_LABELS, SkillLevelSchema, type SkillLevel } from "../schemas/common.js";
+
+function skillLevelLine(level: SkillLevel | undefined): string {
+  if (!level) return "Skill level: not specified — default to A1-style content.";
+  return `Skill level: ${level} — ${SKILL_LEVEL_LABELS[level]}. Calibrate vocabulary, sentence complexity, and expected answers to this level.`;
+}
 
 const GameTypeSchema = z.enum([
   "missing_word",
@@ -28,14 +34,16 @@ const GeneratedGameSchema = z.object({
 });
 
 const GenerateGamesOutputSchema = z.object({
-  games: z.array(GeneratedGameSchema).min(1).max(10),
+  games: z.array(GeneratedGameSchema).min(1).max(30),
 });
 
 const GenerateGamesInputSchema = z.object({
   lessonTitle: z.string(),
   lessonDescription: z.string().optional(),
+  skillLevel: SkillLevelSchema.optional(),
+  customFocus: z.string().optional().default(""),
   requestedType: z.union([GameTypeSchema, z.literal("mixed")]),
-  count: z.number().int().min(1).max(10),
+  count: z.number().int().min(1).max(30),
   entries: z.array(
     z.object({
       id: z.string(),
@@ -87,6 +95,8 @@ const generateGamesFlow = getAI().defineFlow(
 
 Lesson: ${input.lessonTitle}
 Lesson description: ${input.lessonDescription ?? ""}
+${skillLevelLine(input.skillLevel)}
+${input.customFocus ? `Focus / theme requested by user: ${input.customFocus}\nMake sure the generated games concretely reflect this focus.` : ""}
 Requested type: ${input.requestedType}
 
 Vocabulary:
@@ -173,7 +183,8 @@ export const onGameBatchWritten = onDocumentWritten(
       ]);
       const lesson = lessonSnap.data() ?? {};
       const requestedType = data.requestedType === "all" ? "mixed" : String(data.requestedType ?? "mixed");
-      const count = Math.max(1, Math.min(10, Number(data.count ?? 5)));
+      const count = Math.max(10, Math.min(30, Number(data.count ?? 10)));
+      const customFocus = typeof data.customFocus === "string" ? data.customFocus : "";
       const modelUsed = await getModelFor("lessonGen");
 
       await genRef.set({
@@ -225,9 +236,21 @@ export const onGameBatchWritten = onDocumentWritten(
         updatedAt: Timestamp.now(),
       });
 
+      const courseSnap = await courseRef.get();
+      const courseData = courseSnap.data() ?? {};
+      const batchLevelParse = SkillLevelSchema.safeParse(data.skillLevel);
+      const lessonLevelParse = SkillLevelSchema.safeParse(lesson.skillLevel);
+      const courseLevelParse = SkillLevelSchema.safeParse(courseData.skillLevel);
+      const skillLevel: SkillLevel | undefined =
+        (batchLevelParse.success ? batchLevelParse.data : undefined) ??
+        (lessonLevelParse.success ? lessonLevelParse.data : undefined) ??
+        (courseLevelParse.success ? courseLevelParse.data : undefined);
+
       const generated = await generateGamesFlow({
         lessonTitle: String(lesson.title ?? lessonId),
         lessonDescription: typeof lesson.description === "string" ? lesson.description : "",
+        skillLevel,
+        customFocus,
         requestedType: GameTypeSchema.safeParse(requestedType).success ? requestedType as z.infer<typeof GameTypeSchema> : "mixed",
         count,
         entries,

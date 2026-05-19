@@ -2,10 +2,11 @@
  * `/courses/{courseId}` document schema.
  * See docs/rewrite/01-schema-and-migration.md.
  */
-import { z } from "zod";
+import { z } from "genkit";
 import {
   CountsSchema,
   LanguagePairSchema,
+  SkillLevelSchema,
   StatusLogEntrySchema,
   StatusSchema,
   TimestampSchema,
@@ -29,6 +30,7 @@ export const CourseSchema = z.object({
   description: z.string().optional(),
   sourcePrompt: z.string().optional(),
   language: LanguagePairSchema.default({ source: "en", target: "el" }),
+  skillLevel: SkillLevelSchema.optional(),
 
   status: StatusSchema,
   statusLog: z.array(StatusLogEntrySchema).default([]),

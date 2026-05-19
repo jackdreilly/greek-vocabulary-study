@@ -5,6 +5,7 @@
   import { yiayiaFocus, clearFocus } from "../../lib/data/yiayiaFocus.svelte";
 
   type EntriesSub = ReturnType<typeof subscribeEntries>;
+  type Mode = "gr-en" | "en-gr" | "mixed";
 
   let {
     courseId,
@@ -12,10 +13,40 @@
     entriesSub: providedEntriesSub,
   }: { courseId: string; lessonId: string; entriesSub?: EntriesSub } = $props();
 
+  // Persist flashcard order/progress per-lesson so tab switches and refreshes preserve state.
+  type FlashcardState = { index: number; mode: Mode; deckSeed: number };
+  function storageKey(c: string, l: string) {
+    return `greekflash:flashcards:${c}:${l}`;
+  }
+  function loadState(c: string, l: string): FlashcardState | null {
+    try {
+      const raw = localStorage.getItem(storageKey(c, l));
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as Partial<FlashcardState>;
+      const mode: Mode = parsed.mode === "en-gr" || parsed.mode === "mixed" ? parsed.mode : "gr-en";
+      return {
+        index: Math.max(0, Number(parsed.index ?? 0)),
+        mode,
+        deckSeed: Number(parsed.deckSeed ?? 0),
+      };
+    } catch {
+      return null;
+    }
+  }
+  function saveState(c: string, l: string, state: FlashcardState) {
+    try {
+      localStorage.setItem(storageKey(c, l), JSON.stringify(state));
+    } catch {
+      // ignore quota / disabled storage
+    }
+  }
+
+  const initial = $derived(loadState(courseId, lessonId));
+
   let sub = $state<EntriesSub>();
   let index = $state(0);
   let flipped = $state(false);
-  let mode = $state<"gr-en" | "en-gr" | "mixed">("gr-en");
+  let mode = $state<Mode>("gr-en");
   let deckSeed = $state(0);
   let dragStart = $state<{ pointerId: number; x: number; y: number } | null>(null);
   let dragX = $state(0);
@@ -24,22 +55,40 @@
   let suppressNextClick = $state(false);
 
   $effect(() => {
+    // Rehydrate per-lesson state on (courseId, lessonId) change.
+    const restored = loadState(courseId, lessonId);
+    index = restored?.index ?? 0;
+    mode = restored?.mode ?? "gr-en";
+    deckSeed = restored?.deckSeed ?? 0;
+    flipped = false;
+
     if (providedEntriesSub) {
       sub = providedEntriesSub;
-      index = 0;
-      flipped = false;
       return () => clearFocus();
     }
 
     const next = subscribeEntries(courseId, lessonId);
     sub = next;
-    index = 0;
-    flipped = false;
     return () => {
       next.stop();
       clearFocus();
     };
   });
+
+  // Persist on any state change.
+  $effect(() => {
+    saveState(courseId, lessonId, { index, mode, deckSeed });
+  });
+
+  // Once entries are loaded, clamp index to a valid value (the lesson may have grown/shrunk).
+  $effect(() => {
+    const total = sub?.entries?.length ?? 0;
+    if (total > 0 && index >= total) {
+      index = total - 1;
+    }
+  });
+  // Suppress unused warning for initial — it primes the on-load value.
+  void initial;
 
   // Keep yiayiaFocus in sync with the current card.
   $effect(() => {

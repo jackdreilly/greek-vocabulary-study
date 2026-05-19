@@ -2,7 +2,7 @@
  * `/courses/{courseId}/lessons/{lessonId}/entries/{entryId}` document schema.
  * Vocabulary entries — immutable in normal flow (edits are delete + create).
  */
-import { z } from "zod";
+import { z } from "genkit";
 import { TimestampSchema } from "./common.js";
 
 export const EntryExampleSchema = z.object({

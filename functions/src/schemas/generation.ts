@@ -2,7 +2,7 @@
  * `/generations/{generationId}` document schema.
  * See docs/rewrite/04-generation-lineage.md.
  */
-import { z } from "zod";
+import { z } from "genkit";
 import { StatusLogEntrySchema, TimestampSchema } from "./common.js";
 
 export const GenerationKindSchema = z.enum([

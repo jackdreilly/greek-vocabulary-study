@@ -4,6 +4,12 @@ import { onDocumentWritten } from "firebase-functions/v2/firestore";
 import { z } from "genkit";
 import { getAI, geminiApiKey } from "../ai/genkitClient.js";
 import { getDecodingFor, getModelFor } from "../ai/configResolver.js";
+import { SKILL_LEVEL_LABELS, SkillLevelSchema, type SkillLevel } from "../schemas/common.js";
+
+function skillLevelLine(level: SkillLevel | undefined): string {
+  if (!level) return "Skill level: not specified — default to A1-style content.";
+  return `Skill level: ${level} — ${SKILL_LEVEL_LABELS[level]}. Calibrate every word, sentence, and explanation to this level; do not introduce content above it.`;
+}
 
 // Flat widget schema for generation.
 // Rules for Gemini legacyResponseSchema compatibility:
@@ -70,6 +76,7 @@ const GeneratePlanInputSchema = z.object({
   lessonTitle: z.string(),
   lessonDescription: z.string().optional(),
   lessonSourcePrompt: z.string().optional(),
+  skillLevel: SkillLevelSchema.optional(),
   planNumber: z.number().int().min(1),
   customFocus: z.string().optional(),
   entries: z.array(
@@ -115,6 +122,8 @@ ${input.courseSourcePrompt ?? ""}
 
 Original lesson request:
 ${input.lessonSourcePrompt ?? ""}
+
+${skillLevelLine(input.skillLevel)}
 
 Course: ${input.courseTitle}
 Course overview:
@@ -315,6 +324,11 @@ export const onPlanWritten = onDocumentWritten(
         });
 
       await appendStatus(planPath, "Asking AI for a new lesson angle.");
+      const lessonLevelParse = SkillLevelSchema.safeParse(lesson.skillLevel);
+      const courseLevelParse = SkillLevelSchema.safeParse(course.skillLevel);
+      const skillLevel: SkillLevel | undefined =
+        (lessonLevelParse.success ? lessonLevelParse.data : undefined) ??
+        (courseLevelParse.success ? courseLevelParse.data : undefined);
       const planInput = {
         courseTitle: String(course.title ?? "Greek course"),
         courseDescription: typeof course.description === "string" ? course.description : "",
@@ -322,6 +336,7 @@ export const onPlanWritten = onDocumentWritten(
         lessonTitle: String(lesson.title ?? lessonId),
         lessonDescription: typeof lesson.description === "string" ? lesson.description : "",
         lessonSourcePrompt: typeof lesson.sourcePrompt === "string" ? lesson.sourcePrompt : "",
+        skillLevel,
         planNumber: requestedPlanNumber,
         customFocus: typeof data.customFocus === "string" ? data.customFocus : "",
         entries,

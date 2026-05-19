@@ -1,5 +1,6 @@
 import { doc, serverTimestamp, setDoc, Timestamp } from "firebase/firestore";
 import { db } from "../firebase";
+import type { SkillLevel } from "../skillLevel";
 
 function slugify(input: string) {
   const slug = input
@@ -18,14 +19,17 @@ function titleFromPrompt(prompt: string) {
   return `${normalized.slice(0, 69).trim()}...`;
 }
 
-export async function createCourseStub(sourcePrompt: string) {
+export async function createCourseStub(
+  sourcePrompt: string,
+  options: { skillLevel?: SkillLevel } = {},
+) {
   const trimmed = sourcePrompt.trim();
   if (!trimmed) throw new Error("Describe the course first.");
 
   const suffix = Date.now().toString(36);
   const courseId = `${slugify(trimmed)}-${suffix}`;
 
-  await setDoc(doc(db, "courses", courseId), {
+  const payload: Record<string, unknown> = {
     id: courseId,
     title: titleFromPrompt(trimmed),
     sourcePrompt: trimmed,
@@ -42,7 +46,10 @@ export async function createCourseStub(sourcePrompt: string) {
     counts: { lessons: 0, entries: 0, plans: 0, games: 0 },
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
-  });
+  };
+  if (options.skillLevel) payload.skillLevel = options.skillLevel;
+
+  await setDoc(doc(db, "courses", courseId), payload);
 
   return courseId;
 }

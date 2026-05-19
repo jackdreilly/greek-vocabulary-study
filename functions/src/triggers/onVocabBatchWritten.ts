@@ -4,6 +4,7 @@ import { onDocumentWritten } from "firebase-functions/v2/firestore";
 import { geminiApiKey } from "../ai/genkitClient.js";
 import { getModelFor } from "../ai/configResolver.js";
 import { buildVocabPrompt, generateVocabFlow, normalizeArticle, primaryEnglish } from "../ai/vocabGeneration.js";
+import { SkillLevelSchema } from "../schemas/common.js";
 
 function status(message: string) {
   return { at: Timestamp.now(), message, source: "system" };
@@ -101,6 +102,12 @@ export const onVocabBatchWritten = onDocumentWritten(
         updatedAt: Timestamp.now(),
       });
 
+      const lessonLevelParse = SkillLevelSchema.safeParse(lesson.skillLevel);
+      const courseLevelParse = SkillLevelSchema.safeParse(course.skillLevel);
+      const skillLevel =
+        (lessonLevelParse.success ? lessonLevelParse.data : undefined) ??
+        (courseLevelParse.success ? courseLevelParse.data : undefined);
+
       const vocabInput = {
         courseTitle: String(course.title ?? "Greek course"),
         courseDescription: typeof course.description === "string" ? course.description : "",
@@ -111,6 +118,8 @@ export const onVocabBatchWritten = onDocumentWritten(
         prompt: String(data.prompt ?? "Add useful vocabulary for this lesson."),
         count: Math.max(1, Math.min(80, Number(data.count ?? 20))),
         existingLemmas: existing.map((entry) => String(entry.lemma ?? "")).filter(Boolean),
+        requiredLemmas: [],
+        skillLevel,
         chainContext: JSON.stringify({
           lessonTitle: String(lesson.title ?? lessonId),
           lessonOverview: typeof lesson.description === "string" ? lesson.description : "",

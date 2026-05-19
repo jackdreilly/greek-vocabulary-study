@@ -4,6 +4,7 @@ import { onDocumentWritten } from "firebase-functions/v2/firestore";
 import { z } from "genkit";
 import { getDecodingFor, getModelFor } from "../ai/configResolver.js";
 import { geminiApiKey, getAI } from "../ai/genkitClient.js";
+import { SKILL_LEVEL_LABELS, SkillLevelSchema, type SkillLevel } from "../schemas/common.js";
 
 type DebugEntry = {
   id: string;
@@ -27,6 +28,7 @@ const CourseOutlineSchema = z.object({
   title: z.string(),
   subtitle: z.string().optional(),
   description: z.string(),
+  inferredSkillLevel: SkillLevelSchema.optional(),
   lessons: z.array(
     z.object({
       id: z.string().optional(),
@@ -44,6 +46,20 @@ const CourseTitleSchema = z.object({
   subtitle: z.string().max(120).optional(),
 });
 
+function skillLevelGuidance(level: SkillLevel | undefined): string {
+  if (!level) {
+    return [
+      "Skill level: not specified — infer it from the request and set inferredSkillLevel.",
+      "Available levels (easiest to hardest): tourist, year_1, year_2, A1, A2, B1, B2, C1, C2.",
+      "If unclear, prefer A1.",
+    ].join("\n");
+  }
+  return [
+    `Skill level: ${level} — ${SKILL_LEVEL_LABELS[level]}`,
+    "Calibrate vocabulary, grammar, and explanatory tone to exactly this level. Do NOT introduce content above this level.",
+  ].join("\n");
+}
+
 function buildCourseTitlePrompt(sourcePrompt: string) {
   return `Name this Modern Greek vocabulary course request:
 ${sourcePrompt}
@@ -56,13 +72,20 @@ Requirements:
 - subtitle should be sentence case and describe the learner-facing focus in a few words`;
 }
 
-function buildCourseOutlinePrompt(input: { sourcePrompt: string; title?: string; subtitle?: string }) {
+function buildCourseOutlinePrompt(input: {
+  sourcePrompt: string;
+  title?: string;
+  subtitle?: string;
+  skillLevel?: SkillLevel;
+}) {
   const titleResult = {
     title: input.title ?? "",
     subtitle: input.subtitle ?? "",
   };
   return `Design a Modern Greek vocabulary course from this original request:
 ${input.sourcePrompt}
+
+${skillLevelGuidance(input.skillLevel)}
 
 Use this previously generated course-title result as binding context. Do not re-derive from scratch:
 ${JSON.stringify(titleResult, null, 2)}
@@ -75,6 +98,7 @@ Return:
 - each lesson description should be 2-4 short bullet points (markdown) describing what vocabulary and situations it covers
 - each lesson needs a focused sourcePrompt that includes the original course request context and can independently generate vocabulary
 - each lesson targetEntryCount should usually be 24-36
+${input.skillLevel ? "" : "- set inferredSkillLevel to the level you judged best for this course"}
 
 Do not include admin notes or implementation details.`;
 }
@@ -107,10 +131,15 @@ const generateCourseTitleFlow = getAI().defineFlow(
 const generateCourseFlow = getAI().defineFlow(
   {
     name: "generateCourseOutline",
-    inputSchema: z.object({ sourcePrompt: z.string(), title: z.string().optional(), subtitle: z.string().optional() }),
+    inputSchema: z.object({
+      sourcePrompt: z.string(),
+      title: z.string().optional(),
+      subtitle: z.string().optional(),
+      skillLevel: SkillLevelSchema.optional(),
+    }),
     outputSchema: CourseOutlineSchema,
   },
-  async ({ sourcePrompt, title, subtitle }) => {
+  async ({ sourcePrompt, title, subtitle, skillLevel }) => {
     const model = await getModelFor("courseGen");
     const decoding = await getDecodingFor("courseGen");
     const { output } = await getAI().generate({
@@ -121,8 +150,8 @@ const generateCourseFlow = getAI().defineFlow(
         ...decoding,
       },
       system:
-        "You are a Modern Greek curriculum designer. Create concise course outlines as strict JSON. Lessons should be specific, practical, and vocabulary-rich.",
-      prompt: buildCourseOutlinePrompt({ sourcePrompt, title, subtitle }),
+        "You are a Modern Greek curriculum designer. Create concise course outlines as strict JSON. Lessons should be specific, practical, and vocabulary-rich. Calibrate everything to the learner's skill level when provided.",
+      prompt: buildCourseOutlinePrompt({ sourcePrompt, title, subtitle, skillLevel }),
     });
     if (!output) throw new Error("Course generation returned no output.");
     return output;
@@ -426,7 +455,12 @@ async function generateDebugCourse(courseId: string, sourcePrompt: string, event
   await batch.commit();
 }
 
-async function generateAICourse(courseId: string, sourcePrompt: string, eventId: string) {
+async function generateAICourse(
+  courseId: string,
+  sourcePrompt: string,
+  eventId: string,
+  initialSkillLevel: SkillLevel | undefined,
+) {
   const db = getFirestore();
   const coursePath = `courses/${courseId}`;
   const courseRef = db.doc(coursePath);
@@ -471,14 +505,19 @@ async function generateAICourse(courseId: string, sourcePrompt: string, eventId:
     sourcePrompt,
     title: generatedTitle.title,
     subtitle: generatedTitle.subtitle,
+    skillLevel: initialSkillLevel,
   });
+  const resolvedSkillLevel: SkillLevel | undefined =
+    initialSkillLevel ?? outline.inferredSkillLevel ?? undefined;
   await db.doc(`generations/${generationId}`).update({
     "prompts.courseOutline": buildCourseOutlinePrompt({
       sourcePrompt,
       title: generatedTitle.title,
       subtitle: generatedTitle.subtitle,
+      skillLevel: initialSkillLevel,
     }),
     "stepOutputs.courseOutline": persistable(outline),
+    ...(resolvedSkillLevel ? { "stepOutputs.resolvedSkillLevel": resolvedSkillLevel } : {}),
   });
   await appendStatus(coursePath, "Writing lesson stubs.");
 
@@ -506,6 +545,7 @@ async function generateAICourse(courseId: string, sourcePrompt: string, eventId:
       subtitle: lesson.subtitle ?? "",
       description: lesson.description,
       sourcePrompt: lesson.sourcePrompt,
+      ...(resolvedSkillLevel ? { skillLevel: resolvedSkillLevel } : {}),
       courseSourcePrompt: sourcePrompt,
       courseGenerationContext: {
         generationId,
@@ -528,6 +568,7 @@ async function generateAICourse(courseId: string, sourcePrompt: string, eventId:
     title: outline.title,
     subtitle: outline.subtitle ?? "",
     description: outline.description,
+    ...(resolvedSkillLevel ? { skillLevel: resolvedSkillLevel } : {}),
     status: "ready",
     statusLog: FieldValue.arrayUnion(logEntry("Course outline complete. Lesson vocabulary is generating.")),
     generationId,
@@ -582,7 +623,9 @@ export const onCourseWritten = onDocumentWritten({ document: "courses/{courseId}
       return;
     }
 
-    await generateAICourse(courseId, sourcePrompt, eventId);
+    const parsedLevel = SkillLevelSchema.safeParse(data.skillLevel);
+    const initialSkillLevel = parsedLevel.success ? parsedLevel.data : undefined;
+    await generateAICourse(courseId, sourcePrompt, eventId, initialSkillLevel);
   } catch (err) {
     logger.error("onCourseWritten failed", err);
     await courseRef.update({

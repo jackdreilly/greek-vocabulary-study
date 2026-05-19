@@ -3,6 +3,10 @@
   import { scoreGameAnswer, type GameScoreResult } from "../../lib/data/gameScoring";
   import { retryGameBatchGeneration } from "../../lib/data/retryGeneration";
   import { subscribeGames, subscribeLatestGameBatches, subscribeLesson } from "../../lib/data/lessons.svelte";
+  import { hasGreek } from "../../lib/data/yiayia";
+  import GreekCorrectionCard from "../../lib/ui/GreekCorrectionCard.svelte";
+  import SkillLevelPicker from "../../lib/ui/SkillLevelPicker.svelte";
+  import { inferSkillLevel, SKILL_LEVEL_LABEL, type SkillLevel } from "../../lib/skillLevel";
   import { Check, ChevronLeft, ChevronRight, RefreshCw, Shuffle, Sparkles, X } from "lucide-svelte";
   import { yiayiaFocus, clearFocus } from "../../lib/data/yiayiaFocus.svelte";
 
@@ -59,6 +63,32 @@
     return true;
   }
 
+  // Per-lesson games progress persistence — survives tab switches and refreshes.
+  type GamesState = { index: number; typeFilter: string };
+  function gamesStorageKey(c: string, l: string) {
+    return `greekflash:games:${c}:${l}`;
+  }
+  function loadGamesState(c: string, l: string): GamesState | null {
+    try {
+      const raw = localStorage.getItem(gamesStorageKey(c, l));
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as Partial<GamesState>;
+      return {
+        index: Math.max(0, Number(parsed.index ?? 0)),
+        typeFilter: typeof parsed.typeFilter === "string" ? parsed.typeFilter : "all",
+      };
+    } catch {
+      return null;
+    }
+  }
+  function saveGamesState(c: string, l: string, state: GamesState) {
+    try {
+      localStorage.setItem(gamesStorageKey(c, l), JSON.stringify(state));
+    } catch {
+      // ignore quota / disabled storage
+    }
+  }
+
   let sub = $state<GamesSub>();
   let lessonSub = $state<LessonSub>();
   let batchSub = $state<GameBatchSub>();
@@ -71,21 +101,29 @@
   let typeFilter = $state("all");
   let generatingGames = $state(false);
   let generateError = $state("");
+  let generateOpen = $state(false);
+  let generatePrompt = $state("");
+  let generateSkillLevel = $state<SkillLevel | "">("");
+  let generateCount = $state(10);
   let submissionId = 0;
 
   $effect(() => {
+    // Rehydrate per-lesson games progress.
+    const restored = loadGamesState(courseId, lessonId);
+    index = restored?.index ?? 0;
+    typeFilter = restored?.typeFilter ?? "all";
+    answer = "";
+    checked = false;
+    grading = false;
+    gradeResult = null;
+    gradeError = "";
+    generatingGames = false;
+    generateError = "";
+
     if (providedGamesSub && providedLessonSub && providedGameBatchSub) {
       sub = providedGamesSub;
       lessonSub = providedLessonSub;
       batchSub = providedGameBatchSub;
-      index = 0;
-      answer = "";
-      checked = false;
-      grading = false;
-      gradeResult = null;
-      gradeError = "";
-      generatingGames = false;
-      generateError = "";
       return () => clearFocus();
     }
 
@@ -95,20 +133,25 @@
     sub = next;
     lessonSub = nextLesson;
     batchSub = nextBatch;
-    index = 0;
-    answer = "";
-    checked = false;
-    grading = false;
-    gradeResult = null;
-    gradeError = "";
-    generatingGames = false;
-    generateError = "";
     return () => {
       next.stop();
       nextLesson.stop();
       nextBatch.stop();
       clearFocus();
     };
+  });
+
+  // Persist on change.
+  $effect(() => {
+    saveGamesState(courseId, lessonId, { index, typeFilter });
+  });
+
+  // Clamp index when the filtered game list grows/shrinks.
+  $effect(() => {
+    const total = games.length;
+    if (total > 0 && index >= total) {
+      index = total - 1;
+    }
   });
 
   // Keep yiayiaFocus in sync with the current game's target words.
@@ -185,6 +228,7 @@
         lesson: lessonSub?.lesson,
         game: current,
         answer: answer.trim(),
+        courseId,
       });
       if (activeSubmission !== submissionId) return;
       gradeResult = result;
@@ -197,17 +241,29 @@
     }
   }
 
+  const inheritedLevel = $derived<SkillLevel | undefined>(
+    (lessonSub?.lesson?.skillLevel as SkillLevel | undefined) ?? undefined,
+  );
+
   async function generateGames() {
     if (generatingGames) return;
     generatingGames = true;
     generateError = "";
     try {
+      const resolved: SkillLevel | undefined =
+        generateSkillLevel || inferSkillLevel(generatePrompt) || inheritedLevel;
       await createGameBatch({
         courseId,
         lessonId,
         requestedType: typeFilter === "all" ? "mixed" : typeFilter,
-        count: typeFilter === "all" ? 5 : 3,
+        count: Math.max(10, Math.min(30, Math.round(generateCount))),
+        customFocus: generatePrompt,
+        skillLevel: resolved,
       });
+      generatePrompt = "";
+      generateSkillLevel = "";
+      generateCount = 10;
+      generateOpen = false;
     } catch (err) {
       generateError = err instanceof Error ? err.message : String(err);
     } finally {
@@ -271,19 +327,70 @@
     <p class="text-(--color-danger) text-sm">Failed to load games: {sub.error.message}</p>
 
   {:else if allGames.length === 0}
-    <!-- Empty state -->
-    <div class="flex flex-1 flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-(--color-border) py-20">
+    <!-- Empty state with inline generate form -->
+    <div class="flex flex-1 flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-(--color-border) px-6 py-16">
       <p class="text-(--color-muted) text-sm">No games for this lesson yet.</p>
-      <button
-        type="button"
-        onclick={() => void generateGames()}
-        disabled={generatingGames}
-        class="inline-flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
-      >
-        <Sparkles size={14} aria-hidden="true" />
-        {generatingGames ? "Generating…" : "Generate games"}
-      </button>
-      {#if generateError}<p class="text-sm text-(--color-danger)">{generateError}</p>{/if}
+      {#if !generateOpen}
+        <button
+          type="button"
+          onclick={() => (generateOpen = true)}
+          disabled={generatingGames}
+          class="inline-flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+        >
+          <Sparkles size={14} aria-hidden="true" />
+          {generatingGames ? "Generating…" : "Generate games"}
+        </button>
+      {:else}
+        <div class="w-full max-w-md rounded-md border border-(--color-border) bg-(--color-surface) p-3">
+          <label class="block">
+            <span class="block text-xs font-medium text-(--color-muted) mb-1">Focus or theme (optional)</span>
+            <input
+              type="text"
+              bind:value={generatePrompt}
+              placeholder="e.g. focus on past-tense verbs, or kitchen vocabulary"
+              class="w-full rounded-md border border-(--color-border) bg-(--color-surface-muted) px-2.5 py-1.5 text-sm focus:border-(--color-accent) focus:outline-none focus:ring-1 focus:ring-(--color-accent)"
+            />
+          </label>
+          <div class="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-[1fr_7rem]">
+            <SkillLevelPicker
+              bind:value={generateSkillLevel}
+              autoLabel={inheritedLevel ? `Inherit from lesson (${SKILL_LEVEL_LABEL[inheritedLevel]})` : "Auto-detect from prompt"}
+            />
+            <label class="block">
+              <span class="block text-xs font-medium text-(--color-muted) mb-1">Count</span>
+              <input
+                type="number"
+                min="10"
+                max="30"
+                bind:value={generateCount}
+                class="w-full rounded-md border border-(--color-border) bg-(--color-surface) px-2 py-1.5 text-sm focus:border-(--color-accent) focus:outline-none focus:ring-1 focus:ring-(--color-accent)"
+              />
+            </label>
+          </div>
+          <div class="mt-3 flex items-center justify-end gap-2">
+            {#if generateError}
+              <p class="mr-auto text-xs text-(--color-danger)">{generateError}</p>
+            {/if}
+            <button
+              type="button"
+              onclick={() => (generateOpen = false)}
+              class="rounded-md border border-(--color-border) px-3 py-1.5 text-sm text-(--color-muted) hover:bg-(--color-surface-muted)"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onclick={() => void generateGames()}
+              disabled={generatingGames}
+              class="inline-flex items-center gap-1.5 rounded-md bg-(--color-accent) px-3 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+            >
+              <Sparkles size={13} aria-hidden="true" />
+              {generatingGames ? "Starting…" : `Generate ${Math.max(10, Math.min(30, generateCount))} games`}
+            </button>
+          </div>
+        </div>
+      {/if}
+      {#if generateError && !generateOpen}<p class="text-sm text-(--color-danger)">{generateError}</p>{/if}
     </div>
 
   {:else}
@@ -324,10 +431,10 @@
         </button>
         <button
           type="button"
-          onclick={() => void generateGames()}
+          onclick={() => (generateOpen = !generateOpen)}
           disabled={generatingGames}
           class="inline-flex h-7 items-center gap-1 rounded border border-(--color-border) px-2 text-xs font-bold text-(--color-muted) hover:border-(--color-accent) hover:text-(--color-accent) disabled:opacity-40"
-          title="Generate more"
+          title="Generate more games"
         >
           <Sparkles size={12} aria-hidden="true" />
           {generatingGames ? "…" : "Generate"}
@@ -335,12 +442,67 @@
       </div>
     </div>
 
+    {#if generateOpen}
+      <div class="my-3 rounded-md border border-(--color-border) bg-(--color-surface) p-3">
+        <div class="mb-2 flex items-center justify-between">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-(--color-muted)">Generate games</h3>
+          <button
+            type="button"
+            onclick={() => (generateOpen = false)}
+            class="grid h-6 w-6 place-items-center rounded text-(--color-muted) hover:bg-(--color-surface-muted)"
+            aria-label="Close"
+          >
+            <X size={12} aria-hidden="true" />
+          </button>
+        </div>
+        <label class="block">
+          <span class="block text-xs font-medium text-(--color-muted) mb-1">Focus or theme (optional)</span>
+          <input
+            type="text"
+            bind:value={generatePrompt}
+            placeholder="e.g. focus on past-tense verbs, or use only kitchen vocabulary"
+            class="w-full rounded-md border border-(--color-border) bg-(--color-surface-muted) px-2.5 py-1.5 text-sm focus:border-(--color-accent) focus:outline-none focus:ring-1 focus:ring-(--color-accent)"
+          />
+        </label>
+        <div class="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-[1fr_8rem]">
+          <SkillLevelPicker
+            bind:value={generateSkillLevel}
+            autoLabel={inheritedLevel ? `Inherit from lesson (${SKILL_LEVEL_LABEL[inheritedLevel]})` : "Auto-detect from prompt"}
+          />
+          <label class="block">
+            <span class="block text-xs font-medium text-(--color-muted) mb-1">Count</span>
+            <input
+              type="number"
+              min="10"
+              max="30"
+              bind:value={generateCount}
+              class="w-full rounded-md border border-(--color-border) bg-(--color-surface) px-2 py-1.5 text-sm focus:border-(--color-accent) focus:outline-none focus:ring-1 focus:ring-(--color-accent)"
+            />
+          </label>
+        </div>
+        <div class="mt-3 flex items-center justify-end gap-2">
+          {#if generateError}
+            <p class="mr-auto text-sm text-(--color-danger)">{generateError}</p>
+          {/if}
+          <button
+            type="button"
+            onclick={() => void generateGames()}
+            disabled={generatingGames}
+            class="inline-flex items-center gap-1.5 rounded-md bg-(--color-accent) px-3 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+          >
+            <Sparkles size={13} aria-hidden="true" />
+            {generatingGames ? "Starting…" : `Generate ${Math.max(10, Math.min(30, generateCount))} games`}
+          </button>
+        </div>
+      </div>
+    {/if}
+
     {#if games.length === 0}
       <div class="flex flex-1 flex-col items-center justify-center gap-3 py-16 text-center">
         <p class="text-sm text-(--color-muted)">No {label(typeFilter)} games yet.</p>
         <button
           type="button"
-          onclick={() => void generateGames()}
+          onclick={() => (generateOpen = true)}
           disabled={generatingGames}
           class="inline-flex items-center gap-1.5 rounded-md bg-(--color-accent) px-3 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
         >
@@ -426,8 +588,13 @@
             {#if gradeResult.betterAnswer}
               <p class="mt-1.5 text-xs opacity-75"><strong>Target:</strong> {gradeResult.betterAnswer}</p>
             {/if}
-            {#if gradeResult.greekCorrection?.tips?.length}
-              <p class="mt-2 text-xs opacity-80">{gradeResult.greekCorrection.correctedText}</p>
+            {#if gradeResult.greekCorrection && hasGreek(answer)}
+              <div class="mt-3">
+                <GreekCorrectionCard
+                  correction={gradeResult.greekCorrection}
+                  userText={answer}
+                />
+              </div>
             {/if}
           </div>
         {/if}
