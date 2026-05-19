@@ -282,15 +282,19 @@ const listEntriesTool = () =>
     {
       name: "listEntries",
       description:
-        "List vocabulary entries for a lesson, optionally filtered by query against lemma/english/category. Use limit=200 when the admin asks to inspect all terms in a lesson.",
+        "List vocabulary entries for a lesson, optionally filtered by query against lemma/english/category. Supports pagination via offset+limit. To page through a large lesson: call with limit=100, then offset=100, offset=200, etc. until count < limit. Use limit=1000 to fetch all entries at once.",
       inputSchema: z.object({
         courseId: z.string(),
         lessonId: z.string(),
         query: z.string().optional().default(""),
-        limit: z.number().int().min(1).max(200).optional().default(40),
+        limit: z.number().int().min(1).max(1000).optional().default(40),
+        offset: z.number().int().min(0).optional().default(0),
       }),
       outputSchema: z.object({
+        total: z.number(),
         count: z.number(),
+        offset: z.number(),
+        hasMore: z.boolean(),
         entries: z.array(
           z.object({
             id: z.string(),
@@ -304,12 +308,13 @@ const listEntriesTool = () =>
         ),
       }),
     },
-    async ({ courseId, lessonId, query, limit }) => {
+    async ({ courseId, lessonId, query, limit, offset }) => {
       const cap = limit ?? 40;
+      const skip = offset ?? 0;
       const snap = await getFirestore()
         .collection(`courses/${courseId}/lessons/${lessonId}/entries`)
         .orderBy("order")
-        .limit(200)
+        .limit(1000)
         .get();
       const needle = (query ?? "").trim();
       const all = snap.docs.map((doc) => {
@@ -329,7 +334,8 @@ const listEntriesTool = () =>
             textMatchesSearch(`${e.lemma} ${e.english} ${e.category}`, needle),
           )
         : all;
-      return { count: filtered.length, entries: filtered.slice(0, cap) };
+      const page = filtered.slice(skip, skip + cap);
+      return { total: filtered.length, count: page.length, offset: skip, hasMore: skip + cap < filtered.length, entries: page };
     },
   );
 
