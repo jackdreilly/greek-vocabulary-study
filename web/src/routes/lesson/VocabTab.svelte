@@ -17,6 +17,7 @@
   import AudioPlayButton from "../../lib/ui/AudioPlayButton.svelte";
   import { clearFocus, setFocus } from "../../lib/data/yiayiaFocus.svelte";
   import { Edit2, Loader2, Mic, MicOff, Plus, RefreshCw, Search, Sparkles, Trash2, Upload, Wand2, X } from "lucide-svelte";
+  import GenerateModal from "../../lib/ui/GenerateModal.svelte";
 
   type EntriesSub = ReturnType<typeof subscribeEntries>;
   type VocabBatchSub = ReturnType<typeof subscribeLatestVocabBatches>;
@@ -24,14 +25,18 @@
   let {
     courseId,
     lessonId,
+    canGenerate = true,
     entriesSub: providedEntriesSub,
     vocabBatchSub: providedVocabBatchSub,
   }: {
     courseId: string;
     lessonId: string;
+    canGenerate?: boolean;
     entriesSub?: EntriesSub;
     vocabBatchSub?: VocabBatchSub;
   } = $props();
+
+  let vocabModalOpen = $state(false);
 
   let sub = $state<EntriesSub>();
   let batchSub = $state<VocabBatchSub>();
@@ -367,72 +372,55 @@
         />
       </div>
     </div>
-    <form
-      class="rounded-lg border border-(--color-border) bg-(--color-surface) p-3"
-      onsubmit={(event) => {
-        event.preventDefault();
-        void generateVocab();
-      }}
-    >
-      <div class="flex flex-col gap-2 sm:flex-row">
-        <input
-          type="text"
-          bind:value={vocabPrompt}
-          placeholder="Generate more vocab: cafe ordering, prices, polite phrases..."
-          class="min-w-0 flex-1 rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:outline-none focus:border-(--color-accent) focus:ring-1 focus:ring-(--color-accent)"
-        />
-        <button
-          type="submit"
-          disabled={generatingVocab || vocabPrompt.trim().length === 0}
-          class="inline-flex items-center justify-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
-        >
-          <Sparkles size={14} aria-hidden="true" />
-          {generatingVocab ? "Generating..." : "Generate vocab"}
-        </button>
-      </div>
-      {#if vocabError}
-        <p class="mt-2 text-sm text-(--color-danger)">{vocabError}</p>
-      {/if}
-      {#if latestBatch}
-        <div
-          class="mt-3 rounded-md border px-3 py-2 text-sm {latestBatch.status === 'error'
-            ? 'border-[#fecaca] bg-[#fef2f2] text-(--color-danger)'
-            : batchRunning
-              ? 'border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]'
-              : 'border-[#bbf7d0] bg-[#f0fdf4] text-[#15803d]'}"
-        >
-          <div class="flex items-center justify-between gap-3">
-            <span class="font-medium">
-              {latestBatch.status === "error"
-                ? "Vocabulary generation failed"
-                : batchRunning
-                  ? "Vocabulary generation running"
-                  : "Vocabulary generation complete"}
-            </span>
-            <span class="text-xs uppercase tracking-wide opacity-75">{latestBatch.status}</span>
-          </div>
-          {#if latestBatch.error}
-            <p class="mt-1">{latestBatch.error}</p>
-          {:else if batchMessages.length}
-            <ul class="mt-1 space-y-0.5">
-              {#each batchMessages as item}
-                <li>{item.message}</li>
-              {/each}
-            </ul>
-          {/if}
-          {#if latestBatch.status === "error"}
-            <button
-              type="button"
-              onclick={() => void retryVocabBatchGeneration(courseId, lessonId, latestBatch.id)}
-              class="mt-2 inline-flex items-center gap-1.5 rounded-md border border-current px-2 py-1 text-xs font-medium"
-            >
-              <RefreshCw size={12} aria-hidden="true" />
-              Try again
-            </button>
-          {/if}
+    {#if canGenerate}
+      <button
+        type="button"
+        onclick={() => (vocabModalOpen = true)}
+        class="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700 hover:border-amber-300 hover:bg-amber-100"
+      >
+        <Sparkles size={12} aria-hidden="true" />
+        Generate vocab
+      </button>
+    {/if}
+    {#if latestBatch}
+      <div
+        class="rounded-md border px-3 py-2 text-sm {latestBatch.status === 'error'
+          ? 'border-[#fecaca] bg-[#fef2f2] text-(--color-danger)'
+          : batchRunning
+            ? 'border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]'
+            : 'border-[#bbf7d0] bg-[#f0fdf4] text-[#15803d]'}"
+      >
+        <div class="flex items-center justify-between gap-3">
+          <span class="font-medium">
+            {latestBatch.status === "error"
+              ? "Vocabulary generation failed"
+              : batchRunning
+                ? "Vocabulary generation running"
+                : "Vocabulary generation complete"}
+          </span>
+          <span class="text-xs uppercase tracking-wide opacity-75">{latestBatch.status}</span>
         </div>
-      {/if}
-    </form>
+        {#if latestBatch.error}
+          <p class="mt-1">{latestBatch.error}</p>
+        {:else if batchMessages.length}
+          <ul class="mt-1 space-y-0.5">
+            {#each batchMessages as item}
+              <li>{item.message}</li>
+            {/each}
+          </ul>
+        {/if}
+        {#if latestBatch.status === "error"}
+          <button
+            type="button"
+            onclick={() => void retryVocabBatchGeneration(courseId, lessonId, latestBatch.id)}
+            class="mt-2 inline-flex items-center gap-1.5 rounded-md border border-current px-2 py-1 text-xs font-medium"
+          >
+            <RefreshCw size={12} aria-hidden="true" />
+            Try again
+          </button>
+        {/if}
+      </div>
+    {/if}
   </div>
 
   {#if !sub || sub.loading}
@@ -830,4 +818,37 @@
       </section>
     </div>
   {/if}
+
+  <GenerateModal bind:open={vocabModalOpen} title="Generate vocabulary">
+    <form
+      onsubmit={(event) => {
+        event.preventDefault();
+        vocabModalOpen = false;
+        void generateVocab();
+      }}
+    >
+      <div class="flex flex-col gap-3">
+        <label class="block">
+          <span class="mb-1.5 block text-sm font-medium text-(--color-text)">Describe the vocab you want</span>
+          <input
+            type="text"
+            bind:value={vocabPrompt}
+            placeholder="cafe ordering, prices, polite phrases..."
+            class="w-full rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:outline-none focus:border-(--color-accent) focus:ring-1 focus:ring-(--color-accent)"
+          />
+        </label>
+        {#if vocabError}
+          <p class="text-sm text-(--color-danger)">{vocabError}</p>
+        {/if}
+        <button
+          type="submit"
+          disabled={generatingVocab || vocabPrompt.trim().length === 0}
+          class="inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-amber-500 px-4 py-2 text-sm font-medium text-white hover:bg-amber-600 disabled:opacity-50"
+        >
+          <Sparkles size={14} aria-hidden="true" />
+          {generatingVocab ? "Generating..." : "Generate vocab"}
+        </button>
+      </div>
+    </form>
+  </GenerateModal>
 </div>

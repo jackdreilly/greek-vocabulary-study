@@ -18,7 +18,7 @@ function normalizeConfig(data: DocumentData | undefined): AIConfig {
     models,
     decoding: data?.decoding ?? {},
     features: { ...DEFAULT_AI_CONFIG.features, ...(data?.features ?? {}) },
-    updatedAt: data?.updatedAt,
+    updatedAt: data?.updatedAt?.toDate?.() ?? data?.updatedAt,
     updatedBy: data?.updatedBy,
   };
 }

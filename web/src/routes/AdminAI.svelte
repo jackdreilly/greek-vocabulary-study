@@ -16,7 +16,7 @@
   const sub = subscribeAIConfig();
   onDestroy(() => sub.stop());
 
-  let draft = $state<AIConfig | null>(null);
+  let draft = $state<AIConfig>($state.snapshot(sub.config));
   let dirty = $state(false);
   let saving = $state(false);
   let saved = $state(false);
@@ -24,10 +24,10 @@
   let expanded = $state<Record<string, boolean>>({});
 
   $effect(() => {
-    if (!dirty) draft = structuredClone(sub.config);
+    if (!dirty) draft = $state.snapshot(sub.config);
   });
 
-  const current = $derived(draft ?? sub.config);
+  const current = $derived(draft);
   const featureKeys = $derived(Object.keys(current.features));
 
   function markDirty() {
@@ -61,13 +61,13 @@
   }
 
   function updateFeature(key: string, value: boolean) {
-    if (!draft) return;
     draft.features = { ...draft.features, [key]: value };
     markDirty();
   }
 
   function formatUpdatedAt(value: unknown) {
     if (!value) return "Never";
+    if (value instanceof Date) return value.toLocaleString();
     if (typeof value === "object" && value && "toDate" in value) {
       return (value as { toDate: () => Date }).toDate().toLocaleString();
     }
@@ -245,7 +245,7 @@
             <input
               type="checkbox"
               checked={current.features[key]}
-              onchange={(e) => updateFeature(key, (e.target as HTMLInputElement).checked)}
+              onclick={() => updateFeature(key, !current.features[key])}
               class="size-4 accent-(--color-accent)"
             />
           </label>

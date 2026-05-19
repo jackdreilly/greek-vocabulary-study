@@ -174,3 +174,30 @@ When adding a new widget type:
 #### Storage
 
 Plans are stored in Firestore collection `lesson_ai_plans` (default DB), one document per plan, keyed by id `l{lessonId}-plan-{planNumber}`. CRUD lives in [src/lib/aiPlans.js](src/lib/aiPlans.js).
+
+---
+
+## Content Generation Gating
+
+All AI content-generation entry points (new course, new lesson, new vocab, new games, new plans) are gated behind the `contentGeneration` feature flag in `ai_config/main` (default `true`). Every entry point uses the shared `GenerateModal` component (`web/src/lib/ui/GenerateModal.svelte`) with the amber/orange design that matches the admin chat button.
+
+### Entry points
+
+| Feature | File | Modal title |
+|---------|------|------------|
+| New course | `web/src/routes/Home.svelte` | "Generate course" |
+| New lesson | `web/src/routes/Course.svelte` | "Generate lesson" |
+| New vocab | `web/src/routes/lesson/VocabTab.svelte` | "Generate vocabulary" |
+| New games | `web/src/routes/lesson/GamesTab.svelte` | "Generate games" |
+| New plan | `web/src/routes/lesson/PlansTab.svelte` | "Generate plan" |
+
+### Migration to backend enforcement
+
+When auth/roles land, replace the client-side flag check with a hard gate:
+
+1. **Auth token claim** — add `canGenerate: boolean` as a Firebase Auth custom claim for authorised roles.
+2. **Firestore security rules** — deny writes to content creation paths unless `request.auth.token.canGenerate == true`.
+3. **Callable guards** — verify the claim in each Cloud Function that creates content (`createCourseStub`, `createLessonStub`, `createGameBatch`, etc.).
+4. **Frontend flag** — keep `contentGeneration` as a UI hint only (hides buttons); treat as cosmetic once the server rejects unauthorised calls.
+
+The `{#if canGenerate}` guard around each `GenerateModal` trigger is a one-line change per entry point once auth is wired up.

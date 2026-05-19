@@ -51,6 +51,7 @@ export const DEFAULT_AI_CONFIG: AIConfig = {
     streamingPlans: true,
     ragForPlans: false,
     diversifyGames: true,
+    contentGeneration: true,
   },
 };
 
@@ -80,4 +81,5 @@ export const FEATURE_COPY: Record<string, string> = {
   streamingPlans: "Render plan widgets as they are generated.",
   ragForPlans: "Use retrieval context when planning lessons.",
   diversifyGames: "Avoid repeating prior generated exercises.",
+  contentGeneration: "Show AI content generation controls (courses, lessons, vocab, games, plans).",
 };

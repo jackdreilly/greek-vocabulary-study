@@ -10,8 +10,15 @@
   import StatusPill from "../lib/ui/StatusPill.svelte";
   import MarkdownBody from "../lib/ui/MarkdownBody.svelte";
   import { BookOpen, ChevronRight, RefreshCw, Sparkles } from "lucide-svelte";
+  import GenerateModal from "../lib/ui/GenerateModal.svelte";
+  import { subscribeAIConfig } from "../lib/data/aiConfig.svelte";
 
   let { courseId }: { courseId: string } = $props();
+
+  const aiSub = subscribeAIConfig();
+  const canGenerate = $derived(aiSub.config.features.contentGeneration ?? true);
+
+  let lessonModalOpen = $state(false);
 
   let sub = $state<ReturnType<typeof subscribeCourse>>();
 
@@ -160,41 +167,61 @@
           Lessons
         </h2>
       </div>
-      <form
-        class="mb-5 rounded-lg border border-(--color-border) bg-(--color-surface) p-3"
-        onsubmit={(event) => {
-          event.preventDefault();
-          void createLesson();
-        }}
-      >
-        <div class="flex flex-col gap-2 sm:flex-row">
-          <input
-            type="text"
-            bind:value={lessonPrompt}
-            placeholder="Add a lesson: ordering at a cafe, asking directions..."
-            class="min-w-0 flex-1 rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:outline-none focus:border-(--color-accent) focus:ring-1 focus:ring-(--color-accent)"
-          />
+      {#if canGenerate}
+        <div class="mb-5">
           <button
-            type="submit"
-            disabled={creatingLesson || lessonPrompt.trim().length === 0}
-            class="inline-flex items-center justify-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+            type="button"
+            onclick={() => (lessonModalOpen = true)}
+            disabled={creatingLesson}
+            class="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-700 hover:border-amber-300 hover:bg-amber-100 disabled:opacity-50"
           >
-            <Sparkles size={14} aria-hidden="true" />
+            <Sparkles size={13} aria-hidden="true" />
             {creatingLesson ? "Starting..." : "Generate lesson"}
           </button>
+          {#if lessonError}
+            <p class="mt-2 text-sm text-(--color-danger)">{lessonError}</p>
+          {/if}
         </div>
-        <div class="mt-2 max-w-md">
-          <SkillLevelPicker
-            bind:value={lessonSkillLevel}
-            autoLabel={courseSkillLevel
-              ? `Inherit from course (${SKILL_LEVEL_LABEL[courseSkillLevel]})`
-              : "Auto-detect from prompt"}
-          />
-        </div>
-        {#if lessonError}
-          <p class="mt-2 text-sm text-(--color-danger)">{lessonError}</p>
-        {/if}
-      </form>
+      {/if}
+
+      <GenerateModal bind:open={lessonModalOpen} title="Generate lesson">
+        <form
+          onsubmit={(event) => {
+            event.preventDefault();
+            lessonModalOpen = false;
+            void createLesson();
+          }}
+        >
+          <div class="flex flex-col gap-3">
+            <label class="block">
+              <span class="mb-1 block text-sm font-medium text-(--color-text)">What is the lesson about?</span>
+              <input
+                type="text"
+                bind:value={lessonPrompt}
+                placeholder="Ordering at a cafe, asking directions..."
+                class="w-full rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:outline-none focus:border-(--color-accent) focus:ring-1 focus:ring-(--color-accent)"
+              />
+            </label>
+            <SkillLevelPicker
+              bind:value={lessonSkillLevel}
+              autoLabel={courseSkillLevel
+                ? `Inherit from course (${SKILL_LEVEL_LABEL[courseSkillLevel]})`
+                : "Auto-detect from prompt"}
+            />
+            {#if lessonError}
+              <p class="text-sm text-(--color-danger)">{lessonError}</p>
+            {/if}
+            <button
+              type="submit"
+              disabled={creatingLesson || lessonPrompt.trim().length === 0}
+              class="inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-amber-500 px-4 py-2 text-sm font-medium text-white hover:bg-amber-600 disabled:opacity-50"
+            >
+              <Sparkles size={14} aria-hidden="true" />
+              {creatingLesson ? "Starting..." : "Generate lesson"}
+            </button>
+          </div>
+        </form>
+      </GenerateModal>
       <ul class="divide-y divide-(--color-border) border-y border-(--color-border)">
         {#each lessons as lesson, i (lesson.id)}
           <li>

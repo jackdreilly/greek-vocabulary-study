@@ -9,10 +9,16 @@
   import SkillLevelPicker from "../lib/ui/SkillLevelPicker.svelte";
   import StatusPill from "../lib/ui/StatusPill.svelte";
   import { BookOpen, GraduationCap, Hash, Search, Sparkles } from "lucide-svelte";
+  import GenerateModal from "../lib/ui/GenerateModal.svelte";
+  import { subscribeAIConfig } from "../lib/data/aiConfig.svelte";
 
   const sub = subscribeCourses();
   onDestroy(sub.stop);
 
+  const aiSub = subscribeAIConfig();
+  const canGenerate = $derived(aiSub.config.features.contentGeneration ?? true);
+
+  let courseModalOpen = $state(false);
   let sourcePrompt = $state("");
   let skillLevel = $state<SkillLevel | "">("");
   let courseSearch = $state("");
@@ -67,38 +73,57 @@
     />
   </div>
 
-  <form
-    class="mb-10 border-y border-(--color-border) py-5"
-    onsubmit={(e) => {
-      e.preventDefault();
-      createCourse();
-    }}
-  >
-    <label class="block text-sm font-medium mb-2" for="course-prompt">New course</label>
-    <div class="flex flex-col sm:flex-row gap-2">
-      <input
-        id="course-prompt"
-        type="text"
-        bind:value={sourcePrompt}
-        placeholder="Greek for cooking, island travel, rebetiko lyrics..."
-        class="min-w-0 flex-1 rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:outline-none focus:border-(--color-accent) focus:ring-1 focus:ring-(--color-accent)"
-      />
+  {#if canGenerate}
+    <div class="mb-10 border-y border-(--color-border) py-5">
+      <p class="mb-2 text-sm font-medium">New course</p>
       <button
-        type="submit"
-        disabled={creating || sourcePrompt.trim().length === 0}
-        class="inline-flex items-center justify-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+        type="button"
+        onclick={() => (courseModalOpen = true)}
+        disabled={creating}
+        class="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-700 hover:border-amber-300 hover:bg-amber-100 disabled:opacity-50"
       >
-        <Sparkles size={14} aria-hidden="true" />
-        {creating ? "Starting" : "Generate"}
+        <Sparkles size={13} aria-hidden="true" />
+        {creating ? "Starting..." : "Generate course"}
       </button>
+      {#if createError}
+        <p class="mt-2 text-sm text-(--color-danger)">{createError}</p>
+      {/if}
     </div>
-    <div class="mt-2 max-w-md">
-      <SkillLevelPicker bind:value={skillLevel} />
-    </div>
-    {#if createError}
-      <p class="mt-2 text-sm text-(--color-danger)">{createError}</p>
-    {/if}
-  </form>
+  {/if}
+
+  <GenerateModal bind:open={courseModalOpen} title="Generate course">
+    <form
+      onsubmit={(e) => {
+        e.preventDefault();
+        courseModalOpen = false;
+        void createCourse();
+      }}
+    >
+      <div class="flex flex-col gap-3">
+        <label class="block">
+          <span class="mb-1 block text-sm font-medium text-(--color-text)">What is the course about?</span>
+          <input
+            type="text"
+            bind:value={sourcePrompt}
+            placeholder="Greek for cooking, island travel, rebetiko lyrics..."
+            class="w-full rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:outline-none focus:border-(--color-accent) focus:ring-1 focus:ring-(--color-accent)"
+          />
+        </label>
+        <SkillLevelPicker bind:value={skillLevel} />
+        {#if createError}
+          <p class="text-sm text-(--color-danger)">{createError}</p>
+        {/if}
+        <button
+          type="submit"
+          disabled={creating || sourcePrompt.trim().length === 0}
+          class="inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-amber-500 px-4 py-2 text-sm font-medium text-white hover:bg-amber-600 disabled:opacity-50"
+        >
+          <Sparkles size={14} aria-hidden="true" />
+          {creating ? "Starting..." : "Generate course"}
+        </button>
+      </div>
+    </form>
+  </GenerateModal>
 
   {#if sub.loading}
     <p class="text-(--color-muted)">Loading courses…</p>

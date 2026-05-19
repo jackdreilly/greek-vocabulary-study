@@ -16,7 +16,7 @@
   import YiayiaAdminPanel from "./lib/YiayiaAdminPanel.svelte";
   import { yiayiaFocus } from "./lib/data/yiayiaFocus.svelte";
   import type { Crumb } from "./lib/ui/Breadcrumb.svelte";
-  import { BotMessageSquare, Wand2 } from "lucide-svelte";
+  import { BotMessageSquare } from "lucide-svelte";
 
   // Route matching — recomputed reactively when route.pathname changes.
   const match = $derived.by(() => {
@@ -266,7 +266,7 @@
         aria-label="Open admin chat"
         onclick={() => (adminChatOpen = true)}
       >
-        <Wand2 size={18} aria-hidden="true" />
+        <BotMessageSquare size={18} aria-hidden="true" />
       </button>
       <button
         type="button"

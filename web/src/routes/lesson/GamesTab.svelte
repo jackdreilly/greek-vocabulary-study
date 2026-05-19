@@ -1,14 +1,16 @@
 <script lang="ts">
   import { createGameBatch } from "../../lib/data/createGameBatch";
   import { scoreGameAnswer, type GameScoreResult } from "../../lib/data/gameScoring";
+  import { getGameHint } from "../../lib/data/gameHints";
   import { retryGameBatchGeneration } from "../../lib/data/retryGeneration";
   import { subscribeGames, subscribeLatestGameBatches, subscribeLesson } from "../../lib/data/lessons.svelte";
   import { hasGreek } from "../../lib/data/yiayia";
   import GreekCorrectionCard from "../../lib/ui/GreekCorrectionCard.svelte";
   import SkillLevelPicker from "../../lib/ui/SkillLevelPicker.svelte";
   import { inferSkillLevel, SKILL_LEVEL_LABEL, type SkillLevel } from "../../lib/skillLevel";
-  import { Check, ChevronLeft, ChevronRight, RefreshCw, Shuffle, Sparkles, X } from "lucide-svelte";
+  import { Check, ChevronLeft, ChevronRight, Lightbulb, RefreshCw, Shuffle, Sparkles, X } from "lucide-svelte";
   import { clearFocus, setFocus } from "../../lib/data/yiayiaFocus.svelte";
+  import GenerateModal from "../../lib/ui/GenerateModal.svelte";
 
   type GamesSub = ReturnType<typeof subscribeGames>;
   type LessonSub = ReturnType<typeof subscribeLesson>;
@@ -17,12 +19,14 @@
   let {
     courseId,
     lessonId,
+    canGenerate = true,
     gamesSub: providedGamesSub,
     lessonSub: providedLessonSub,
     gameBatchSub: providedGameBatchSub,
   }: {
     courseId: string;
     lessonId: string;
+    canGenerate?: boolean;
     gamesSub?: GamesSub;
     lessonSub?: LessonSub;
     gameBatchSub?: GameBatchSub;
@@ -106,6 +110,13 @@
   let generateSkillLevel = $state<SkillLevel | "">("");
   let generateCount = $state(10);
   let submissionId = 0;
+  let gameDragX = $state(0);
+  let gameDragY = $state(0);
+  let gameDragStart = $state<{ pointerId: number; x: number; y: number } | null>(null);
+  let gameDragTransition = $state(false);
+  let hints = $state<string[] | null>(null);
+  let hintIndex = $state(0);
+  let hintLoading = $state(false);
 
   $effect(() => {
     // Rehydrate per-lesson games progress.
@@ -209,6 +220,76 @@
     grading = false;
     gradeResult = null;
     gradeError = "";
+    hints = null;
+    hintIndex = 0;
+    hintLoading = false;
+  }
+
+  async function requestHint() {
+    if (!current || hintLoading) return;
+    if (hints) { hintIndex = Math.min(hintIndex + 1, hints.length - 1); return; }
+    hintLoading = true;
+    try {
+      hints = await getGameHint(courseId, lessonId, current.id);
+      hintIndex = 0;
+    } catch {
+      // silently ignore — button will re-enable
+    } finally {
+      hintLoading = false;
+    }
+  }
+
+  function resetGameDrag() {
+    gameDragStart = null;
+    gameDragX = 0;
+    gameDragY = 0;
+    gameDragTransition = false;
+  }
+
+  function handleGamePointerDown(event: PointerEvent) {
+    if (checked || grading) return;
+    const target = event.target as HTMLElement;
+    if (target.closest("input, button, textarea, a")) return;
+    gameDragTransition = false;
+    gameDragStart = { pointerId: event.pointerId, x: event.clientX, y: event.clientY };
+    gameDragX = 0;
+    gameDragY = 0;
+    (event.currentTarget as HTMLElement).setPointerCapture?.(event.pointerId);
+  }
+
+  function handleGamePointerMove(event: PointerEvent) {
+    if (!gameDragStart || gameDragStart.pointerId !== event.pointerId) return;
+    gameDragX = event.clientX - gameDragStart.x;
+    gameDragY = event.clientY - gameDragStart.y;
+  }
+
+  function handleGamePointerUp(event: PointerEvent) {
+    if (!gameDragStart || gameDragStart.pointerId !== event.pointerId) return;
+    const absX = Math.abs(gameDragX);
+    const absY = Math.abs(gameDragY);
+    const swiped = absX > 80 && absX > absY * 1.2;
+    (event.currentTarget as HTMLElement).releasePointerCapture?.(event.pointerId);
+    if (swiped) {
+      const delta = gameDragX > 0 ? -1 : 1;
+      gameDragTransition = true;
+      gameDragX = gameDragX > 0 ? 450 : -450;
+      gameDragY = Math.max(-60, Math.min(60, gameDragY));
+      setTimeout(() => { move(delta); resetGameDrag(); }, 140);
+      return;
+    }
+    gameDragTransition = true;
+    gameDragX = 0;
+    gameDragY = 0;
+    gameDragStart = null;
+    setTimeout(() => { gameDragTransition = false; }, 150);
+  }
+
+  function handleGamePointerCancel() {
+    gameDragTransition = true;
+    gameDragX = 0;
+    gameDragY = 0;
+    gameDragStart = null;
+    setTimeout(() => { gameDragTransition = false; }, 150);
   }
 
   function move(delta: number) {
@@ -337,70 +418,21 @@
     <p class="text-(--color-danger) text-sm">Failed to load games: {sub.error.message}</p>
 
   {:else if allGames.length === 0}
-    <!-- Empty state with inline generate form -->
+    <!-- Empty state -->
     <div class="flex flex-1 flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-(--color-border) px-6 py-16">
       <p class="text-(--color-muted) text-sm">No games for this lesson yet.</p>
-      {#if !generateOpen}
+      {#if canGenerate}
         <button
           type="button"
           onclick={() => (generateOpen = true)}
           disabled={generatingGames}
-          class="inline-flex items-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+          class="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700 hover:border-amber-300 hover:bg-amber-100 disabled:opacity-50"
         >
           <Sparkles size={14} aria-hidden="true" />
           {generatingGames ? "Generating…" : "Generate games"}
         </button>
-      {:else}
-        <div class="w-full max-w-md rounded-md border border-(--color-border) bg-(--color-surface) p-3">
-          <label class="block">
-            <span class="block text-xs font-medium text-(--color-muted) mb-1">Focus or theme (optional)</span>
-            <input
-              type="text"
-              bind:value={generatePrompt}
-              placeholder="e.g. focus on past-tense verbs, or kitchen vocabulary"
-              class="w-full rounded-md border border-(--color-border) bg-(--color-surface-muted) px-2.5 py-1.5 text-sm focus:border-(--color-accent) focus:outline-none focus:ring-1 focus:ring-(--color-accent)"
-            />
-          </label>
-          <div class="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-[1fr_7rem]">
-            <SkillLevelPicker
-              bind:value={generateSkillLevel}
-              autoLabel={inheritedLevel ? `Inherit from lesson (${SKILL_LEVEL_LABEL[inheritedLevel]})` : "Auto-detect from prompt"}
-            />
-            <label class="block">
-              <span class="block text-xs font-medium text-(--color-muted) mb-1">Count</span>
-              <input
-                type="number"
-                min="10"
-                max="30"
-                bind:value={generateCount}
-                class="w-full rounded-md border border-(--color-border) bg-(--color-surface) px-2 py-1.5 text-sm focus:border-(--color-accent) focus:outline-none focus:ring-1 focus:ring-(--color-accent)"
-              />
-            </label>
-          </div>
-          <div class="mt-3 flex items-center justify-end gap-2">
-            {#if generateError}
-              <p class="mr-auto text-xs text-(--color-danger)">{generateError}</p>
-            {/if}
-            <button
-              type="button"
-              onclick={() => (generateOpen = false)}
-              class="rounded-md border border-(--color-border) px-3 py-1.5 text-sm text-(--color-muted) hover:bg-(--color-surface-muted)"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onclick={() => void generateGames()}
-              disabled={generatingGames}
-              class="inline-flex items-center gap-1.5 rounded-md bg-(--color-accent) px-3 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
-            >
-              <Sparkles size={13} aria-hidden="true" />
-              {generatingGames ? "Starting…" : `Generate ${Math.max(10, Math.min(30, generateCount))} games`}
-            </button>
-          </div>
-        </div>
       {/if}
-      {#if generateError && !generateOpen}<p class="text-sm text-(--color-danger)">{generateError}</p>{/if}
+      {#if generateError}<p class="text-sm text-(--color-danger)">{generateError}</p>{/if}
     </div>
 
   {:else}
@@ -439,89 +471,61 @@
         >
           <Shuffle size={13} aria-hidden="true" />
         </button>
-        <button
-          type="button"
-          onclick={() => (generateOpen = !generateOpen)}
-          disabled={generatingGames}
-          class="inline-flex h-7 items-center gap-1 rounded border border-(--color-border) px-2 text-xs font-bold text-(--color-muted) hover:border-(--color-accent) hover:text-(--color-accent) disabled:opacity-40"
-          title="Generate more games"
-        >
-          <Sparkles size={12} aria-hidden="true" />
-          {generatingGames ? "…" : "Generate"}
-        </button>
+        {#if canGenerate}
+          <button
+            type="button"
+            onclick={() => (generateOpen = true)}
+            disabled={generatingGames}
+            class="inline-flex h-7 items-center gap-1 rounded border border-amber-200 bg-amber-50 px-2 text-xs font-semibold text-amber-700 hover:border-amber-300 hover:bg-amber-100 disabled:opacity-40"
+            title="Generate more games"
+          >
+            <Sparkles size={12} aria-hidden="true" />
+            {generatingGames ? "…" : "Generate"}
+          </button>
+        {/if}
       </div>
     </div>
-
-    {#if generateOpen}
-      <div class="my-3 rounded-md border border-(--color-border) bg-(--color-surface) p-3">
-        <div class="mb-2 flex items-center justify-between">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-(--color-muted)">Generate games</h3>
-          <button
-            type="button"
-            onclick={() => (generateOpen = false)}
-            class="grid h-6 w-6 place-items-center rounded text-(--color-muted) hover:bg-(--color-surface-muted)"
-            aria-label="Close"
-          >
-            <X size={12} aria-hidden="true" />
-          </button>
-        </div>
-        <label class="block">
-          <span class="block text-xs font-medium text-(--color-muted) mb-1">Focus or theme (optional)</span>
-          <input
-            type="text"
-            bind:value={generatePrompt}
-            placeholder="e.g. focus on past-tense verbs, or use only kitchen vocabulary"
-            class="w-full rounded-md border border-(--color-border) bg-(--color-surface-muted) px-2.5 py-1.5 text-sm focus:border-(--color-accent) focus:outline-none focus:ring-1 focus:ring-(--color-accent)"
-          />
-        </label>
-        <div class="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-[1fr_8rem]">
-          <SkillLevelPicker
-            bind:value={generateSkillLevel}
-            autoLabel={inheritedLevel ? `Inherit from lesson (${SKILL_LEVEL_LABEL[inheritedLevel]})` : "Auto-detect from prompt"}
-          />
-          <label class="block">
-            <span class="block text-xs font-medium text-(--color-muted) mb-1">Count</span>
-            <input
-              type="number"
-              min="10"
-              max="30"
-              bind:value={generateCount}
-              class="w-full rounded-md border border-(--color-border) bg-(--color-surface) px-2 py-1.5 text-sm focus:border-(--color-accent) focus:outline-none focus:ring-1 focus:ring-(--color-accent)"
-            />
-          </label>
-        </div>
-        <div class="mt-3 flex items-center justify-end gap-2">
-          {#if generateError}
-            <p class="mr-auto text-sm text-(--color-danger)">{generateError}</p>
-          {/if}
-          <button
-            type="button"
-            onclick={() => void generateGames()}
-            disabled={generatingGames}
-            class="inline-flex items-center gap-1.5 rounded-md bg-(--color-accent) px-3 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
-          >
-            <Sparkles size={13} aria-hidden="true" />
-            {generatingGames ? "Starting…" : `Generate ${Math.max(10, Math.min(30, generateCount))} games`}
-          </button>
-        </div>
-      </div>
-    {/if}
 
     {#if games.length === 0}
       <div class="flex flex-1 flex-col items-center justify-center gap-3 py-16 text-center">
         <p class="text-sm text-(--color-muted)">No {label(typeFilter)} games yet.</p>
-        <button
-          type="button"
-          onclick={() => (generateOpen = true)}
-          disabled={generatingGames}
-          class="inline-flex items-center gap-1.5 rounded-md bg-(--color-accent) px-3 py-1.5 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
-        >
-          <Sparkles size={13} aria-hidden="true" />
-          {generatingGames ? "Generating…" : "Generate this type"}
-        </button>
+        {#if canGenerate}
+          <button
+            type="button"
+            onclick={() => (generateOpen = true)}
+            disabled={generatingGames}
+            class="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-700 hover:border-amber-300 hover:bg-amber-100 disabled:opacity-50"
+          >
+            <Sparkles size={13} aria-hidden="true" />
+            {generatingGames ? "Generating…" : "Generate this type"}
+          </button>
+        {/if}
       </div>
 
     {:else if current}
+      <div class="relative flex flex-1 flex-col overflow-hidden"
+        onpointerdown={handleGamePointerDown}
+        onpointermove={handleGamePointerMove}
+        onpointerup={handleGamePointerUp}
+        onpointercancel={handleGamePointerCancel}
+      >
+        <div
+          class="flex flex-1 flex-col {gameDragTransition ? 'transition-transform duration-150 ease-out' : ''}"
+          style="transform: translate({gameDragX}px, {gameDragY * 0.15}px) rotate({gameDragX / 22}deg)"
+        >
+          {#if Math.abs(gameDragX) > 30 && !checked && !grading}
+            <div
+              class="pointer-events-none absolute top-16 z-10
+                {gameDragX > 0
+                  ? 'left-6 -rotate-12 border-[#15803d] text-[#15803d]'
+                  : 'right-6 rotate-12 border-[#dc2626] text-[#dc2626]'}
+                rounded-lg border-[2.5px] bg-white/90 px-4 py-1.5 text-sm font-black uppercase tracking-widest shadow-sm"
+              style="opacity: {Math.min(1, (Math.abs(gameDragX) - 30) / 80)}"
+            >
+              {gameDragX > 0 ? '← Back' : 'Skip →'}
+            </div>
+          {/if}
+
       <!-- Question area — flex-1, vertically centered -->
       <div class="flex flex-1 flex-col items-center justify-center px-4 py-6 text-center">
         <!-- Counter + type badge -->
@@ -536,23 +540,38 @@
 
         <!-- Passage (for reading comprehension) -->
         {#if current.passage}
-          <div class="mb-5 w-full max-w-xl rounded-lg border border-(--color-border) bg-(--color-surface-muted) px-5 py-4 text-left font-serif text-base leading-relaxed">
+          <div class="mb-3 w-full max-w-xl rounded-lg border border-(--color-border) bg-(--color-surface-muted) px-5 py-4 text-left font-serif text-base leading-relaxed">
             {current.passage}
           </div>
+          {#if current.requiredWords?.length}
+            <div class="mb-3 flex w-full max-w-xl flex-wrap gap-1.5">
+              {#each current.requiredWords as word}
+                <span class="rounded-full border border-(--color-accent)/30 bg-(--color-accent)/8 px-2.5 py-0.5 text-sm font-medium text-(--color-accent)">{word}</span>
+              {/each}
+            </div>
+          {/if}
           {#if current.question}
             <p class="mb-2 w-full max-w-xl text-left text-base font-medium">{current.question}</p>
           {/if}
         {/if}
 
-        <!-- Main prompt — large and prominent -->
-        <p class="max-w-xl text-balance font-bold leading-snug text-(--color-text)"
-           style="font-size: clamp(1.3rem, 4vw, 2rem);">
-          {current.prompt}
-        </p>
+        <!-- Main prompt — hidden for reading cards (passage+question already shown above) -->
+        {#if !current.passage}
+          <p class="max-w-xl text-balance font-bold leading-snug text-(--color-text)"
+             style="font-size: clamp(1.3rem, 4vw, 2rem);">
+            {current.prompt}
+          </p>
+        {/if}
       </div>
 
       <!-- Answer + result area -->
       <div class="flex-shrink-0 px-4 pb-3">
+        <!-- Hint display -->
+        {#if hints}
+          <div class="mb-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-800">
+            <span class="mr-1.5 font-semibold">Hint {hintIndex + 1}:</span>{hints[hintIndex]}
+          </div>
+        {/if}
         <input
           type="text"
           bind:value={answer}
@@ -630,12 +649,28 @@
         {#if checked}
           <button
             type="button"
+            onclick={() => resetAnswerState()}
+            class="h-9 rounded-lg border border-(--color-border) px-4 text-sm font-bold text-(--color-muted) hover:border-(--color-accent) hover:text-(--color-accent)"
+          >
+            Try again
+          </button>
+          <button
+            type="button"
             onclick={() => move(1)}
             class="inline-flex h-9 items-center gap-1.5 rounded-lg bg-(--color-accent) px-5 text-sm font-bold text-white shadow-sm hover:bg-(--color-accent-hover)"
           >
             Next <ChevronRight size={15} aria-hidden="true" />
           </button>
         {:else}
+          <button
+            type="button"
+            onclick={() => void requestHint()}
+            disabled={hintLoading || (!!hints && hintIndex >= hints.length - 1)}
+            class="inline-flex h-9 items-center gap-1.5 rounded-lg border border-amber-300 px-3 text-sm font-medium text-amber-600 hover:border-amber-400 hover:bg-amber-50 disabled:opacity-30"
+          >
+            <Lightbulb size={14} aria-hidden="true" />
+            {hintLoading ? "Loading…" : hints ? `Hint ${hintIndex + 1} / 3` : "Hint"}
+          </button>
           <button
             type="button"
             onclick={() => void checkAnswer()}
@@ -659,6 +694,50 @@
       {#if generateError}
         <p class="pb-2 text-center text-xs text-(--color-danger)">{generateError}</p>
       {/if}
+        </div>
+      </div>
     {/if}
   {/if}
+
+  <GenerateModal bind:open={generateOpen} title="Generate games">
+    <div class="flex flex-col gap-3">
+      <label class="block">
+        <span class="mb-1 block text-sm font-medium text-(--color-text)">Focus or theme (optional)</span>
+        <input
+          type="text"
+          bind:value={generatePrompt}
+          placeholder="e.g. focus on past-tense verbs, or kitchen vocabulary"
+          class="w-full rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:border-(--color-accent) focus:outline-none focus:ring-1 focus:ring-(--color-accent)"
+        />
+      </label>
+      <div class="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_7rem]">
+        <SkillLevelPicker
+          bind:value={generateSkillLevel}
+          autoLabel={inheritedLevel ? `Inherit from lesson (${SKILL_LEVEL_LABEL[inheritedLevel]})` : "Auto-detect from prompt"}
+        />
+        <label class="block">
+          <span class="mb-1 block text-xs font-medium text-(--color-muted)">Count</span>
+          <input
+            type="number"
+            min="10"
+            max="30"
+            bind:value={generateCount}
+            class="w-full rounded-md border border-(--color-border) bg-(--color-surface) px-2 py-1.5 text-sm focus:border-(--color-accent) focus:outline-none focus:ring-1 focus:ring-(--color-accent)"
+          />
+        </label>
+      </div>
+      {#if generateError}
+        <p class="text-sm text-(--color-danger)">{generateError}</p>
+      {/if}
+      <button
+        type="button"
+        onclick={() => void generateGames()}
+        disabled={generatingGames}
+        class="inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-amber-500 px-4 py-2 text-sm font-medium text-white hover:bg-amber-600 disabled:opacity-50"
+      >
+        <Sparkles size={14} aria-hidden="true" />
+        {generatingGames ? "Starting…" : `Generate ${Math.max(10, Math.min(30, generateCount))} games`}
+      </button>
+    </div>
+  </GenerateModal>
 </div>

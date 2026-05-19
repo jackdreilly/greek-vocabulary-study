@@ -15,7 +15,11 @@
   import GamesTab from "./lesson/GamesTab.svelte";
   import StatusPill from "../lib/ui/StatusPill.svelte";
   import { retryLessonGeneration } from "../lib/data/retryGeneration";
+  import { subscribeAIConfig } from "../lib/data/aiConfig.svelte";
   import { RefreshCw } from "lucide-svelte";
+
+  const aiSub = subscribeAIConfig();
+  const canGenerate = $derived(aiSub.config.features.contentGeneration ?? true);
 
   let { courseId, lessonId, tab }: { courseId: string; lessonId: string; tab: string } = $props();
 
@@ -135,13 +139,13 @@
     {#if tab === "overview"}
       <OverviewTab markdown={sub.lesson.description} />
     {:else if tab === "vocab"}
-      <VocabTab {courseId} {lessonId} {entriesSub} {vocabBatchSub} />
+      <VocabTab {courseId} {lessonId} {entriesSub} {vocabBatchSub} {canGenerate} />
     {:else if tab === "cards"}
       <FlashcardsTab {courseId} {lessonId} {entriesSub} />
     {:else if tab === "games"}
-      <GamesTab {courseId} {lessonId} {gamesSub} lessonSub={sub} {gameBatchSub} />
+      <GamesTab {courseId} {lessonId} {gamesSub} lessonSub={sub} {gameBatchSub} {canGenerate} />
     {:else if tab === "plans"}
-      <PlansTab {courseId} {lessonId} {plansSub} />
+      <PlansTab {courseId} {lessonId} {plansSub} {canGenerate} />
     {/if}
   {/if}
 </div>

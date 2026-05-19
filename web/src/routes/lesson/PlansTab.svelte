@@ -8,6 +8,7 @@
   import { inferSkillLevel, SKILL_LEVEL_LABEL, type SkillLevel } from "../../lib/skillLevel";
   import SkillLevelPicker from "../../lib/ui/SkillLevelPicker.svelte";
   import { ChevronRight, Sparkles } from "lucide-svelte";
+  import GenerateModal from "../../lib/ui/GenerateModal.svelte";
 
   type PlansSub = ReturnType<typeof subscribePlans>;
   type CourseSub = ReturnType<typeof subscribeCourse>;
@@ -16,8 +17,11 @@
   let {
     courseId,
     lessonId,
+    canGenerate = true,
     plansSub: providedPlansSub,
-  }: { courseId: string; lessonId: string; plansSub?: PlansSub } = $props();
+  }: { courseId: string; lessonId: string; canGenerate?: boolean; plansSub?: PlansSub } = $props();
+
+  let planModalOpen = $state(false);
 
   let sub = $state<PlansSub>();
   let courseSub = $state<CourseSub>();
@@ -87,73 +91,39 @@
     <p class="text-(--color-danger)">Failed to load plans: {sub.error.message}</p>
   {:else if sub.plans.length === 0}
     <div class="py-12 border border-dashed border-(--color-border) rounded-lg px-4">
-      <p class="text-(--color-muted) text-sm">
-        No plans for this lesson yet.
-      </p>
-      <div class="mt-4 flex flex-col gap-2 sm:flex-row">
-        <input
-          type="text"
-          bind:value={customFocus}
-          placeholder="Optional focus for the first plan"
-          class="min-w-0 flex-1 rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:outline-none focus:border-(--color-accent) focus:ring-1 focus:ring-(--color-accent)"
-          onkeydown={(event) => {
-            if (event.key === "Enter") {
-              event.preventDefault();
-              void generatePlan();
-            }
-          }}
-        />
-        <SkillLevelPicker
-          bind:value={planSkillLevel}
-          autoLabel={inheritedLevel ? `Inherit from lesson/course (${SKILL_LEVEL_LABEL[inheritedLevel]})` : "Auto-detect from focus"}
-        />
+      <p class="text-(--color-muted) text-sm">No plans for this lesson yet.</p>
+      {#if canGenerate}
         <button
           type="button"
-          onclick={() => void generatePlan()}
+          onclick={() => (planModalOpen = true)}
           disabled={creating}
-          class="inline-flex items-center justify-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+          class="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700 hover:border-amber-300 hover:bg-amber-100 disabled:opacity-50"
         >
           <Sparkles size={14} aria-hidden="true" />
           {creating ? "Generating..." : "Generate plan"}
         </button>
-      </div>
+      {/if}
       {#if createError}
         <p class="mt-2 text-sm text-(--color-danger)">{createError}</p>
       {/if}
     </div>
   {:else}
-    <div class="mb-5 rounded-lg border border-(--color-border) bg-(--color-surface) p-3">
-      <div class="flex flex-col gap-2 sm:flex-row">
-        <input
-          type="text"
-          bind:value={customFocus}
-          placeholder="Optional focus for the next plan"
-          class="min-w-0 flex-1 rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:outline-none focus:border-(--color-accent) focus:ring-1 focus:ring-(--color-accent)"
-          onkeydown={(event) => {
-            if (event.key === "Enter") {
-              event.preventDefault();
-              void generatePlan();
-            }
-          }}
-        />
-        <SkillLevelPicker
-          bind:value={planSkillLevel}
-          autoLabel={inheritedLevel ? `Inherit from lesson/course (${SKILL_LEVEL_LABEL[inheritedLevel]})` : "Auto-detect from focus"}
-        />
+    {#if canGenerate}
+      <div class="mb-5">
         <button
           type="button"
-          onclick={() => void generatePlan()}
+          onclick={() => (planModalOpen = true)}
           disabled={creating}
-          class="inline-flex items-center justify-center gap-1.5 rounded-md bg-(--color-accent) px-4 py-2 text-sm font-medium text-white hover:bg-(--color-accent-hover) disabled:opacity-50"
+          class="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700 hover:border-amber-300 hover:bg-amber-100 disabled:opacity-50"
         >
-          <Sparkles size={14} aria-hidden="true" />
+          <Sparkles size={12} aria-hidden="true" />
           {creating ? "Generating..." : "Generate plan"}
         </button>
+        {#if createError}
+          <p class="mt-1 text-sm text-(--color-danger)">{createError}</p>
+        {/if}
       </div>
-      {#if createError}
-        <p class="mt-2 text-sm text-(--color-danger)">{createError}</p>
-      {/if}
-    </div>
+    {/if}
 
     <ul class="space-y-3">
       {#each sub.plans as plan (plan.id)}
@@ -190,4 +160,34 @@
       {/each}
     </ul>
   {/if}
+
+  <GenerateModal bind:open={planModalOpen} title="Generate plan">
+    <div class="flex flex-col gap-3">
+      <label class="block">
+        <span class="mb-1 block text-sm font-medium text-(--color-text)">Focus (optional)</span>
+        <input
+          type="text"
+          bind:value={customFocus}
+          placeholder="e.g. verb conjugations, food vocabulary, cultural context"
+          class="w-full rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-sm focus:outline-none focus:border-(--color-accent) focus:ring-1 focus:ring-(--color-accent)"
+        />
+      </label>
+      <SkillLevelPicker
+        bind:value={planSkillLevel}
+        autoLabel={inheritedLevel ? `Inherit from lesson/course (${SKILL_LEVEL_LABEL[inheritedLevel]})` : "Auto-detect from focus"}
+      />
+      {#if createError}
+        <p class="text-sm text-(--color-danger)">{createError}</p>
+      {/if}
+      <button
+        type="button"
+        onclick={() => { planModalOpen = false; void generatePlan(); }}
+        disabled={creating}
+        class="inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-amber-500 px-4 py-2 text-sm font-medium text-white hover:bg-amber-600 disabled:opacity-50"
+      >
+        <Sparkles size={14} aria-hidden="true" />
+        {creating ? "Generating..." : "Generate plan"}
+      </button>
+    </div>
+  </GenerateModal>
 </div>

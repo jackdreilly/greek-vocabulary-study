@@ -218,15 +218,15 @@
     (event.currentTarget as HTMLElement).releasePointerCapture?.(event.pointerId);
 
     if (swiped) {
-      const delta = dragX < 0 ? 1 : -1;
+      // Both directions advance forward (right = knew it, left = again)
       suppressNextClick = true;
       dragTransition = true;
-      dragX = dragX > 0 ? 360 : -360;
+      dragX = dragX > 0 ? 400 : -400;
       dragY = Math.max(-80, Math.min(80, dragY));
       setTimeout(() => {
-        go(delta);
+        go(1);
         resetDrag();
-      }, 120);
+      }, 130);
       return;
     }
 
@@ -322,12 +322,15 @@
             Answer
           </span>
         {/if}
-        {#if Math.abs(dragX) > 35}
-          <span
-            class="absolute top-5 {dragX > 0 ? 'left-5 text-[#15803d] border-[#bbf7d0]' : 'right-5 text-(--color-danger) border-[#fecaca]'} rounded border px-3 py-1 text-xs font-semibold uppercase tracking-widest bg-white/85"
+        {#if Math.abs(dragX) > 30}
+          <div
+            class="pointer-events-none absolute top-7 {dragX > 0
+              ? 'left-6 -rotate-12 border-[#15803d] text-[#15803d]'
+              : 'right-6 rotate-12 border-(--color-danger) text-(--color-danger)'} rounded-lg border-[2.5px] bg-white/90 px-4 py-1 text-sm font-black uppercase tracking-widest shadow-sm"
+            style="opacity: {Math.min(1, (Math.abs(dragX) - 30) / 80)}"
           >
-            {dragX > 0 ? "Back" : "Next"}
-          </span>
+            {dragX > 0 ? "✓ Knew it" : "↩ Again"}
+          </div>
         {/if}
         {#if !flipped}
           <div class="flex h-full min-h-56 flex-col items-center justify-center text-center">
