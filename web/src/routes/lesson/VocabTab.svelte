@@ -130,7 +130,12 @@
     });
   }
 
-  function selectEntry(entry: EntryDoc) {
+  function toggleEntrySelection(entry: EntryDoc) {
+    if (selectedEntryId === entry.id) {
+      selectedEntryId = "";
+      clearFocus();
+      return;
+    }
     selectedEntryId = entry.id;
   }
 
@@ -438,24 +443,26 @@
     <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       {#each filtered as entry (entry.id)}
         <li
-          class="min-h-32 rounded-lg border px-4 py-3 flex flex-col gap-3 transition-colors
+          class="relative min-h-32 rounded-lg border px-4 py-3 flex flex-col gap-3 transition-colors
             {selectedEntryId === entry.id
               ? 'border-(--color-accent)/70 bg-(--color-accent)/4 ring-1 ring-(--color-accent)/15'
               : 'border-(--color-border) bg-(--color-surface) hover:border-(--color-border-strong)'}"
         >
-          <div class="flex items-start justify-between gap-3">
-            <button
-              type="button"
-              aria-pressed={selectedEntryId === entry.id}
-              onclick={() => selectEntry(entry)}
-              class="flex min-w-0 flex-1 cursor-pointer items-baseline gap-2 rounded-sm text-left focus:outline-none"
-            >
+          <button
+            type="button"
+            aria-pressed={selectedEntryId === entry.id}
+            aria-label={selectedEntryId === entry.id ? `Unselect ${entry.lemma}` : `Select ${entry.lemma}`}
+            onclick={() => toggleEntrySelection(entry)}
+            class="absolute inset-0 z-20 cursor-pointer rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-(--color-accent)/35 focus:ring-offset-2 focus:ring-offset-(--color-bg)"
+          ></button>
+          <div class="pointer-events-none relative z-10 flex items-start justify-between gap-3">
+            <div class="flex min-w-0 flex-1 items-baseline gap-2">
               {#if entry.article}
                 <span class="text-(--color-muted) text-sm shrink-0">{entry.article}</span>
               {/if}
               <GreekText>{entry.lemma}</GreekText>
-            </button>
-            <div class="flex shrink-0 items-center gap-1.5">
+            </div>
+            <div class="pointer-events-auto relative z-30 flex shrink-0 items-center gap-1.5">
               {#if entry.audio?.url}
                 <AudioPlayButton
                   url={entry.audio.url}
@@ -475,12 +482,7 @@
               </button>
             </div>
           </div>
-          <button
-            type="button"
-            aria-pressed={selectedEntryId === entry.id}
-            onclick={() => selectEntry(entry)}
-            class="block w-full cursor-pointer rounded-sm text-left focus:outline-none"
-          >
+          <div class="pointer-events-none relative z-10">
             {#if entry.image}
               <img
                 src={entry.image.thumbnail ?? entry.image.url}
@@ -497,7 +499,7 @@
                 </span>
               {/if}
             </span>
-          </button>
+          </div>
         </li>
       {/each}
     </ul>
