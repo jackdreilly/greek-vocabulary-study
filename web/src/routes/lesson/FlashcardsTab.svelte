@@ -196,7 +196,11 @@
   }
 
   function handlePointerDown(event: PointerEvent) {
-    if (!current || event.button !== 0 || (event.target as HTMLElement).closest("button")) return;
+    if (!current || event.button !== 0) return;
+    const target = event.target as HTMLElement;
+    const interactive = target.closest("button, input, textarea, a");
+    if (interactive && interactive !== event.currentTarget) return;
+
     dragTransition = false;
     dragStart = { pointerId: event.pointerId, x: event.clientX, y: event.clientY };
     dragX = 0;
