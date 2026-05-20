@@ -167,7 +167,6 @@
     function onKeydown(event: KeyboardEvent) {
       if (isTypingTarget(event.target)) return;
       if (event.key === "y" || event.key === "Y") {
-        if (!canGenerate) return;
         yiayiaOpen = true;
       } else if (event.key === "a" || event.key === "A") {
         if (!canGenerate) return;
@@ -231,7 +230,7 @@
     </div>
   </header>
 
-  <main class="grow">
+  <main class="grow flex flex-col min-h-0">
     {#if match.kind === "home"}
       <Home />
     {:else if match.kind === "course"}
@@ -263,17 +262,19 @@
       </div>
     {/if}
   </main>
-  {#if canGenerate && !yiayiaOpen && !adminChatOpen}
+  {#if !yiayiaOpen && !adminChatOpen}
     <div class="fixed bottom-4 right-4 z-40 flex flex-col gap-2 sm:bottom-6 sm:right-6">
-      <button
-        type="button"
-        class="grid size-10 place-items-center rounded-full border border-(--color-border) bg-(--color-bg) text-amber-600 shadow-lg transition hover:border-amber-500 hover:bg-(--color-surface-muted) focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-(--color-bg)"
-        title="Admin chat (A)"
-        aria-label="Open admin chat"
-        onclick={() => (adminChatOpen = true)}
-      >
-        <BotMessageSquare size={18} aria-hidden="true" />
-      </button>
+      {#if canGenerate}
+        <button
+          type="button"
+          class="grid size-10 place-items-center rounded-full border border-(--color-border) bg-(--color-bg) text-amber-600 shadow-lg transition hover:border-amber-500 hover:bg-(--color-surface-muted) focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-(--color-bg)"
+          title="Admin chat (A)"
+          aria-label="Open admin chat"
+          onclick={() => (adminChatOpen = true)}
+        >
+          <BotMessageSquare size={18} aria-hidden="true" />
+        </button>
+      {/if}
       <button
         type="button"
         class="grid size-10 place-items-center rounded-full border border-(--color-border) bg-(--color-bg) text-(--color-accent) shadow-lg transition hover:border-(--color-accent) hover:bg-(--color-surface-muted) focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 focus:ring-offset-(--color-bg)"

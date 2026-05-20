@@ -364,7 +364,7 @@
 </script>
 
 <!-- Full-height flex column matching legacy layout -->
-<div class="flex flex-col" style="min-height: 520px;">
+<div class="flex-1 min-h-0 flex flex-col h-full">
 
   <!-- Generation status banner — auto-hides 60 s after completion, or on X -->
   {#if isBannerVisible(latestBatch)}
@@ -503,14 +503,14 @@
       </div>
 
     {:else if current}
-      <div class="relative flex flex-1 flex-col overflow-hidden"
+      <div class="relative flex flex-1 flex-col overflow-hidden touch-none"
         onpointerdown={handleGamePointerDown}
         onpointermove={handleGamePointerMove}
         onpointerup={handleGamePointerUp}
         onpointercancel={handleGamePointerCancel}
       >
         <div
-          class="flex flex-1 flex-col {gameDragTransition ? 'transition-transform duration-150 ease-out' : ''}"
+          class="flex flex-1 flex-col min-h-0 {gameDragTransition ? 'transition-transform duration-150 ease-out' : ''}"
           style="transform: translate({gameDragX}px, {gameDragY * 0.15}px) rotate({gameDragX / 22}deg)"
         >
           {#if Math.abs(gameDragX) > 30 && !checked && !grading}
@@ -526,8 +526,8 @@
             </div>
           {/if}
 
-      <!-- Question area — flex-1, vertically centered -->
-      <div class="flex flex-1 flex-col items-center justify-center px-4 py-6 text-center">
+      <!-- Question area — flex-1, vertically centered, internal scroll on overflow -->
+      <div class="flex flex-1 flex-col items-center justify-center overflow-y-auto px-4 py-4 text-center min-h-0">
         <!-- Counter + type badge -->
         <div class="mb-4 flex w-full max-w-xl items-center justify-between">
           <div class="flex flex-col items-start gap-1">

@@ -253,7 +253,7 @@
 
 <svelte:window onkeydown={handleKeydown} />
 
-<div>
+<div class="flex-1 min-h-0 flex flex-col h-full">
   {#if !sub || sub.loading}
     <p class="text-(--color-muted)">Loading cards...</p>
   {:else if sub.error}
@@ -263,8 +263,8 @@
       <p class="text-(--color-muted) text-sm">No vocabulary cards yet.</p>
     </div>
   {:else}
-    <section class="max-w-xl mx-auto">
-      <div class="mb-3 flex flex-wrap items-center justify-between gap-3 text-sm text-(--color-muted)">
+    <section class="max-w-xl mx-auto flex-1 min-h-0 flex flex-col justify-between w-full">
+      <div class="mb-2 flex flex-wrap items-center justify-between gap-3 text-sm text-(--color-muted) flex-shrink-0">
         <div>
           <span class="font-medium text-(--color-text)">{index + 1}</span>
           <span> / {entries.length}</span>
@@ -294,7 +294,7 @@
         </div>
       </div>
 
-      <div class="mb-5 h-1 rounded-full bg-(--color-border) overflow-hidden">
+      <div class="mb-3 h-1 rounded-full bg-(--color-border) overflow-hidden flex-shrink-0">
         <div
           class="h-full rounded-full bg-(--color-accent) transition-[width]"
           style="width: {progress}%"
@@ -315,7 +315,7 @@
           }
           flipped = !flipped;
         }}
-        class="relative w-full min-h-[22rem] touch-pan-y select-none rounded-lg border px-8 py-8 text-left shadow-sm focus:outline-none focus:ring-2 focus:ring-(--color-accent)
+        class="relative w-full flex-1 flex flex-col justify-center touch-none select-none rounded-lg border px-8 py-8 text-left shadow-sm focus:outline-none focus:ring-2 focus:ring-(--color-accent)
           {flipped
           ? 'border-[#bfdbfe] bg-[#eff6ff] shadow-[0_0_0_1px_rgba(37,99,235,0.10),0_10px_30px_rgba(37,99,235,0.08)]'
           : 'border-(--color-border) bg-(--color-surface) hover:border-(--color-border-strong)'}
@@ -338,7 +338,7 @@
           </div>
         {/if}
         {#if !flipped}
-          <div class="flex h-full min-h-56 flex-col items-center justify-center text-center">
+          <div class="flex-1 flex flex-col items-center justify-center text-center">
             {#if direction === "gr-en"}
               <div class="flex items-baseline justify-center gap-2">
                 {#if current.article}
@@ -367,7 +367,7 @@
             <p class="mt-6 text-sm text-(--color-muted)">Tap, Space, or Enter to flip</p>
           </div>
         {:else}
-          <div class="flex h-full min-h-56 flex-col items-center justify-center text-center">
+          <div class="flex-1 flex flex-col items-center justify-center text-center">
             {#if direction === "gr-en"}
               <!-- Back of GR→EN: show English answer, recap Greek below -->
               <div class="max-w-md">
@@ -418,7 +418,7 @@
         {/if}
       </button>
 
-      <div class="mt-4 grid grid-cols-3 gap-2">
+      <div class="mt-3 grid grid-cols-3 gap-2 flex-shrink-0">
         <button
           type="button"
           onclick={() => go(-1)}
@@ -441,7 +441,7 @@
           Next
         </button>
       </div>
-      <p class="mt-3 text-center text-xs text-(--color-muted)">
+      <p class="mt-2 text-center text-xs text-(--color-muted) flex-shrink-0">
         Swipe left/right or use arrow keys to move. Space/Enter flips. S shuffles.
       </p>
     </section>

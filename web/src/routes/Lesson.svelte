@@ -65,25 +65,31 @@
     { key: "plans", label: "Plans" },
   ] as const;
 
+  const isLocked = $derived(tab === "cards" || tab === "games");
+
   function tabHref(key: string) {
     return `/c/${courseId}/l/${lessonId}/${key}`;
   }
 </script>
 
-<div class="max-w-3xl mx-auto pt-12 pb-24 px-6">
+<div
+  class="w-full max-w-3xl mx-auto px-4 sm:px-6 flex flex-col {isLocked
+    ? 'flex-1 min-h-0 overflow-hidden pt-3 pb-3'
+    : 'pt-12 pb-24'}"
+>
   {#if !sub || sub.loading}
     <p class="text-(--color-muted)">Loading lesson…</p>
   {:else if sub.error || !sub.lesson}
     <p class="text-(--color-danger)">Lesson not found.</p>
   {:else}
-    <header class="mb-6">
-      <div class="flex items-start justify-between gap-4">
-        <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight">{sub.lesson.title}</h1>
+    <header class={isLocked ? "mb-2 flex-shrink-0" : "mb-6"}>
+      <div class="flex items-center justify-between gap-4">
+        <h1 class="{isLocked ? 'text-lg sm:text-xl font-bold' : 'text-2xl sm:text-3xl font-semibold'} tracking-tight">{sub.lesson.title}</h1>
         {#if sub.lesson.status && sub.lesson.status !== "ready"}
           <StatusPill status={sub.lesson.status} />
         {/if}
       </div>
-      {#if sub.lesson.subtitle}
+      {#if sub.lesson.subtitle && !isLocked}
         <p class="mt-2 text-(--color-muted)">{sub.lesson.subtitle}</p>
       {/if}
       {#if sub.lesson.status && sub.lesson.status !== "ready"}
@@ -120,13 +126,13 @@
       {/if}
     </header>
 
-    <nav class="flex gap-6 border-b border-(--color-border) mb-8" aria-label="Lesson sections">
+    <nav class="flex gap-6 border-b border-(--color-border) flex-shrink-0 {isLocked ? 'mb-3' : 'mb-8'}" aria-label="Lesson sections">
       {#each tabs as t}
         {@const active = t.key === tab}
         <a
           href={tabHref(t.key)}
           onclick={linkClick(tabHref(t.key))}
-          class="pb-3 -mb-px text-sm border-b-2 transition-colors
+          class="{isLocked ? 'pb-2' : 'pb-3'} -mb-px text-sm border-b-2 transition-colors
             {active
             ? 'text-(--color-text) border-(--color-accent) font-medium'
             : 'text-(--color-muted) border-transparent hover:text-(--color-text)'}"
