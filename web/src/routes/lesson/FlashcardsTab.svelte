@@ -218,13 +218,14 @@
     (event.currentTarget as HTMLElement).releasePointerCapture?.(event.pointerId);
 
     if (swiped) {
-      // Both directions advance forward (right = knew it, left = again)
+      // Swiping left goes forward (Next), swiping right goes backward (Back)
+      const isForward = dragX < 0;
       suppressNextClick = true;
       dragTransition = true;
-      dragX = dragX > 0 ? 400 : -400;
+      dragX = isForward ? -400 : 400;
       dragY = Math.max(-80, Math.min(80, dragY));
       setTimeout(() => {
-        go(1);
+        go(isForward ? 1 : -1);
         resetDrag();
       }, 130);
       return;
@@ -325,11 +326,11 @@
         {#if Math.abs(dragX) > 30}
           <div
             class="pointer-events-none absolute top-7 {dragX > 0
-              ? 'left-6 -rotate-12 border-[#15803d] text-[#15803d]'
-              : 'right-6 rotate-12 border-(--color-danger) text-(--color-danger)'} rounded-lg border-[2.5px] bg-white/90 px-4 py-1 text-sm font-black uppercase tracking-widest shadow-sm"
+              ? 'left-6 -rotate-12 border-slate-500 text-slate-500'
+              : 'right-6 rotate-12 border-blue-500 text-blue-500'} rounded-lg border-[2.5px] bg-white/90 px-4 py-1 text-sm font-black uppercase tracking-widest shadow-sm"
             style="opacity: {Math.min(1, (Math.abs(dragX) - 30) / 80)}"
           >
-            {dragX > 0 ? "✓ Knew it" : "↩ Again"}
+            {dragX > 0 ? "◀ Back" : "Next ▶"}
           </div>
         {/if}
         {#if !flipped}

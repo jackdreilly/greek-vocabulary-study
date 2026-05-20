@@ -17,6 +17,7 @@
   import { yiayiaFocus } from "./lib/data/yiayiaFocus.svelte";
   import type { Crumb } from "./lib/ui/Breadcrumb.svelte";
   import { BotMessageSquare } from "lucide-svelte";
+  import { subscribeAIConfig } from "./lib/data/aiConfig.svelte";
 
   // Route matching — recomputed reactively when route.pathname changes.
   const match = $derived.by(() => {
@@ -57,6 +58,8 @@
   // effect that reads that state" loop.
   let courseSub = $state<ReturnType<typeof subscribeCourse> | null>(null);
   let lessonSub = $state<ReturnType<typeof subscribeLesson> | null>(null);
+  const aiSub = subscribeAIConfig();
+  const canGenerate = $derived(aiSub.config.features.contentGeneration ?? true);
 
   const courseIdForCrumb = $derived(
     match.kind === "course" ||
@@ -103,6 +106,7 @@
   onDestroy(() => {
     courseSub?.stop();
     lessonSub?.stop();
+    aiSub.stop();
   });
 
   const crumbs = $derived.by<Crumb[]>(() => {
@@ -163,8 +167,10 @@
     function onKeydown(event: KeyboardEvent) {
       if (isTypingTarget(event.target)) return;
       if (event.key === "y" || event.key === "Y") {
+        if (!canGenerate) return;
         yiayiaOpen = true;
       } else if (event.key === "a" || event.key === "A") {
+        if (!canGenerate) return;
         adminChatOpen = true;
         yiayiaOpen = false;
       } else if (event.key === "Escape") {
@@ -257,7 +263,7 @@
       </div>
     {/if}
   </main>
-  {#if !yiayiaOpen && !adminChatOpen}
+  {#if canGenerate && !yiayiaOpen && !adminChatOpen}
     <div class="fixed bottom-4 right-4 z-40 flex flex-col gap-2 sm:bottom-6 sm:right-6">
       <button
         type="button"
