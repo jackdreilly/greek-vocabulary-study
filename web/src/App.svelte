@@ -227,6 +227,42 @@
         </div>
       {/if}
       <span class="grow"></span>
+      <div class="flex items-center gap-1.5 shrink-0">
+        {#if canGenerate}
+          <button
+            type="button"
+            class="flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-(--color-bg)
+              {adminChatOpen
+                ? 'border-amber-500 bg-amber-50 text-amber-700'
+                : 'border-(--color-border) bg-(--color-surface) text-amber-600 hover:border-amber-500 hover:bg-(--color-surface-muted)'}"
+            title="Admin chat (A)"
+            aria-label="Open admin chat"
+            onclick={() => {
+              adminChatOpen = !adminChatOpen;
+              yiayiaOpen = false;
+            }}
+          >
+            <BotMessageSquare size={13} aria-hidden="true" />
+            <span class="hidden sm:inline">Admin</span>
+          </button>
+        {/if}
+        <button
+          type="button"
+          class="flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 focus:ring-offset-(--color-bg)
+            {yiayiaOpen
+              ? 'border-(--color-accent) bg-(--color-accent)/10 text-(--color-accent)'
+              : 'border-(--color-border) bg-(--color-surface) text-(--color-accent) hover:border-(--color-accent) hover:bg-(--color-surface-muted)'}"
+          title="Yiayia (Y)"
+          aria-label="Open Yiayia"
+          onclick={() => {
+            yiayiaOpen = !yiayiaOpen;
+            adminChatOpen = false;
+          }}
+        >
+          <BotMessageSquare size={13} aria-hidden="true" />
+          <span>Yiayia</span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -262,30 +298,7 @@
       </div>
     {/if}
   </main>
-  {#if !yiayiaOpen && !adminChatOpen}
-    <div class="fixed bottom-4 right-4 z-40 flex flex-col gap-2 sm:bottom-6 sm:right-6">
-      {#if canGenerate}
-        <button
-          type="button"
-          class="grid size-10 place-items-center rounded-full border border-(--color-border) bg-(--color-bg) text-amber-600 shadow-lg transition hover:border-amber-500 hover:bg-(--color-surface-muted) focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-(--color-bg)"
-          title="Admin chat (A)"
-          aria-label="Open admin chat"
-          onclick={() => (adminChatOpen = true)}
-        >
-          <BotMessageSquare size={18} aria-hidden="true" />
-        </button>
-      {/if}
-      <button
-        type="button"
-        class="grid size-10 place-items-center rounded-full border border-(--color-border) bg-(--color-bg) text-(--color-accent) shadow-lg transition hover:border-(--color-accent) hover:bg-(--color-surface-muted) focus:outline-none focus:ring-2 focus:ring-(--color-accent) focus:ring-offset-2 focus:ring-offset-(--color-bg)"
-        title="Yiayia (Y)"
-        aria-label="Open Yiayia"
-        onclick={() => (yiayiaOpen = true)}
-      >
-        <BotMessageSquare size={18} aria-hidden="true" />
-      </button>
-    </div>
-  {/if}
+
   <YiayiaPanel
     open={yiayiaOpen}
     courseId={yiayiaContext.courseId}
