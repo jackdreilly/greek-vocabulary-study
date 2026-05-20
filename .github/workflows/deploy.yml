@@ -18,14 +18,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: pnpm
+
+      # Use corepack so the pnpm version is taken from package.json's
+      # "packageManager" field. Do NOT add pnpm/action-setup as well — having
+      # both makes pnpm error with ERR_PNPM_BAD_PM_VERSION (multiple versions).
+      - name: Enable corepack
+        run: corepack enable
 
       - name: Install
         run: pnpm install --frozen-lockfile
@@ -43,7 +44,7 @@ jobs:
 
       - name: Deploy Firebase
         run: |
-          npx firebase-tools deploy \
+          pnpm exec firebase deploy \
             --only hosting,functions,firestore:rules,firestore:indexes,storage \
             --project fanari-b6bb4 \
             --non-interactive \
