@@ -5,7 +5,7 @@
  * type is a discriminated union member. When you add a new widget type:
  *   1. Add a new member to `WidgetSchema` below.
  *   2. Add a render branch in web/src/routes/.../PlanReader.svelte.
- *   3. Update docs/rewrite/06-ui-and-design-system.md if it needs new patterns.
+ *   3. Update docs/vision.md if it needs new patterns.
  */
 import { z } from "genkit";
 import { StatusLogEntrySchema, StatusSchema, TimestampSchema } from "./common.js";

@@ -1,22 +1,22 @@
 # Agent Instructions
 
-## ⚠️ Rewrite in Progress
+Greekflash is a Svelte 5 + Vite SPA (`web/`) backed by TypeScript Cloud
+Functions v2 with Genkit/Gemini (`functions/`) on the **`fanari-b6bb4`**
+Firebase project (single `(default)` Firestore database).
 
-The codebase is in the middle of a hard cutover from the legacy single-DB architecture to a new Firestore-reactive design on the `fanari-b6bb4` Firebase project. The design lives in [docs/rewrite/](docs/rewrite/) and is the source of truth for new work:
+**For the architecture and the *why* behind the design, read
+[docs/vision.md](docs/vision.md) first.** That doc is the conceptual map
+(Firestore-as-bus, streaming triggers, generation lineage, AI-as-data, the UI
+system). This file is the operational runbook: how to run, test, and deploy.
 
-1. [00-overview.md](docs/rewrite/00-overview.md) — principles, project setup, repo layout, migration scope
-2. [01-schema-and-migration.md](docs/rewrite/01-schema-and-migration.md) — subcollection schema, indexes, security rules, migration script
-3. [02-triggers-and-orchestration.md](docs/rewrite/02-triggers-and-orchestration.md) — Cloud Function triggers, AI streaming, count cascades
-4. [03-ai-config.md](docs/rewrite/03-ai-config.md) — `ai_config/main` doc, model resolver with cache, admin page
-5. [04-generation-lineage.md](docs/rewrite/04-generation-lineage.md) — `generationId` convention, `generations/{id}` manifest, bulk-revert via Yiayia
-6. [05-deploy-pipeline.md](docs/rewrite/05-deploy-pipeline.md) — GitHub Actions full deploy workflow
-7. [06-ui-and-design-system.md](docs/rewrite/06-ui-and-design-system.md) — visual language, navigation, components, page restructure
+User progress features (flashcard SRS, game scores, streaks) are intentionally
+**not** implemented in this phase.
 
-**If you're starting a new task during the rewrite, read [00-overview.md](docs/rewrite/00-overview.md) first.** New code should follow the design — don't extend the legacy patterns described below unless the user explicitly asks for a hotfix in the old app.
+## Local development — always use the emulator
 
-### Local development — always use the emulator
-
-For any frontend or function work, **always run against the local Firebase emulator** instead of hitting production. The repo has a single root script that starts everything:
+For any frontend or function work, **always run against the local Firebase
+emulator** instead of hitting production. The repo has a single root script that
+starts everything:
 
 ```bash
 pnpm run dev:emulators
@@ -26,11 +26,15 @@ This command (defined in the root `package.json`):
 1. Watches and rebuilds `functions/` on every change
 2. Watches and rebuilds `web/` on every change
 3. Starts Firebase emulators for hosting, functions, Firestore, and storage
-4. Imports and exports emulator state through `.emulator-data`, so local Firestore/storage data persists between runs
+4. Imports and exports emulator state through `.emulator-data`, so local
+   Firestore/storage data persists between runs
 
-The app is served at **`localhost:5002`** (Firebase hosting emulator). Firestore runs at `localhost:8080`, Functions at `localhost:5001`, and the emulator UI at `localhost:4000`.
+The app is served at **`localhost:5002`** (Firebase hosting emulator). Firestore
+runs at `localhost:8080`, Functions at `localhost:5001`, and the emulator UI at
+`localhost:4000`.
 
-**In Claude Code**, use the configured preview server instead of running the command manually:
+**In Claude Code**, use the configured preview server instead of running the
+command manually:
 
 ```
 preview_start("Full stack (emulators + build watch)")
@@ -38,7 +42,8 @@ preview_start("Full stack (emulators + build watch)")
 
 This is defined in `.claude/launch.json` and points at port 5002.
 
-**In Codex**, use that same local setup. Before browser testing, prefer starting or reusing the exact `.claude/launch.json` configuration:
+**In Codex**, use that same local setup. Before browser testing, prefer starting
+or reusing the exact `.claude/launch.json` configuration:
 
 ```json
 {
@@ -49,155 +54,108 @@ This is defined in `.claude/launch.json` and points at port 5002.
 }
 ```
 
-If Codex cannot consume `.claude/launch.json` directly, run the equivalent root command:
+If Codex cannot consume `.claude/launch.json` directly, run the equivalent root
+command `pnpm run dev:emulators`.
 
-```bash
-pnpm run dev:emulators
-```
+Do not substitute `pnpm --filter ./web dev`, `vite dev`, Firebase Hosting
+without the Firestore emulator, or any production-backed setup when debugging UI
+state. The point is to use the same state-persisting, fully local emulator
+environment every time.
 
-Do not substitute `pnpm --filter ./web dev`, `vite dev`, Firebase Hosting without the Firestore emulator, or any production-backed setup when debugging UI state. The point is to use the same state-persisting, fully local emulator environment every time.
+**State persistence:** the emulator is launched through
+`scripts/firebase-tools-proxy.mjs`, which guarantees `--export-on-exit` actually
+finishes when you Ctrl-C (it runs firebase in its own process group and forwards
+exactly one shutdown signal, so the Firestore export isn't truncated). To stop
+the dev server, press Ctrl-C **once** and let it export; only mash Ctrl-C if
+you want to force-kill and abandon the export.
 
-**Never** run bare `firebase deploy` or test against production during development — every UI action hits live data if the emulator isn't running.
+**Never** run bare `firebase deploy` or test against production during
+development — every UI action hits live data if the emulator isn't running.
 
-When deploying from this repo, run the package script as `pnpm run deploy`. Do **not** use `pnpm deploy`; that invokes pnpm's own deploy command instead of this repo's Firebase deploy script.
+## Deploying
 
-**For function-only changes** that need to reach production users, deploy just the changed function:
-```bash
-npx firebase-tools deploy --only functions:yiayiaChat --project fanari-b6bb4
-```
+`fanari-b6bb4` is isolated to greekflash, so deploys are unrestricted (no
+function allowlist needed).
 
-User progress features (flashcard SRS, game scores, streaks) are intentionally **not** part of this phase and not being reimplemented.
+- **CI (preferred):** push to `main` → `.github/workflows/deploy.yml` does a full
+  deploy (hosting + functions + firestore rules + indexes + storage). Trigger a
+  manual run with `gh workflow run deploy.yml --ref main` (workflow_dispatch).
+  The workflow authenticates via the `FANARI_DEPLOY_SA` GitHub secret (a key for
+  the `firebase-adminsdk-fbsvc@fanari-b6bb4` service account) and installs pnpm
+  via **corepack** (do not add `pnpm/action-setup` — having both pins two pnpm
+  versions and aborts the run).
+- **Local full deploy:** `pnpm run deploy`. Do **not** use `pnpm deploy`; that
+  invokes pnpm's own deploy command instead of this repo's Firebase deploy
+  script.
+- **Function-only hotfix** to production:
+  ```bash
+  npx firebase-tools deploy --only functions:yiayiaChat --project fanari-b6bb4
+  ```
 
----
+Function secrets `GEMINI_API_KEY` and `PEXELS_API_KEY` are Firebase secrets on
+`fanari-b6bb4` (referenced via `defineSecret`). Set/rotate with
+`firebase functions:secrets:set <NAME> --project fanari-b6bb4`.
 
-## Legacy app reference (still running until cutover)
+## Lesson tabs
 
-Most of the rest of this file documents the current production app on the `didibros-6d3ed` project. It stays accurate for hotfixes against the live site while the rewrite is in flight. Once the cutover lands and the new app is live on `fanari-b6bb4`, this section will be replaced.
+A lesson has tabs rendered as routes (`web/src/routes/Lesson.svelte` +
+`web/src/routes/lesson/*Tab.svelte`), under `/c/{cid}/l/{lid}/{tab}`:
 
-### Firestore as the Single Source of Truth (legacy)
+1. **Overview** (`OverviewTab.svelte`) — generated lesson overview
+2. **Vocabulary** (`VocabTab.svelte`) — browser of the lesson's words
+3. **Flashcards** (`FlashcardsTab.svelte`) — review deck (focus mode)
+4. **Games** (`GamesTab.svelte`) — AI-generated practice exercises
+5. **Plans** (`PlansTab.svelte`) — AI-generated textbook-style modules
 
-All vocabulary data the app reads at runtime lives in Firestore (`greek-vocab` database: `courses`, `themes`, and `entries` collections). Do **not** add new local JSON/CSV data sources that the frontend fetches directly — the deployed site has no access to files that aren't checked into `public/data/`.
+A bare lesson URL redirects to a sensible default tab. Routing is a small custom
+regex router (`web/src/lib/router.svelte.ts`), wired in `web/src/App.svelte`.
 
-When prototyping a new dataset locally (e.g. a new scraper or course), that's fine — but before considering the feature deployed, run the corresponding import script to push the data into Firestore. Import scripts live in `scripts/` and use `@google-cloud/firestore` with `projectId: "didibros-6d3ed"`, `databaseId: "greek-vocab"`. See `scripts/import_everyday_greek.mjs` as a reference.
+## Plans & widgets
 
-**Pre-deploy checklist for new data:**
-- [ ] Data is in Firestore (`courses` + `themes` + `entries` collections with correct IDs)
-- [ ] Frontend reads it via the existing `fetchFirestore()` path — no new `fetch("/data/...")` calls added
-- [ ] Each lesson/theme has a `courseId`; the matching course metadata lives in `courses/{courseId}`
+A plan is a sequence of typed **widgets** the renderer hydrates into rich UI. A
+single plan view lives at `/c/{cid}/l/{lid}/plans/{pid}`
+(`web/src/routes/Plan.svelte`); renderers live in `web/src/lib/widgets/`
+(`WidgetRenderer.svelte` + `types/*.svelte`). Plans are stored in the lesson's
+`plans` subcollection and generated by the `onPlanWritten` trigger one at a time
+(each new plan gets prior plans' metadata so it picks an uncovered angle).
 
-### Firebase Deploys (legacy)
+Widget types: `heading`, `prose`, `callout`, `vocab_table`,
+`conjugation_table` (interactive practice mode), `comparison_table`,
+`reading_passage`, `dialogue`, `mini_quiz`, `fill_in_blanks`, `word_tree`.
 
-When deploying Firebase functions to the legacy `didibros-6d3ed` project, **do NOT delete existing functions** if prompted. Functions not defined in this repo belong to the fanariotes app sharing the same Firebase project and must be preserved.
+To add a new widget type:
+1. Extend the widget schema in `functions/src/schemas/plan.ts`.
+2. Teach the plan-generation prompt in `functions/src/triggers/onPlanWritten.ts`
+   the new type's contract and when to use it.
+3. Add a renderer under `web/src/lib/widgets/types/` and wire it into
+   `WidgetRenderer.svelte`.
+4. Redeploy the function.
 
-Always deploy by targeting only the four greekflash functions explicitly — this bypasses the deletion prompt entirely:
+## Content generation gating
 
-```
-npx firebase-tools deploy --only functions:generateLessonGames,functions:scoreGameAnswer,functions:yiayiaChat,functions:generateLessonPlan --project didibros-6d3ed
-```
-
-Never run a bare `firebase deploy --only functions` against `didibros-6d3ed` as it will abort asking to delete the other app's functions.
-
-> **This restriction goes away in the rewrite** — `fanari-b6bb4` is isolated to greekflash, so the new GitHub Actions workflow does a full deploy with no allowlist. See [docs/rewrite/05-deploy-pipeline.md](docs/rewrite/05-deploy-pipeline.md).
-
-### Vocabulary Data: Resolving "form of" Definitions
-
-Many entries in `data/lexilogio.sqlite` (and the mirrored `data/lexilogio.json`) have `english_senses` like:
-
-> "Nominative plural form of εξέταση (exétasi)."
-
-These are grammatical inflection stubs — not useful as flashcard definitions on their own. When an entry's **only** definitions are "form of" senses (i.e. it has no independent meaning in the DB), resolve the referenced word and prepend its top definitions.
-
-#### Strategy
-
-1. **Identify** entries where every sense in `english_senses` matches `/ form of /`.
-2. **Extract** the referenced Greek word via regex: `form of ([^\s(,]+)`.
-3. **Resolve** using two sources in order:
-   - The internal DB: normalize the referenced word (strip accents, lowercase, `ς→σ`) and look it up by `lemma`.
-   - The Wiktionary TSV at `/Users/jackreilly/Downloads/Greek-English Wiktionary dictionary.tsv` (204k entries) — use the same `normalize_lookup` logic from `scripts/build_database.py`.
-4. **Filter** the resolved senses to exclude any that themselves contain "form of" (avoid circular chains).
-5. **Prepend** the top 3 resolved senses before the original "form of" sense(s).
-6. **Skip** entries that already have at least one non-"form of" sense.
-
-#### After patching
-
-Always sync all three copies of the JSON:
-```
-cp data/lexilogio.json site/data/lexilogio.json
-cp data/lexilogio.json public/data/lexilogio.json
-```
-
-The normalization function (strips Greek diacritics and `ς→σ`) is defined in `scripts/build_database.py:normalize_lookup` — reuse it exactly to match the Wiktionary keys.
-
-### Lesson Pages: Tabs
-
-Each lesson has four top-level tabs, in this order:
-
-1. **Vocabulary** — flat browser of the lesson's words ([VocabPage.svelte](src/VocabPage.svelte))
-2. **Flashcards** — Anki-style review deck ([FlashcardsPage.svelte](src/FlashcardsPage.svelte))
-3. **Games** — AI-generated short-answer practice exercises ([AIPractice.svelte](src/AIPractice.svelte))
-4. **Plans** — AI-generated structured pedagogical modules ([PlansPage.svelte](src/PlansPage.svelte))
-
-URL pattern is `/lesson/{id}/{tab}` where tab is `vocab` | `cards` | `games` | `plans`. Tab routing lives in [App.svelte](src/App.svelte) (`loadStateFromUrl`, `setTab`).
-
-### Plans (AI-Generated Textbook Modules)
-
-#### Intent
-
-The **Plans** tab turns a lesson's raw vocabulary into a sequence of beautifully rendered, textbook-style learning modules. Each "Plan" is one focused 1–2 page module that reads like a real textbook section — a coherent angle on the lesson (a thematic cluster, a grammar pattern, a verb family, a register, a cultural slice) — woven from the lesson's actual words.
-
-Plans are generated **one at a time**. Every new plan is given the prior plans' metadata (titles, covered words, covered concepts) so it picks an UNCOVERED angle and doesn't duplicate work. Over time, a lesson accumulates a small library of complementary modules.
-
-The generation is a single structured-JSON call to Gemini through Genkit — the schema enforces a typed mix of "widgets" that the Svelte renderer hydrates into rich UI. The AI also uses Firestore tools (`getLessonOverview`, `searchLessonWords`, `getExerciseCoverage`) to pull only the targeted vocabulary it needs for the chosen angle.
-
-#### Widget vocabulary
-
-A plan is `{ id, lessonId, planNumber, title, subtitle, estimatedMinutes, coveredWords[], coveredConcepts[], widgets[] }`. Each widget is a tagged object discriminated by `type`. Renderers live in [PlansPage.svelte](src/PlansPage.svelte). Current widget types:
-
-- `heading` — section divider (level 1–3)
-- `prose` — paragraphs of explanatory text (light markdown: **bold**, *italic*, `- ` lists)
-- `callout` — boxed note. `calloutKind`: `pattern` | `history` | `etymology` | `tip` | `cultural` | `mnemonic`
-- `vocab_table` — grouped reference table of key words with optional example phrases
-- `conjugation_table` — verb/noun paradigm with **interactive Practice mode** (toggle to hide cells, click to reveal)
-- `comparison_table` — side-by-side contrast (genders, register, etc.)
-- `reading_passage` — Greek passage with translation toggle and glossary
-- `dialogue` — short multi-speaker conversation with Greek + English per line
-- `mini_quiz` — interactive multiple-choice with explanations
-- `fill_in_blanks` — interactive cloze items (sentence contains `___`, learner types the surface form)
-- `word_tree` — productive root with branches showing derived/related words and their relation
-
-When adding a new widget type:
-1. Add it to `PlanWidgetTypeSchema` and the optional shape fields in `PlanWidgetSchema` in [functions/src/index.ts](functions/src/index.ts).
-2. Update the prompt body in `generateLessonPlanFlow` with the new type's contract and when to use it.
-3. Add a render branch in `PlansPage.svelte`'s `{#each selectedPlan.widgets as widget}` block.
-4. Redeploy the function (see Firebase Deploys section above).
-
-#### Storage
-
-Plans are stored in Firestore collection `lesson_ai_plans` (default DB), one document per plan, keyed by id `l{lessonId}-plan-{planNumber}`. CRUD lives in [src/lib/aiPlans.js](src/lib/aiPlans.js).
-
----
-
-## Content Generation Gating
-
-All AI content-generation entry points (new course, new lesson, new vocab, new games, new plans) are gated behind the `contentGeneration` feature flag in `ai_config/main` (default `true`). Every entry point uses the shared `GenerateModal` component (`web/src/lib/ui/GenerateModal.svelte`) with the amber/orange design that matches the admin chat button.
+All AI content-generation entry points (new course / lesson / vocab / games /
+plan) are gated behind the `contentGeneration` feature flag in `ai_config/main`
+(default `true`) and use the shared `GenerateModal`
+(`web/src/lib/ui/GenerateModal.svelte`).
 
 ### Entry points
 
-| Feature | File | Modal title |
-|---------|------|------------|
-| New course | `web/src/routes/Home.svelte` | "Generate course" |
-| New lesson | `web/src/routes/Course.svelte` | "Generate lesson" |
-| New vocab | `web/src/routes/lesson/VocabTab.svelte` | "Generate vocabulary" |
-| New games | `web/src/routes/lesson/GamesTab.svelte` | "Generate games" |
-| New plan | `web/src/routes/lesson/PlansTab.svelte` | "Generate plan" |
+| Feature | File |
+|---------|------|
+| New course | `web/src/routes/Home.svelte` |
+| New lesson | `web/src/routes/Course.svelte` |
+| New vocab | `web/src/routes/lesson/VocabTab.svelte` |
+| New games | `web/src/routes/lesson/GamesTab.svelte` |
+| New plan | `web/src/routes/lesson/PlansTab.svelte` |
 
-### Migration to backend enforcement
+### Migration to backend enforcement (when auth lands)
 
-When auth/roles land, replace the client-side flag check with a hard gate:
+The `contentGeneration` flag is currently a client-side UI hint. When
+auth/roles arrive, make it a hard gate:
 
-1. **Auth token claim** — add `canGenerate: boolean` as a Firebase Auth custom claim for authorised roles.
-2. **Firestore security rules** — deny writes to content creation paths unless `request.auth.token.canGenerate == true`.
-3. **Callable guards** — verify the claim in each Cloud Function that creates content (`createCourseStub`, `createLessonStub`, `createGameBatch`, etc.).
-4. **Frontend flag** — keep `contentGeneration` as a UI hint only (hides buttons); treat as cosmetic once the server rejects unauthorised calls.
-
-The `{#if canGenerate}` guard around each `GenerateModal` trigger is a one-line change per entry point once auth is wired up.
+1. **Auth token claim** — add `canGenerate: boolean` as a custom claim.
+2. **Firestore rules** — deny writes to content-creation paths unless
+   `request.auth.token.canGenerate == true`.
+3. **Trigger/callable guards** — verify the claim server-side.
+4. **Frontend flag** — keep as cosmetic (hides buttons) once the server rejects
+   unauthorised calls.

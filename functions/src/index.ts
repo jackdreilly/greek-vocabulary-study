@@ -5,7 +5,7 @@
  * Triggers are organized under `src/triggers/`, AI primitives under `src/ai/`,
  * admin tools under `src/admin/`. Schemas under `src/schemas/`.
  *
- * Design docs: docs/rewrite/02-triggers-and-orchestration.md
+ * Design docs: docs/vision.md
  */
 import { setGlobalOptions } from "firebase-functions/v2";
 import { onRequest } from "firebase-functions/v2/https";

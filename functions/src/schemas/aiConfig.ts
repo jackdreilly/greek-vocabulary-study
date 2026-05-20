@@ -1,6 +1,6 @@
 /**
  * `/ai_config/main` singleton document schema.
- * See docs/rewrite/03-ai-config.md for the full design.
+ * See docs/vision.md for the full design.
  */
 import { z } from "genkit";
 import { TimestampSchema } from "./common.js";

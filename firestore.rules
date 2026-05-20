@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Greekflash rules — see docs/rewrite/01-schema-and-migration.md
+// Greekflash rules — see docs/vision.md
 // Triggers run as admin and bypass these rules; the rules below only
 // constrain direct client writes.
 service cloud.firestore {

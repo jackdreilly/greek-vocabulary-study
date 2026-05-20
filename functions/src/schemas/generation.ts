@@ -1,6 +1,6 @@
 /**
  * `/generations/{generationId}` document schema.
- * See docs/rewrite/04-generation-lineage.md.
+ * See docs/vision.md.
  */
 import { z } from "genkit";
 import { StatusLogEntrySchema, TimestampSchema } from "./common.js";

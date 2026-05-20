@@ -3,7 +3,7 @@
  * Migrate content from legacy didibros-6d3ed → fanari-b6bb4:(default)
  * under the new subcollection schema.
  *
- * See docs/rewrite/01-schema-and-migration.md.
+ * See docs/vision.md.
  *
  * Usage:
  *   node scripts/migrate_to_fanari.mjs                  # dry run (inventory only)

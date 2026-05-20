@@ -5,7 +5,7 @@
  * exposes helpers to resolve the model / decoding / feature flags for a
  * given AI "surface" (courseGen, lessonGen, planGen, etc).
  *
- * See docs/rewrite/03-ai-config.md for the full doc shape.
+ * See docs/vision.md for the full doc shape.
  */
 import { getFirestore } from "firebase-admin/firestore";
 import type { DocumentData } from "firebase-admin/firestore";

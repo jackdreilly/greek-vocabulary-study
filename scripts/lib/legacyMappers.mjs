@@ -1,6 +1,6 @@
 /**
  * Pure transformations from legacy document shapes to the new schema.
- * See docs/rewrite/01-schema-and-migration.md.
+ * See docs/vision.md.
  *
  * Kept dependency-free so this module can be unit-tested in isolation
  * if we later add a test harness.

@@ -1,6 +1,6 @@
 /**
  * `/courses/{courseId}` document schema.
- * See docs/rewrite/01-schema-and-migration.md.
+ * See docs/vision.md.
  */
 import { z } from "genkit";
 import {

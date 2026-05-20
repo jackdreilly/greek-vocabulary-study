@@ -12,11 +12,9 @@ functions/lib/
 
 # Emulator state
 .emulator-data/
-
-# Legacy build artifacts
-_legacy/site/
-_legacy/public/audio/
-_legacy/functions/lib/
+# Temp staging dirs firebase-tools creates during export (cleaned up
+# automatically; ignored defensively in case an export is ever interrupted).
+firebase-export-*/
 
 # Local source data (large, rebuilt from archives)
 /data/

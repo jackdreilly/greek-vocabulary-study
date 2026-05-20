@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* Design tokens — clean, modern, white-base with blue accenting.
-   See docs/rewrite/06-ui-and-design-system.md. */
+   See docs/vision.md. */
 @theme {
   --color-bg: #ffffff;
   --color-surface: #ffffff;

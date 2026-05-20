@@ -1,4 +1,4 @@
-// Greeklish transliteration -- identical rules to _legacy/src/lib/search.js.
+// Greeklish transliteration of Greek strings for fuzzy/latin-input search.
 const DIGRAPHS: Array<[RegExp, string]> = [
   [/μπ/g, "b"],
   [/ντ/g, "d"],
