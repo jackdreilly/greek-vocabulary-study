@@ -11,6 +11,7 @@
   import MarkdownBody from "../lib/ui/MarkdownBody.svelte";
   import { BookOpen, ChevronRight, RefreshCw, Sparkles } from "lucide-svelte";
   import GenerateModal from "../lib/ui/GenerateModal.svelte";
+  import EpubButton from "../lib/ui/EpubButton.svelte";
   import { subscribeAIConfig } from "../lib/data/aiConfig.svelte";
 
   let { courseId }: { courseId: string } = $props();
@@ -166,6 +167,9 @@
         <h2 class="text-xs tracking-widest uppercase text-(--color-muted) font-semibold">
           Lessons
         </h2>
+        {#if lessons.length}
+          <EpubButton scope={{ type: "course", courseId }} />
+        {/if}
       </div>
       {#if canGenerate}
         <div class="mb-5">

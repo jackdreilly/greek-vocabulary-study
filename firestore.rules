@@ -67,5 +67,13 @@ service cloud.firestore {
       allow read: if true;
       allow write: if false;
     }
+
+    // EPUB export jobs — the client drops a pending job, then the exportBook
+    // trigger (admin, bypasses these rules) fills in the download URL.
+    match /book_exports/{exportId} {
+      allow read: if true;
+      allow create: if request.resource.data.status == 'pending';
+      allow update, delete: if false;
+    }
   }
 }

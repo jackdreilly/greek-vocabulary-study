@@ -14,6 +14,7 @@
   import PlansTab from "./lesson/PlansTab.svelte";
   import GamesTab from "./lesson/GamesTab.svelte";
   import StatusPill from "../lib/ui/StatusPill.svelte";
+  import EpubButton from "../lib/ui/EpubButton.svelte";
   import { retryLessonGeneration } from "../lib/data/retryGeneration";
   import { subscribeAIConfig } from "../lib/data/aiConfig.svelte";
   import { RefreshCw } from "lucide-svelte";
@@ -85,9 +86,14 @@
     <header class={isLocked ? "mb-2 flex-shrink-0" : "mb-6"}>
       <div class="flex items-center justify-between gap-4">
         <h1 class="{isLocked ? 'text-lg sm:text-xl font-bold' : 'text-2xl sm:text-3xl font-semibold'} tracking-tight">{sub.lesson.title}</h1>
-        {#if sub.lesson.status && sub.lesson.status !== "ready"}
-          <StatusPill status={sub.lesson.status} />
-        {/if}
+        <div class="flex items-center gap-3 shrink-0">
+          {#if !isLocked && sub.lesson.status === "ready"}
+            <EpubButton scope={{ type: "lesson", courseId, lessonId }} />
+          {/if}
+          {#if sub.lesson.status && sub.lesson.status !== "ready"}
+            <StatusPill status={sub.lesson.status} />
+          {/if}
+        </div>
       </div>
       {#if sub.lesson.subtitle && !isLocked}
         <p class="mt-2 text-(--color-muted)">{sub.lesson.subtitle}</p>

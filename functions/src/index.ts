@@ -64,6 +64,7 @@ export { onGameBatchWritten } from "./triggers/onGameBatchWritten.js";
 export { onLessonWritten } from "./triggers/onLessonWritten.js";
 export { onPlanWritten } from "./triggers/onPlanWritten.js";
 export { onVocabBatchWritten } from "./triggers/onVocabBatchWritten.js";
+export { exportBook } from "./triggers/exportBook.js";
 export { aiAssistVocabEntry } from "./callables/aiAssistVocabEntry.js";
 export { getGameHint } from "./callables/getGameHint.js";
 export { revertGeneration } from "./callables/revertGeneration.js";
