@@ -70,6 +70,8 @@ export type PlanDoc = DocumentData & {
   coveredConcepts?: string[];
   status: string;
   widgets?: Widget[];
+  createdAt?: unknown;
+  updatedAt?: unknown;
 };
 
 export function subscribePlans(courseId: string, lessonId: string) {

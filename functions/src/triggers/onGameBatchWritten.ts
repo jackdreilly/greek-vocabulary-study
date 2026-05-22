@@ -83,7 +83,7 @@ const generateGameFlow = getAI().defineFlow(
       model,
       output: { schema: GeneratedGameSchema },
       config: {
-        maxOutputTokens: 1600,
+        maxOutputTokens: 8000,
         ...decoding,
       },
       system:
@@ -106,10 +106,10 @@ Game type rules:
 - word_translation: translate a single lesson word. Include expectedAnswer and acceptableAnswers.
 - sentence_translation: translate one natural sentence using lesson words. Include direction and expectedAnswer.
 - missing_word: Greek sentence with "___" replacing one lesson word. expectedAnswer is the missing Greek word.
-- reading_comprehension: short Greek passage plus one question. Include rubric and a concise expectedAnswer.
+- reading_comprehension: a Greek reading passage (in the "passage" field) plus a question. By default a short paragraph, BUT if the requested focus asks for longer or extended reading (e.g. "several paragraphs", "a long story", "more to read"), make the passage genuinely that long — multiple paragraphs are fine. Separate paragraphs with blank lines. Include rubric and a concise expectedAnswer.
 - story_prompt: ask learner to write 2-3 Greek sentences using requiredWords. Include rubric.
 
-Keep prompts short. For mixed batches, choose a type that adds variety against the previous games.
+Keep instruction prompts concise, but let reading passages be as long as the requested focus implies — never truncate a passage the user asked to be long. For mixed batches, choose a type that adds variety against the previous games.
 Every game must include acceptableAnswers, requiredWords, and sourceEntryIds arrays. Use [] only when a field is not relevant or no source entry is available.`,
     });
 

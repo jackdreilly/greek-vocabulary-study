@@ -35,8 +35,8 @@ const aiAssistVocabEntryFlow = getAI().defineFlow(
         ...decoding,
       },
       system:
-        "You are a Modern Greek vocabulary editor. Return a corrected Greek lemma and concise, accurate English definitions as strict JSON.",
-      prompt: `Greek word: ${articleDisplay}${input.lemma}
+        "You are a Modern Greek vocabulary editor. Return a corrected Greek lemma (word, expression, or phrase) and concise, accurate English definitions as strict JSON.",
+      prompt: `Greek entry: ${articleDisplay}${input.lemma}
 Current English definitions: ${
         input.currentSenses.length
           ? input.currentSenses.map((sense, index) => `${index + 1}. ${sense}`).join("; ")
@@ -45,9 +45,11 @@ Current English definitions: ${
 
 User request: ${input.prompt}
 
+Follow the user request as literally as possible. The lemma may be a single word, a multi-word expression, an idiom, or a fixed phrase — keep or produce whatever form best matches the request.
+
 Return JSON with:
-- lemma: the corrected actual Greek word or phrase. Keep it unchanged unless the user request or obvious typo calls for an edit.
-- english_senses: 1-6 concise English definitions. Prefer useful learner-facing definitions over long dictionary prose.`,
+- lemma: the actual Greek word, expression, or phrase. Keep it unchanged unless the user request or an obvious typo calls for an edit.
+- english_senses: 1-6 concise English definitions (for an idiom or expression, give its meaning and optionally a literal gloss). Prefer useful learner-facing definitions over long dictionary prose.`,
     });
 
     if (!output) throw new Error("AI assist returned no output.");

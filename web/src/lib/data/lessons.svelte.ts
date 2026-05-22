@@ -37,6 +37,8 @@ export type EntryDoc = DocumentData & {
   } | null;
   category?: string;
   order: number;
+  generationId?: string;
+  createdAt?: unknown;
 };
 
 /** Primary English gloss, falling back to senses[0] when english is empty. */

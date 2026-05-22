@@ -9,6 +9,7 @@
   import SkillLevelPicker from "../../lib/ui/SkillLevelPicker.svelte";
   import { ChevronRight, Sparkles } from "lucide-svelte";
   import GenerateModal from "../../lib/ui/GenerateModal.svelte";
+  import { timeAgo } from "../../lib/relativeTime";
 
   type PlansSub = ReturnType<typeof subscribePlans>;
   type CourseSub = ReturnType<typeof subscribeCourse>;
@@ -30,6 +31,13 @@
   let planSkillLevel = $state<SkillLevel | "">("");
   let creating = $state(false);
   let createError = $state("");
+
+  // Ticking clock so "x ago" labels stay fresh without a manual refresh.
+  let now = $state(Date.now());
+  $effect(() => {
+    const timer = setInterval(() => (now = Date.now()), 30_000);
+    return () => clearInterval(timer);
+  });
 
   $effect(() => {
     if (providedPlansSub) {
@@ -152,9 +160,11 @@
             {#if plan.subtitle}
               <p class="text-sm text-(--color-muted) mt-1">{plan.subtitle}</p>
             {/if}
-            {#if plan.widgets && plan.widgets.length > 0}
-              <p class="text-xs text-(--color-muted) mt-2">{plan.widgets.length} sections</p>
-            {/if}
+            <p class="text-xs text-(--color-muted) mt-2">
+              {#if plan.widgets && plan.widgets.length > 0}{plan.widgets.length} sections{/if}
+              {#if (plan.widgets?.length ?? 0) > 0 && timeAgo(plan.createdAt, now)} · {/if}
+              {#if timeAgo(plan.createdAt, now)}Created {timeAgo(plan.createdAt, now)}{/if}
+            </p>
           </a>
         </li>
       {/each}

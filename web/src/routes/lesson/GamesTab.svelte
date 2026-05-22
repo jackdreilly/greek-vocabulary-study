@@ -540,7 +540,7 @@
 
         <!-- Passage (for reading comprehension) -->
         {#if current.passage}
-          <div class="mb-3 w-full max-w-xl rounded-lg border border-(--color-border) bg-(--color-surface-muted) px-5 py-4 text-left font-serif text-base leading-relaxed">
+          <div class="mb-3 w-full max-w-xl whitespace-pre-wrap rounded-lg border border-(--color-border) bg-(--color-surface-muted) px-5 py-4 text-left font-serif text-base leading-relaxed">
             {current.passage}
           </div>
           {#if current.requiredWords?.length}

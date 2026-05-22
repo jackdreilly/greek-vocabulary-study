@@ -53,7 +53,7 @@ ${requiredLemmas.map((w) => `- ${w}`).join("\n")}
 Include EVERY one of these words as a vocabulary entry (use their dictionary form: nominative singular for nouns, 1st-person singular present for verbs, fixed phrase for expressions). If a required item is a phrase, keep it as a single phrase entry. Then fill the remaining slots up to ${input.count} total with additional related vocabulary.`
     : "";
 
-  return `Generate ${input.count} Modern Greek vocabulary entries.
+  return `Generate Modern Greek vocabulary entries for this lesson.
 
 Course: ${input.courseTitle}
 Course description: ${input.courseDescription}
@@ -65,15 +65,23 @@ User/requested focus: ${input.prompt}
 ${skillLevelLine(input.skillLevel)}
 ${chainContext}${requiredBlock}${existing}
 
+THE USER'S REQUESTED FOCUS IS THE TOP PRIORITY. Read "${input.prompt}" literally and satisfy it precisely:
+- QUANTITY: produce about ${input.count} entries by default. If the requested focus explicitly states how many it wants (e.g. "3 expressions", "just a couple", "five idioms", "a dozen words"), output exactly that many instead — an explicit requested amount always overrides the default. When no amount is requested, produce ${input.count}.
+- If it asks for a specific KIND of entry (e.g. "multi-word expressions", "idioms", "phrases", "slang", "proverbs", "funny expressions"), then EVERY entry must be exactly that kind. Do not pad the list with ordinary single words the user did not ask for.
+- If it asks for a TONE or THEME (e.g. "funny", "romantic", "for ordering coffee"), every entry must clearly match it.
+- If the focus and the lesson context ever conflict, follow the user's focus.
+
+An "entry" is NOT limited to a single word. A lemma may be a single word, a multi-word expression, a fixed phrase, an idiom, a proverb, a collocation, or a short sentence — whatever best fits the request. When the user asks for expressions or phrases, put the full natural expression in the lemma (do not reduce it to one head word).
+
 Rules:
 - Treat the previous generation turns as binding context, like earlier chat turns. Build on them; do not restart from a generic Greek lesson.
-- lemma is the dictionary form: nominative singular for nouns, 1st-person present for verbs, natural fixed phrase for expressions.
-- article is ο, η, or το for nouns, otherwise null.
-- english_senses has 1-4 concise English meanings.
-- category should be one of: noun_masculine, noun_feminine, noun_neuter, verb, adjective, adverb, phrase, expression, other.
-- notes is optional and short.
-- Prefer frequent, useful, context-relevant vocabulary.
-- Avoid duplicates, near duplicates, and vocabulary unrelated to the lesson/course context.
+- lemma is the natural form of the entry: dictionary form for plain words (nominative singular for nouns, 1st-person present for verbs); the full, natural surface form for expressions, idioms, and phrases.
+- article is ο, η, or το for single nouns, otherwise null (null for verbs, adjectives, adverbs, expressions, phrases).
+- english_senses has 1-4 concise English meanings or, for an expression/idiom, its meaning plus an optional literal gloss.
+- category reflects what the entry actually is: noun_masculine, noun_feminine, noun_neuter, verb, adjective, adverb, phrase, expression, other. Use "expression" or "phrase" freely for multi-word entries.
+- notes is optional and short — good for register, literal meaning of an idiom, or usage context.
+- Prefer frequent, useful, context-relevant vocabulary that satisfies the requested focus.
+- Avoid duplicates, near duplicates, and entries that drift away from the requested focus.
 - Calibrate everything to the learner's skill level above.`;
 }
 

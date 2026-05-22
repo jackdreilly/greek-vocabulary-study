@@ -18,6 +18,7 @@
   import { clearFocus, setFocus } from "../../lib/data/yiayiaFocus.svelte";
   import { Edit2, Loader2, Mic, MicOff, Plus, RefreshCw, Search, Sparkles, Trash2, Upload, Wand2, X } from "lucide-svelte";
   import GenerateModal from "../../lib/ui/GenerateModal.svelte";
+  import { isWithinLastHour, timeAgo, toMillis } from "../../lib/relativeTime";
 
   type EntriesSub = ReturnType<typeof subscribeEntries>;
   type VocabBatchSub = ReturnType<typeof subscribeLatestVocabBatches>;
@@ -98,6 +99,44 @@
           return textMatchesSearch(haystack, search);
         })
   );
+  // Ticking clock so "new" badges expire and "x ago" labels stay fresh.
+  let now = $state(Date.now());
+  $effect(() => {
+    const timer = setInterval(() => (now = Date.now()), 30_000);
+    return () => clearInterval(timer);
+  });
+
+  function entryIsNew(entry: EntryDoc) {
+    return isWithinLastHour(entry.createdAt, now);
+  }
+
+  // Recently-generated entries float to the top, grouped by generation (each
+  // its own divider). When the user is searching we keep a flat list — search
+  // is a lookup, not a browse, so reordering would be disorienting.
+  const sections = $derived.by(() => {
+    const list = filtered;
+    if (search.trim() !== "") {
+      return { searching: true as const, groups: [], rest: list };
+    }
+    const recent = list.filter(entryIsNew);
+    const rest = list.filter((entry) => !entryIsNew(entry));
+    const byGen = new Map<string, EntryDoc[]>();
+    for (const entry of recent) {
+      const key = String(entry.generationId ?? `solo-${entry.id}`);
+      const bucket = byGen.get(key);
+      if (bucket) bucket.push(entry);
+      else byGen.set(key, [entry]);
+    }
+    const groups = [...byGen.entries()]
+      .map(([key, entries]) => ({
+        key,
+        entries,
+        newestMs: entries.reduce((max, entry) => Math.max(max, toMillis(entry.createdAt) ?? 0), 0),
+      }))
+      .sort((a, b) => b.newestMs - a.newestMs);
+    return { searching: false as const, groups, rest };
+  });
+
   const latestBatch = $derived(batchSub?.latest ?? null);
   const batchRunning = $derived(latestBatch?.status === "initializing" || latestBatch?.status === "streaming");
   const batchMessages = $derived((latestBatch?.statusLog ?? []).slice(-4));
@@ -142,6 +181,25 @@
       return;
     }
     selectedEntryId = entry.id;
+  }
+
+  // A click toggles card highlight, but must not interfere with using a control
+  // (edit / audio) or with selecting/copying the card's text.
+  function shouldIgnoreCardClick(target: EventTarget | null) {
+    if (target instanceof Element && target.closest("button, a, input, label")) return true;
+    return (window.getSelection()?.toString().trim().length ?? 0) > 0;
+  }
+
+  function handleCardClick(entry: EntryDoc, event: MouseEvent) {
+    if (shouldIgnoreCardClick(event.target)) return;
+    toggleEntrySelection(entry);
+  }
+
+  function handleCardKeydown(entry: EntryDoc, event: KeyboardEvent) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    if (event.target instanceof Element && event.target.closest("button, a, input, label")) return;
+    event.preventDefault();
+    toggleEntrySelection(entry);
   }
 
   function openEdit(entry: EntryDoc) {
@@ -428,29 +486,32 @@
   {:else if filtered.length === 0}
     <p class="text-(--color-muted)">No entries.</p>
   {:else}
-    <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      {#each filtered as entry (entry.id)}
-        <li
-          class="relative min-h-32 rounded-lg border px-4 py-3 flex flex-col gap-3 transition-colors
-            {selectedEntryId === entry.id
-              ? 'border-(--color-accent)/70 bg-(--color-accent)/4 ring-1 ring-(--color-accent)/15'
+    {#snippet entryCard(entry: EntryDoc, isNew: boolean)}
+      <li
+        class="relative min-h-32 rounded-lg border transition-colors
+          {selectedEntryId === entry.id
+            ? 'border-(--color-accent)/70 bg-(--color-accent)/4 ring-1 ring-(--color-accent)/15'
+            : isNew
+              ? 'border-amber-300/80 bg-amber-50/40 ring-1 ring-amber-200/60'
               : 'border-(--color-border) bg-(--color-surface) hover:border-(--color-border-strong)'}"
+      >
+        <div
+          role="button"
+          tabindex="0"
+          aria-pressed={selectedEntryId === entry.id}
+          aria-label={selectedEntryId === entry.id ? `Unselect ${entry.lemma}` : `Select ${entry.lemma}`}
+          onclick={(event) => handleCardClick(entry, event)}
+          onkeydown={(event) => handleCardKeydown(entry, event)}
+          class="flex h-full min-h-32 flex-col gap-3 rounded-lg px-4 py-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-(--color-accent)/35 focus-visible:ring-offset-2 focus-visible:ring-offset-(--color-bg)"
         >
-          <button
-            type="button"
-            aria-pressed={selectedEntryId === entry.id}
-            aria-label={selectedEntryId === entry.id ? `Unselect ${entry.lemma}` : `Select ${entry.lemma}`}
-            onclick={() => toggleEntrySelection(entry)}
-            class="absolute inset-0 z-20 cursor-pointer rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-(--color-accent)/35 focus:ring-offset-2 focus:ring-offset-(--color-bg)"
-          ></button>
-          <div class="pointer-events-none relative z-10 flex items-start justify-between gap-3">
+          <div class="flex items-start justify-between gap-3">
             <div class="flex min-w-0 flex-1 items-baseline gap-2">
               {#if entry.article}
                 <span class="text-(--color-muted) text-sm shrink-0">{entry.article}</span>
               {/if}
               <GreekText>{entry.lemma}</GreekText>
             </div>
-            <div class="pointer-events-auto relative z-30 flex shrink-0 items-center gap-1.5">
+            <div class="flex shrink-0 items-center gap-1.5">
               {#if entry.audio?.url}
                 <AudioPlayButton
                   url={entry.audio.url}
@@ -462,7 +523,7 @@
               <button
                 type="button"
                 onclick={() => openEdit(entry)}
-                class="inline-flex items-center gap-1 text-xs text-(--color-muted) hover:text-(--color-text)"
+                class="inline-flex cursor-pointer items-center gap-1 text-xs text-(--color-muted) hover:text-(--color-text)"
                 title="Edit"
               >
                 <Edit2 size={12} aria-hidden="true" />
@@ -470,7 +531,7 @@
               </button>
             </div>
           </div>
-          <div class="pointer-events-none relative z-10">
+          <div>
             {#if entry.image}
               <img
                 src={entry.image.thumbnail ?? entry.image.url}
@@ -488,9 +549,52 @@
               {/if}
             </span>
           </div>
-        </li>
+        </div>
+      </li>
+    {/snippet}
+
+    {#if sections.searching}
+      <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {#each sections.rest as entry (entry.id)}
+          {@render entryCard(entry, entryIsNew(entry))}
+        {/each}
+      </ul>
+    {:else}
+      {#each sections.groups as group (group.key)}
+        <div class="mb-2 mt-5 flex items-center gap-2 first:mt-0">
+          <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-amber-700">
+            <Sparkles size={11} aria-hidden="true" />
+            New
+          </span>
+          <span class="text-xs text-(--color-muted)">
+            {group.entries.length}
+            {group.entries.length === 1 ? "word" : "words"}
+            {#if timeAgo(group.newestMs, now)}· generated {timeAgo(group.newestMs, now)}{/if}
+          </span>
+          <span class="h-px flex-1 bg-(--color-border)"></span>
+        </div>
+        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {#each group.entries as entry (entry.id)}
+            {@render entryCard(entry, true)}
+          {/each}
+        </ul>
       {/each}
-    </ul>
+
+      {#if sections.groups.length > 0 && sections.rest.length > 0}
+        <div class="mb-2 mt-6 flex items-center gap-2">
+          <span class="text-xs font-medium uppercase tracking-wide text-(--color-muted)">Earlier</span>
+          <span class="h-px flex-1 bg-(--color-border)"></span>
+        </div>
+      {/if}
+
+      {#if sections.rest.length > 0}
+        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {#each sections.rest as entry (entry.id)}
+            {@render entryCard(entry, false)}
+          {/each}
+        </ul>
+      {/if}
+    {/if}
     <p class="text-xs text-(--color-muted) mt-3">
       {filtered.length}
       {filtered.length === 1 ? "word" : "words"}

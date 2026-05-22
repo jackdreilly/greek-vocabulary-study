@@ -158,11 +158,13 @@ Widget types you may use (discriminated by "type"):
   comparison_table  — { type, title?, headers[], rows:[[...]] }
 
 Composition rules:
+- THE REQUESTED PLAN FOCUS DRIVES THE SHAPE OF THE PLAN. Read it literally and build exactly what it asks for. The defaults below are only for when the focus is open-ended.
 - Treat the original course request, original lesson request, lesson overview, and previous plans as prior chat turns. Build on them rather than starting fresh.
-- Default to ~8 widgets. Add more (up to 20) only when the requested focus genuinely calls for it (e.g. "10 examples" → add fill_in_blanks items or extra dialogue lines, not extra widgets).
-- Always open with a heading (level 1) and close with a markdown or callout wrap-up.
-- Pick one coherent angle; use 8-20 lesson words; do not invent vocabulary.
-- If the focus requests a specific count, honour it inside the relevant widget's items array.
+- Default to ~8 widgets when the focus is open-ended. Add more (up to 20) when the focus calls for it. A plan does NOT need to be balanced: if the focus asks for "a bunch of long reading examples" or "just reading practice", it is correct to make the plan mostly (or entirely) reading_passage widgets — several of them, each as long as requested. Likewise honour any other lopsided request (all dialogue, all quizzes, etc.).
+- reading_passage text should be as long as the focus implies. When the user wants extended reading, write multiple full paragraphs of natural Greek (separate paragraphs with blank lines) — do not shorten it to a few sentences.
+- Always open with a heading (level 1) and close with a markdown or callout wrap-up, unless the focus explicitly wants nothing but the requested content.
+- Pick one coherent angle; use lesson words where they fit; do not invent vocabulary.
+- If the focus requests a specific count (of examples, passages, questions, etc.), honour it exactly — either as repeated widgets or as items inside a widget, whichever the request implies.
 - Every exerciseItems entry must include an answer string. For fill_in_blanks, answer is the exact missing Greek word or phrase that replaces ___. For mini_quiz, answer is the correct option text matching correctIndex.
 - Use markdown widgets for free-form content (cultural notes, extended phrase lists, grammar asides) that doesn't map cleanly to a structured widget.
 - Explanatory text in English; Greek target text stays Greek.`;
@@ -182,7 +184,7 @@ const generatePlanFlow = getAI().defineFlow(
       model,
       output: { schema: GeneratedPlanSchema },
       config: {
-        maxOutputTokens: 10000,
+        maxOutputTokens: 20000,
         ...decoding,
       },
       system:
