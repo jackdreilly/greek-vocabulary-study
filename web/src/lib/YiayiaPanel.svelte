@@ -140,6 +140,7 @@
       {
         role: "user",
         content: displayContent,
+        requestContent,
         templateLabel,
         greekUserText: shouldCheckGreek ? userContent : undefined,
       },
@@ -193,12 +194,8 @@
 
       const correction = await correctionPromise;
 
-      // Replace with actual request content for future turns
-      const withRequest = [...nextMessages];
-      const last = { ...withRequest[withRequest.length - 1], requestContent };
-      withRequest[withRequest.length - 1] = last;
       messages = [
-        ...withRequest,
+        ...nextMessages,
         {
           role: "assistant",
           content: reply,

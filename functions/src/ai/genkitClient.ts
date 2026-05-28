@@ -1,11 +1,17 @@
 import { genkit } from "genkit";
 import { googleAI } from "@genkit-ai/google-genai";
+import { enableFirebaseTelemetry } from "@genkit-ai/firebase";
 import { defineSecret } from "firebase-functions/params";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const geminiApiKey = defineSecret("GEMINI_API_KEY");
+
+// Register Firebase telemetry exporters once at module load so every
+// `getAI()` consumer (flows, generates, dynamicTools defined at top-level)
+// is traced from the first call.
+enableFirebaseTelemetry();
 
 let _ai: ReturnType<typeof genkit> | null = null;
 
