@@ -30,7 +30,22 @@ async function ensureSeeded(): Promise<DocumentData> {
 
 export async function getAIConfig(): Promise<DocumentData> {
   if (cached && cached.expiresAt > Date.now()) return cached.data;
-  const data = await ensureSeeded();
+  const stored = await ensureSeeded();
+  const data: DocumentData = {
+    ...stored,
+    models: {
+      ...DEFAULT_AI_CONFIG.models,
+      ...(stored.models ?? {}),
+    },
+    decoding: {
+      ...DEFAULT_AI_CONFIG.decoding,
+      ...(stored.decoding ?? {}),
+    },
+    features: {
+      ...DEFAULT_AI_CONFIG.features,
+      ...(stored.features ?? {}),
+    },
+  };
   cached = { data, expiresAt: Date.now() + CACHE_TTL_MS };
   return data;
 }
