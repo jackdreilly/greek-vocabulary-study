@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { subscribeEntries, entryPrimaryEnglish } from "../../lib/data/lessons.svelte";
+  import {
+    subscribeEntries,
+    subscribeEntryUsages,
+    entryPrimaryEnglish,
+  } from "../../lib/data/lessons.svelte";
+  import { createUsageGeneration } from "../../lib/data/createUsageGeneration";
   import GreekText from "../../lib/ui/GreekText.svelte";
   import AudioPlayButton from "../../lib/ui/AudioPlayButton.svelte";
   import { clearFocus, setFocus } from "../../lib/data/yiayiaFocus.svelte";
@@ -53,6 +58,7 @@
   let dragY = $state(0);
   let dragTransition = $state(false);
   let suppressNextClick = $state(false);
+  let usageSub = $state<ReturnType<typeof subscribeEntryUsages>>();
 
   $effect(() => {
     // Rehydrate per-lesson state on (courseId, lessonId) change.
@@ -124,6 +130,23 @@
   const direction = $derived(current ? directionForCard(current, index, mode) : "gr-en");
   const progress = $derived(entries.length ? ((index + 1) / entries.length) * 100 : 0);
   const cardTransform = $derived(`translate(${dragX}px, ${dragY}px) rotate(${dragX / 28}deg)`);
+
+  $effect(() => {
+    const entryId = current?.id;
+    if (!entryId) {
+      usageSub?.stop();
+      usageSub = undefined;
+      return;
+    }
+    const next = subscribeEntryUsages(courseId, lessonId, entryId);
+    usageSub = next;
+    return () => next.stop();
+  });
+
+  async function requestUsages() {
+    if (!current || usageSub?.generation?.status === "initializing" || usageSub?.generation?.status === "streaming") return;
+    await createUsageGeneration({ courseId, lessonId, entryId: current.id });
+  }
 
   function go(delta: number) {
     if (entries.length === 0) return;
@@ -414,7 +437,60 @@
                 <p class="text-sm text-(--color-muted)">{senses(current).slice(0, 2).join("; ")}</p>
               </div>
             {/if}
+            {#if usageSub?.generation?.status === "ready" && usageSub.generation.usages?.length}
+              <div
+                class="mt-6 w-full max-w-md overflow-y-auto rounded-lg border border-[#bfdbfe] bg-white/70 px-4 py-3 text-left shadow-sm
+                  max-h-[min(34vh,11rem)] sm:max-h-[13rem]"
+              >
+                <div class="mb-2 flex items-center justify-between gap-3">
+                  <p class="text-xs font-semibold uppercase tracking-widest text-(--color-accent)">
+                    In context
+                  </p>
+                  <span class="text-[10px] font-medium uppercase tracking-wide text-(--color-muted)">
+                    {usageSub.generation.usages.length} examples
+                  </span>
+                </div>
+                <div class="space-y-3">
+                  {#each usageSub.generation.usages as usage, usageIndex}
+                    <div class="flex gap-2.5">
+                      <span
+                        class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-(--color-accent)/10 text-[10px] font-bold text-(--color-accent)"
+                      >
+                        {usageIndex + 1}
+                      </span>
+                      <div class="min-w-0">
+                        <p class="text-sm font-medium leading-snug text-(--color-text)">{usage.el}</p>
+                        <p class="mt-0.5 text-xs leading-snug text-(--color-muted)">{usage.en}</p>
+                      </div>
+                    </div>
+                  {/each}
+                </div>
+              </div>
+            {/if}
           </div>
+        {/if}
+      </button>
+
+      {#if usageSub?.generation?.status === "error"}
+        <p class="mt-3 text-sm text-(--color-danger)">
+          Could not generate usages: {usageSub.generation.error ?? "Unknown error"}
+        </p>
+      {/if}
+
+      <button
+        type="button"
+        onclick={requestUsages}
+        disabled={usageSub?.loading || usageSub?.generation?.status === "initializing" || usageSub?.generation?.status === "streaming" || usageSub?.generation?.status === "ready"}
+        class="mt-3 w-full rounded-md border border-(--color-border) px-3 py-2 text-sm font-medium hover:bg-(--color-surface-muted) disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {#if usageSub?.loading || usageSub?.generation?.status === "initializing" || usageSub?.generation?.status === "streaming"}
+          Generating usages...
+        {:else if usageSub?.generation?.status === "ready"}
+          Usages saved for this word
+        {:else if usageSub?.generation?.status === "error"}
+          Try again
+        {:else}
+          Generate 3 sentence usages
         {/if}
       </button>
 

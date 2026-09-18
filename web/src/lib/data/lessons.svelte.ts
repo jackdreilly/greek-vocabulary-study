@@ -41,6 +41,18 @@ export type EntryDoc = DocumentData & {
   createdAt?: unknown;
 };
 
+export type SentenceUsage = { el: string; en: string };
+
+export type EntryUsageGenerationDoc = DocumentData & {
+  id: string;
+  status: "initializing" | "streaming" | "ready" | "error" | string;
+  usages?: SentenceUsage[];
+  error?: string;
+  skillLevel?: string | null;
+  createdAt?: unknown;
+  updatedAt?: unknown;
+};
+
 /** Primary English gloss, falling back to senses[0] when english is empty. */
 export function entryPrimaryEnglish(entry: Pick<EntryDoc, "english" | "senses">): string {
   return entry.english || entry.senses?.[0] || "";
@@ -139,6 +151,39 @@ export function subscribeEntries(courseId: string, lessonId: string) {
   return {
     get entries() {
       return entries;
+    },
+    get loading() {
+      return loading;
+    },
+    get error() {
+      return error;
+    },
+    stop: unsubscribe,
+  };
+}
+
+export function subscribeEntryUsages(courseId: string, lessonId: string, entryId: string) {
+  let generation = $state<EntryUsageGenerationDoc | null>(null);
+  let loading = $state(true);
+  let error = $state<Error | null>(null);
+  const unsubscribe = onSnapshot(
+    doc(db, "courses", courseId, "lessons", lessonId, "entries", entryId, "usageGenerations", "current"),
+    (snap) => {
+      generation = snap.exists()
+        ? ({ id: snap.id, ...(snap.data() as DocumentData) } as EntryUsageGenerationDoc)
+        : null;
+      loading = false;
+      error = null;
+    },
+    (err) => {
+      error = err;
+      loading = false;
+    },
+  );
+
+  return {
+    get generation() {
+      return generation;
     },
     get loading() {
       return loading;

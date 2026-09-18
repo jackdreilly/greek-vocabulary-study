@@ -31,6 +31,7 @@ export const SurfaceSchema = z.enum([
   "gameScoring",
   "yiayiaChat",
   "yiayiaAdmin",
+  "usageGen",
   "embeddings",
 ]);
 export type Surface = z.infer<typeof SurfaceSchema>;
