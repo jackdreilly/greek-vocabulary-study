@@ -155,7 +155,7 @@ uses. Resolver: `functions/src/ai/configResolver.ts` (`getModelFor(surface)`,
 `functions/src/ai/defaults.ts` and are seeded defensively if the doc is missing.
 
 **Surfaces** (the keys code asks for): `courseGen`, `lessonGen`, `planGen`,
-`gameScoring`, `yiayiaChat`, `yiayiaAdmin`, `embeddings`. Admin page:
+`gameScoring`, `yiayiaChat`, `yiayiaAdmin`, `usageGen`, `embeddings`. Admin page:
 `/admin/ai` (`web/src/routes/AdminAI.svelte`) edits the doc live via
 `onSnapshot`. When you add a generation surface, add its `models[surface]` key
 and a default.

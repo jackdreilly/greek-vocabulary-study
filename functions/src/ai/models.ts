@@ -1,1 +1,1 @@
-export const FLASH_MODEL = "googleai/gemini-3.5-flash";
+export const FLASH_MODEL = "googleai/gemini-3.8-flash";

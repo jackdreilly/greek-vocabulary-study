@@ -1,9 +1,9 @@
 /**
  * Default AI config — seeded into `ai_config/main` on first read.
  * Per docs/vision.md, every surface defaults to
- * gemini-3.1-flash-lite-preview.
+ * gemini-3.5-flash-lite.
  */
-const flashLite = { provider: "googleai", model: "gemini-3.1-flash-lite-preview" };
+const flashLite = { provider: "googleai", model: "gemini-3.5-flash-lite" };
 
 export const DEFAULT_AI_CONFIG = {
   models: {
@@ -13,6 +13,7 @@ export const DEFAULT_AI_CONFIG = {
     gameScoring: flashLite,
     yiayiaChat: flashLite,
     yiayiaAdmin: flashLite,
+    usageGen: flashLite,
     embeddings: { provider: "googleai", model: "text-embedding-004" },
   },
   decoding: {},

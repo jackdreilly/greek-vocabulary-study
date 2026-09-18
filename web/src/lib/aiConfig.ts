@@ -5,6 +5,7 @@ export const SURFACES = [
   "gameScoring",
   "yiayiaChat",
   "yiayiaAdmin",
+  "usageGen",
   "embeddings",
 ] as const;
 
@@ -33,7 +34,7 @@ export type AIConfig = {
 
 const flashLite: ModelChoice = {
   provider: "googleai",
-  model: "gemini-3.1-flash-lite-preview",
+  model: "gemini-3.5-flash-lite",
 };
 
 export const DEFAULT_AI_CONFIG: AIConfig = {
@@ -44,6 +45,7 @@ export const DEFAULT_AI_CONFIG: AIConfig = {
     gameScoring: flashLite,
     yiayiaChat: flashLite,
     yiayiaAdmin: flashLite,
+    usageGen: flashLite,
     embeddings: { provider: "googleai", model: "text-embedding-004" },
   },
   decoding: {},
@@ -56,14 +58,8 @@ export const DEFAULT_AI_CONFIG: AIConfig = {
 };
 
 export const MODEL_OPTIONS = [
-  "gemini-3.1-flash-lite-preview",
-  "gemini-3.1-flash-preview",
-  "gemini-3.1-pro-preview",
-  "gemini-3.5-flash",
-  "gemini-3-flash-preview",
-  "gemini-3-pro-preview",
-  "gemini-2.5-flash",
-  "gemini-2.5-pro",
+  "gemini-3.5-flash-lite",
+  "gemini-3.8-flash",
   "text-embedding-004",
 ] as const;
 
@@ -74,6 +70,7 @@ export const SURFACE_COPY: Record<Surface, string> = {
   gameScoring: "Short-answer grading and feedback.",
   yiayiaChat: "Student-facing tutor conversation.",
   yiayiaAdmin: "Admin-mode tutor tools and generation management.",
+  usageGen: "Three level-appropriate sentence usages for flashcards.",
   embeddings: "Embedding model for retrieval features.",
 };
 
